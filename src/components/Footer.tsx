@@ -44,11 +44,20 @@ const FOOTER_COLUMNS = [
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-white border-t border-[#e7e7e7] px-10 pt-[60px] pb-10 mt-20">
+    <footer
+      className="px-10 pt-[60px] pb-10 mt-20"
+      style={{
+        background: 'var(--bg-card)',
+        borderTop: '1px solid var(--border-color)',
+      }}
+    >
       <div className="max-w-[1100px] mx-auto grid grid-cols-[200px_1fr_1fr_1fr] gap-10 lg:grid-cols-2 sm:grid-cols-2 xs:grid-cols-1">
         {/* Brand */}
         <div className="lg:col-span-2 sm:col-span-2">
-          <div className="flex items-center gap-1.5 text-[1.2rem] font-extrabold tracking-tight mb-5">
+          <div
+            className="flex items-center gap-1.5 text-[1.2rem] font-extrabold tracking-tight mb-5"
+            style={{ color: 'var(--text-primary)' }}
+          >
             <FestForgeLogo size={18} />
             FestForge
           </div>
@@ -62,7 +71,13 @@ const Footer: React.FC = () => {
       </div>
 
       {/* Bottom bar */}
-      <div className="max-w-[1100px] mx-auto mt-10 pt-6 border-t border-[#e7e7e7] text-[0.78rem] text-[#999]">
+      <div
+        className="max-w-[1100px] mx-auto mt-10 pt-6 text-[0.78rem]"
+        style={{
+          borderTop: '1px solid var(--border-color)',
+          color: 'var(--footer-bottom)',
+        }}
+      >
         © 2026 FestForge. All rights reserved.
       </div>
     </footer>
