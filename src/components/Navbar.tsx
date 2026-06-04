@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import FestForgeLogo from './FestForgeLogo'
 import ThemeToggle from './ThemeToggle'
 
@@ -22,17 +23,15 @@ const Navbar: React.FC = () => {
         WebkitBackdropFilter: 'blur(16px)',
       }}
     >
-      {/* Logo */}
-      <a
-        href="#"
+      <Link
+        to="/"
         className="flex items-center gap-2 text-[1.3rem] font-extrabold tracking-tight no-underline"
         style={{ color: 'var(--text-primary)' }}
       >
         <FestForgeLogo size={22} />
         FestForge
-      </a>
+      </Link>
 
-      {/* Nav links — hidden on mobile */}
       <ul className="hidden md:flex items-center gap-7 list-none">
         {NAV_LINKS.map((link) => (
           <li key={link}>
@@ -49,10 +48,11 @@ const Navbar: React.FC = () => {
         ))}
       </ul>
 
-      {/* Actions */}
       <div className="flex items-center gap-2.5">
         <ThemeToggle />
-        <button
+
+        <Link
+          to="/signin"
           className="px-[18px] py-[7px] rounded-lg text-[0.85rem] font-semibold cursor-pointer transition-all duration-200"
           style={{
             border: '1px solid var(--btn-secondary-border)',
@@ -69,8 +69,10 @@ const Navbar: React.FC = () => {
           }}
         >
           Sign in
-        </button>
-        <button
+        </Link>
+
+        <Link
+          to="/signup"
           className="px-[18px] py-[7px] rounded-lg border-none text-[0.85rem] font-semibold cursor-pointer hover:-translate-y-px transition-all duration-200"
           style={{
             background: 'var(--btn-primary-bg)',
@@ -80,7 +82,7 @@ const Navbar: React.FC = () => {
           onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--btn-primary-bg)')}
         >
           Register
-        </button>
+        </Link>
       </div>
     </nav>
   )
