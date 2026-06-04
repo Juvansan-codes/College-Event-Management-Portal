@@ -2,6 +2,114 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ═══════════════════════════════════════════════════════════════
+   THEME TOKENS
+   ═══════════════════════════════════════════════════════════════ */
+:root,
+[data-theme="light"] {
+  --bg-primary: #f5f5f5;
+  --bg-card: #ffffff;
+  --bg-card-rgb: 255, 255, 255;
+  --bg-navbar: rgba(255, 255, 255, 0.82);
+  --text-primary: #111111;
+  --text-secondary: #666666;
+  --text-muted: #888888;
+  --text-label: #999999;
+  --border-color: #e7e7e7;
+  --border-hover: #aaaaaa;
+  --btn-primary-bg: #111111;
+  --btn-primary-text: #ffffff;
+  --btn-primary-hover: #333333;
+  --btn-secondary-bg: transparent;
+  --btn-secondary-text: #111111;
+  --btn-secondary-border: #d0d0d0;
+  --btn-secondary-hover-bg: #f0f0f0;
+  --glow-color: rgba(255, 215, 0, 0.15);
+  --glow-accent: rgba(255, 180, 50, 0.25);
+  --particle-color: rgba(0, 0, 0, 0.04);
+  --logo-primary: #111111;
+  --logo-secondary: #bbbbbb;
+  --icon-color: #444444;
+  --icon-hover: #111111;
+  --footer-text: #555555;
+  --footer-heading: #111111;
+  --footer-bottom: #999999;
+  --scroll-indicator: rgba(0, 0, 0, 0.2);
+
+  /* ─── Stage Cards (Light) ─── */
+  --stage-card-bg: rgba(255, 255, 255, 0.92);
+  --stage-card-border: rgba(0, 0, 0, 0.08);
+  --stage-card-border-hover: rgba(0, 0, 0, 0.15);
+  --stage-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --stage-card-shadow-hover: 0 16px 48px rgba(0, 0, 0, 0.14);
+  --stage-card-glow: rgba(255, 200, 50, 0.08);
+  --stage-card-icon-bg: rgba(255, 210, 60, 0.12);
+  --stage-overlay-bg: rgba(0, 0, 0, 0.25);
+  --stage-header-color: #ffffff;
+  --stage-eyebrow-color: rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="dark"] {
+  --bg-primary: #08080e;
+  --bg-card: rgba(18, 18, 32, 0.85);
+  --bg-card-rgb: 18, 18, 32;
+  --bg-navbar: rgba(8, 8, 14, 0.82);
+  --text-primary: #f0f0f5;
+  --text-secondary: #a0a0b5;
+  --text-muted: #707085;
+  --text-label: #606075;
+  --border-color: rgba(255, 255, 255, 0.07);
+  --border-hover: rgba(255, 255, 255, 0.18);
+  --btn-primary-bg: #f0f0f5;
+  --btn-primary-text: #08080e;
+  --btn-primary-hover: #d0d0d5;
+  --btn-secondary-bg: transparent;
+  --btn-secondary-text: #f0f0f5;
+  --btn-secondary-border: rgba(255, 255, 255, 0.12);
+  --btn-secondary-hover-bg: rgba(255, 255, 255, 0.06);
+  --glow-color: rgba(120, 80, 255, 0.18);
+  --glow-accent: rgba(140, 100, 255, 0.3);
+  --particle-color: rgba(255, 255, 255, 0.04);
+  --logo-primary: #f0f0f5;
+  --logo-secondary: #505065;
+  --icon-color: #808095;
+  --icon-hover: #f0f0f5;
+  --footer-text: #808095;
+  --footer-heading: #f0f0f5;
+  --footer-bottom: #505065;
+  --scroll-indicator: rgba(255, 255, 255, 0.2);
+
+  /* ─── Stage Cards (Dark) ─── */
+  --stage-card-bg: rgba(12, 12, 24, 0.85);
+  --stage-card-border: rgba(255, 255, 255, 0.06);
+  --stage-card-border-hover: rgba(120, 90, 255, 0.3);
+  --stage-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --stage-card-shadow-hover: 0 16px 48px rgba(100, 60, 255, 0.15);
+  --stage-card-glow: rgba(120, 80, 255, 0.1);
+  --stage-card-icon-bg: rgba(120, 80, 255, 0.18);
+  --stage-overlay-bg: rgba(0, 0, 0, 0.35);
+  --stage-header-color: #f0f0f5;
+  --stage-eyebrow-color: rgba(200, 200, 220, 0.7);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GLOBAL
+   ═══════════════════════════════════════════════════════════════ */
+*,
+*::before,
+*::after {
+  transition-property: background-color, color, border-color, box-shadow, fill, stroke;
+  transition-duration: 0.35s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.no-theme-transition,
+.no-theme-transition *,
+.no-theme-transition *::before,
+.no-theme-transition *::after {
+  transition-property: none !important;
+}
+
 @layer base {
   * {
     margin: 0;
@@ -9,10 +117,16 @@
     box-sizing: border-box;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    background: #f5f5f5;
-    font-family: 'Inter', sans-serif;
-    color: #111;
+    background: var(--bg-primary);
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
@@ -23,11 +137,319 @@
 
   .card-hover:hover {
     transform: translateY(-8px);
-    border-color: #d5d5d5;
+    border-color: var(--border-hover);
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
   }
 
   .btn-hover-lift:hover {
     transform: translateY(-1px);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   EVENT STAGE — STATIC BACKGROUND + ANIMATED CARDS
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Section Container ─── */
+.event-stage-section {
+  position: relative;
+  width: 100%;
+}
+
+/* ─── Sticky Viewport ─── */
+.event-stage-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   STATIC STAGE BACKGROUND IMAGE
+   ═══════════════════════════════════════════════════════════════ */
+
+.stage-bg-wrapper {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.stage-bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  display: block;
+}
+
+/* Dark overlay for text/card readability */
+.stage-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--stage-overlay-bg);
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SECTION HEADER (over the stage image)
+   ═══════════════════════════════════════════════════════════════ */
+
+.stage-header {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+
+.stage-header__eyebrow {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--stage-eyebrow-color);
+  margin-bottom: 0.5rem;
+}
+
+.stage-header__heading {
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--stage-header-color);
+  line-height: 1.15;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATED CARDS CONTAINER (positioned over stage screen)
+   ═══════════════════════════════════════════════════════════════ */
+
+.stage-cards-container {
+  position: relative;
+  z-index: 2;
+  width: 62%;
+  max-width: 900px;
+  will-change: transform, opacity, filter;
+}
+
+.stage-cards-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   STAGE CARDS — Premium Glassmorphic Cards on the Stage
+   ═══════════════════════════════════════════════════════════════ */
+
+.stage-card {
+  position: relative;
+  background: var(--stage-card-bg);
+  border: 1px solid var(--stage-card-border);
+  border-radius: 1.25rem;
+  padding: 2.25rem 2rem;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  overflow: hidden;
+  box-shadow: var(--stage-card-shadow);
+  transform-style: preserve-3d;
+  will-change: transform;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              box-shadow 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              border-color 0.45s ease;
+}
+
+/* Gradient glow border on hover */
+.stage-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 1.25rem;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--stage-card-glow), transparent 40%, transparent 60%, var(--stage-card-glow));
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  pointer-events: none;
+}
+
+.stage-card:hover {
+  border-color: var(--stage-card-border-hover);
+  box-shadow: var(--stage-card-shadow-hover);
+}
+
+.stage-card:hover::before {
+  opacity: 1;
+}
+
+/* Card text is ALWAYS light since it sits on the dark stage image */
+.stage-card__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+  background: var(--stage-card-icon-bg);
+  color: var(--text-primary);
+}
+
+.stage-card__label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stage-card__title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  margin-bottom: 0.65rem;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.stage-card__description {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin-bottom: 1.25rem;
+}
+
+.stage-card__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: gap 0.3s ease;
+}
+
+.stage-card:hover .stage-card__cta {
+  gap: 0.75rem;
+}
+
+.stage-card__cta-arrow {
+  transition: transform 0.3s ease;
+}
+
+.stage-card:hover .stage-card__cta-arrow {
+  transform: translateX(4px);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   AMBIENT PARTICLES
+   ═══════════════════════════════════════════════════════════════ */
+
+.ambient-particle {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--particle-color);
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SCROLL INDICATOR
+   ═══════════════════════════════════════════════════════════════ */
+
+.scroll-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--scroll-indicator);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.scroll-indicator__mouse {
+  width: 24px;
+  height: 38px;
+  border: 2px solid var(--scroll-indicator);
+  border-radius: 12px;
+  position: relative;
+}
+
+.scroll-indicator__dot {
+  width: 4px;
+  height: 8px;
+  background: var(--scroll-indicator);
+  border-radius: 2px;
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: scrollDot 2s ease-in-out infinite;
+}
+
+@keyframes scrollDot {
+  0%, 100% { top: 6px; opacity: 1; }
+  50% { top: 18px; opacity: 0.3; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   THEME TOGGLE
+   ═══════════════════════════════════════════════════════════════ */
+
+.theme-toggle {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--btn-secondary-bg);
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.theme-toggle:hover {
+  background: var(--btn-secondary-hover-bg);
+  border-color: var(--border-hover);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .stage-cards-container {
+    width: 90%;
+  }
+
+  .stage-cards-row {
+    grid-template-columns: 1fr;
+  }
+
+  .stage-card {
+    padding: 1.75rem 1.5rem;
+  }
+
+  .stage-card__title {
+    font-size: 1.5rem;
+  }
+
+  .stage-header__heading {
+    font-size: clamp(1.3rem, 5vw, 2rem);
   }
 }

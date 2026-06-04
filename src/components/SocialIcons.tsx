@@ -36,7 +36,10 @@ const SocialIcons: React.FC = () => (
         key={title}
         href="#"
         title={title}
-        className="text-[#444] hover:text-black transition-colors duration-200"
+        className="transition-colors duration-200"
+        style={{ color: 'var(--icon-color)' }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--icon-hover)')}
+        onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--icon-color)')}
       >
         <Icon />
       </a>
