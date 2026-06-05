@@ -174,8 +174,8 @@ const ExperienceShowcase: React.FC = () => {
             </div>
           </div>
 
-          {/* Centered Layout */}
-          <div className="exp-centered-layout">
+          {/* 3-Column Layout: Photo | Step Number | Content */}
+          <div className="exp-three-col-layout">
             <AnimatePresence mode="wait">
               <motion.div
                 key={`${activeTab}-${activeIndex}`}
@@ -184,28 +184,35 @@ const ExperienceShowcase: React.FC = () => {
                 animate="animate"
                 exit="exit"
                 transition={transitionSpec}
-                className="exp-story-block"
+                className="exp-three-col-row"
               >
-                {/* 1. Large Hero Image */}
-                <div className="exp-hero-image-wrapper">
-                  <img 
-                    src={activeStepData.image} 
-                    alt={activeStepData.title}
-                    className="exp-hero-image"
-                  />
-                  <div className="exp-hero-glow" />
+                {/* LEFT — Hero Image */}
+                <div className="exp-col-left">
+                  <div className="exp-hero-image-wrapper">
+                    <img 
+                      src={activeStepData.image} 
+                      alt={activeStepData.title}
+                      className="exp-hero-image"
+                    />
+                    <div className="exp-hero-glow" />
+                  </div>
                 </div>
 
-                {/* 2. Large Elegant Step Number */}
-                <div className="exp-step-number">
-                  {String(activeIndex + 1).padStart(2, '0')}
+                {/* CENTER — Step Number & Vertical Line */}
+                <div className="exp-col-center">
+                  <div className="exp-center-line" />
+                  <div className="exp-step-number">
+                    {String(activeIndex + 1).padStart(2, '0')}
+                  </div>
+                  <div className="exp-center-line" />
                 </div>
 
-                {/* 3. Title */}
-                <h3 className="exp-centered-title">{activeStepData.title}</h3>
-
-                {/* 4. Description */}
-                <p className="exp-centered-desc">{activeStepData.description}</p>
+                {/* RIGHT — Title & Description */}
+                <div className="exp-col-right">
+                  <span className="exp-step-label">Step {activeIndex + 1} of {activeSteps.length}</span>
+                  <h3 className="exp-right-title">{activeStepData.title}</h3>
+                  <p className="exp-right-desc">{activeStepData.description}</p>
+                </div>
               </motion.div>
             </AnimatePresence>
           </div>
