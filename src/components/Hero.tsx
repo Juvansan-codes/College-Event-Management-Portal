@@ -15,9 +15,7 @@ const Hero: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: 'easeOut' }}
       >
-        College Event
-        <br />
-        Management Platform
+        FestForge
       </motion.h1>
 
       {/* Tagline */}
