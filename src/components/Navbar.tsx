@@ -72,7 +72,7 @@ const Navbar: React.FC = () => {
         </Link>
 
         <Link
-          to="/signup"
+          to="/register"
           className="px-[18px] py-[7px] rounded-lg border-none text-[0.85rem] font-semibold cursor-pointer hover:-translate-y-px transition-all duration-200"
           style={{
             background: 'var(--btn-primary-bg)',
