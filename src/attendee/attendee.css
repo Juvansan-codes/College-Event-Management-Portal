@@ -1,0 +1,182 @@
+/* ═══════════════════════════════════════════════════════════════
+   FESTFORGE ATTENDEE — Uses the Organizer Design System
+   Imports organizer.css for shared layout/sidebar/surface classes
+   Only adds attendee-specific overrides here
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Attendee accent — fresh green teal instead of purple */
+.att-layout {
+  --org-accent: #10B981;
+  --org-accent-rgb: 16, 185, 129;
+  --org-accent-soft: rgba(16, 185, 129, 0.08);
+  --org-accent-medium: rgba(16, 185, 129, 0.15);
+  --org-accent-text: #059669;
+}
+
+[data-theme="dark"] .att-layout {
+  --org-accent: #34D399;
+  --org-accent-rgb: 52, 211, 153;
+  --org-accent-soft: rgba(52, 211, 153, 0.10);
+  --org-accent-medium: rgba(52, 211, 153, 0.14);
+  --org-accent-text: #6EE7B7;
+}
+
+/* Attendee event browse cards */
+.att-event-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.15rem;
+  margin-bottom: 2.5rem;
+}
+
+.att-event-card {
+  position: relative;
+  background: var(--org-surface-1);
+  border: 1px solid var(--org-border-default);
+  border-radius: 0.85rem;
+  overflow: hidden;
+  backdrop-filter: saturate(150%) blur(14px);
+  box-shadow: var(--org-shadow-sm);
+  transition: transform 0.35s cubic-bezier(0.33, 1, 0.68, 1),
+              box-shadow 0.35s ease,
+              border-color 0.3s ease;
+}
+
+.att-event-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--org-shadow-lg);
+  border-color: var(--org-border-hover);
+}
+
+.att-event-card__banner {
+  position: relative;
+  height: 140px;
+  overflow: hidden;
+  background: var(--org-accent-soft);
+}
+
+.att-event-card__banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.att-event-card:hover .att-event-card__banner img {
+  transform: scale(1.05);
+}
+
+.att-event-card__banner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.35) 100%);
+  opacity: 0.5;
+}
+
+.att-event-card__status {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 2;
+}
+
+.att-event-card__body {
+  padding: 1.15rem 1.25rem;
+}
+
+.att-event-card__name {
+  font-size: 0.95rem;
+  font-weight: 650;
+  color: var(--org-text-primary);
+  margin-bottom: 0.3rem;
+}
+
+.att-event-card__date {
+  font-size: 0.8rem;
+  color: var(--org-text-secondary);
+  margin-bottom: 0.6rem;
+}
+
+.att-event-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.78rem;
+  color: var(--org-text-tertiary);
+}
+
+.att-event-card__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--org-accent-text);
+  cursor: pointer;
+  transition: gap 0.2s ease;
+}
+
+.att-event-card:hover .att-event-card__cta {
+  gap: 0.5rem;
+}
+
+/* Quick-action feature cards */
+.att-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.att-quick-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.35rem;
+  background: var(--org-surface-1);
+  border: 1px solid var(--org-border-default);
+  border-radius: 0.85rem;
+  text-decoration: none;
+  color: inherit;
+  backdrop-filter: saturate(150%) blur(14px);
+  box-shadow: var(--org-shadow-sm);
+  transition: transform 0.3s cubic-bezier(0.33, 1, 0.68, 1),
+              box-shadow 0.3s ease,
+              border-color 0.3s ease;
+}
+
+.att-quick-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--org-shadow-md);
+  border-color: var(--org-border-hover);
+}
+
+.att-quick-card__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.att-quick-card__icon--green { background: var(--org-accent-soft); color: var(--org-accent); }
+.att-quick-card__icon--blue { background: var(--org-info-soft); color: var(--org-info); }
+.att-quick-card__icon--amber { background: var(--org-warning-soft); color: var(--org-warning); }
+.att-quick-card__icon--purple { background: rgba(108, 92, 231, 0.08); color: #6C5CE7; }
+
+.att-quick-card__text h3 {
+  font-size: 0.9rem;
+  font-weight: 620;
+  color: var(--org-text-primary);
+  margin-bottom: 0.15rem;
+}
+
+.att-quick-card__text p {
+  font-size: 0.8rem;
+  color: var(--org-text-secondary);
+  line-height: 1.45;
+}

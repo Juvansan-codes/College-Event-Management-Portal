@@ -243,7 +243,7 @@ export default function FestForgeApp(): JSX.Element {
             key={role.id}
             data={role}
             index={i}
-            onClick={() => navigate("/signup")}
+            onClick={() => navigate(`/signup?role=${role.id}`)}
           />
         ))}
       </div>

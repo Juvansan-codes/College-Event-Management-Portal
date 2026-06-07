@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import StatCard from '../components/StatCard'
+import { useAuth } from '../../contexts/AuthContext'
+import { useEvent } from '../../contexts/EventContext'
 
 /* ─── Event Visual Slides for Cinematic Hero ─── */
 const HERO_SLIDES = [
@@ -98,13 +100,6 @@ const TOOLS: ToolItem[] = [
   }
 ]
 
-/* ─── Upcoming Events (Horizontal Wallet Timeline) ─── */
-const EVENTS = [
-  { name: 'TechFest 2026', image: '/organizer/evt-techfest.png', date: 'Jun 15 – 17', registrations: 847, status: 'Live' },
-  { name: 'UI/UX Design Sprint', image: '/organizer/evt-design.png', date: 'Jun 22, 2026', registrations: 124, status: 'Upcoming' },
-  { name: 'Hackathon Fall', image: '/organizer/evt-hackathon.png', date: 'Jul 05 – 07', registrations: 412, status: 'Upcoming' },
-  { name: 'Mega Concert Night', image: '/organizer/evt-concert.png', date: 'Jul 18, 2026', registrations: 1250, status: 'Draft' }
-]
 
 /* ─── Notion/Linear-Style Recent Activity ─── */
 const RECENT_ACTIVITY = [
@@ -141,6 +136,25 @@ const fadeUp = {
 
 const Dashboard: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0)
+  const { user } = useAuth()
+  const { activeEvent, events } = useEvent()
+  const navigate = useNavigate()
+
+  const displayName = user?.user_metadata?.full_name || 'Organizer'
+
+  const getGreeting = () => {
+    const hour = new Date().getHours()
+    if (hour < 12) return 'Good Morning'
+    if (hour < 17) return 'Good Afternoon'
+    return 'Good Evening'
+  }
+
+  /* Redirect to event picker if no event selected */
+  useEffect(() => {
+    if (!activeEvent) {
+      navigate('/organizer', { replace: true })
+    }
+  }, [activeEvent, navigate])
 
   // Autoplay cinematic event visual carousel
   useEffect(() => {
@@ -150,14 +164,23 @@ const Dashboard: React.FC = () => {
     return () => clearInterval(timer)
   }, [])
 
+  if (!activeEvent) return null
+
+  const formatDate = (dateStr: string) =>
+    new Date(dateStr).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })
+
+  const eventDateRange = `${formatDate(activeEvent.start_date)} – ${formatDate(activeEvent.end_date)}`
+
   return (
     <motion.div variants={stagger} initial="initial" animate="animate" className="org-dashboard-container">
       {/* Cinematic Welcome Hero */}
       <motion.div className="org-hero" variants={fadeUp}>
         <div className="org-hero__content">
-          <h1 className="org-hero__title">Good Evening, Organizer</h1>
+          <h1 className="org-hero__title">{getGreeting()}, {displayName}</h1>
           <p className="org-hero__desc">
-            Welcome back to your event workspace. Command all credentials, ticket registrations, and agenda timelines from this control center.
+            Managing <strong>{activeEvent.name}</strong> ({eventDateRange}).
+            {activeEvent.venue && <> at {activeEvent.venue}.</>}
+            {' '}Command all credentials, ticket registrations, and agenda timelines from this control center.
           </p>
           <div className="org-hero__actions">
             <Link to="/organizer/agenda" className="org-btn org-btn--primary">
@@ -184,10 +207,10 @@ const Dashboard: React.FC = () => {
           </AnimatePresence>
           <div className="org-hero__carousel-overlay">
             <span className="org-badge org-badge--accent" style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }}>
-              {HERO_SLIDES[currentSlide].category}
+              {activeEvent.category}
             </span>
             <h4 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 700, marginTop: '0.4rem', textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
-              {HERO_SLIDES[currentSlide].title}
+              {activeEvent.name}
             </h4>
           </div>
 
@@ -205,12 +228,12 @@ const Dashboard: React.FC = () => {
         </div>
       </motion.div>
 
-      {/* Floating Glass Stats Row */}
+      {/* Floating Glass Stats Row — dynamic from active event */}
       <div className="org-stats-grid">
-        <StatCard icon={<EventIcon />} label="Total Events" value={12} colorClass="accent" trend="2 Active" trendUp index={0} />
-        <StatCard icon={<UsersIcon />} label="Registrations" value={2847} colorClass="success" trend="+18% growth" trendUp index={1} />
-        <StatCard icon={<StarIcon />} label="Active Sponsors" value={8} colorClass="warning" trend="3 Tiers" trendUp index={2} />
-        <StatCard icon={<DollarIcon />} label="Gross Revenue" value={45200} prefix="₹" colorClass="info" trend="+24% target" trendUp index={3} />
+        <StatCard icon={<EventIcon />} label="Your Events" value={events.length} colorClass="accent" trend={`${activeEvent.status}`} trendUp index={0} />
+        <StatCard icon={<UsersIcon />} label="Max Capacity" value={activeEvent.max_attendees} colorClass="success" trend={activeEvent.category} trendUp index={1} />
+        <StatCard icon={<StarIcon />} label="Event Status" value={0} colorClass="warning" trend={activeEvent.status} trendUp index={2} />
+        <StatCard icon={<DollarIcon />} label="Days Until" value={Math.max(0, Math.ceil((new Date(activeEvent.start_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))} colorClass="info" trend={eventDateRange} trendUp index={3} />
       </div>
 
       {/* Organizer Premium Feature Showcases */}
@@ -277,19 +300,19 @@ const Dashboard: React.FC = () => {
             </div>
           </motion.div>
           <div className="org-events-scroll">
-            {EVENTS.map((evt) => (
+            {events.map((evt) => (
               <motion.div
-                key={evt.name}
+                key={evt.id}
                 className="org-event-card"
                 variants={cardReveal}
                 whileHover={{ y: -4, scale: 1.01 }}
                 transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                style={{ cursor: 'pointer' }}
               >
-                <div className="org-event-card__banner">
-                  <img src={evt.image} alt={evt.name} />
-                  <div className="org-event-card__date-badge">{evt.date}</div>
+                <div className="org-event-card__banner" style={{ background: 'linear-gradient(135deg, rgba(108,92,231,0.15), rgba(59,130,246,0.1))' }}>
+                  <div className="org-event-card__date-badge">{formatDate(evt.start_date)} – {formatDate(evt.end_date)}</div>
                   <div className="org-event-card__status">
-                    <span className={`org-badge org-badge--${evt.status === 'Live' ? 'success' : evt.status === 'Upcoming' ? 'info' : 'neutral'}`}>
+                    <span className={`org-badge org-badge--${evt.status === 'Active' ? 'success' : evt.status === 'Draft' ? 'neutral' : 'info'}`}>
                       {evt.status}
                     </span>
                   </div>
@@ -297,11 +320,16 @@ const Dashboard: React.FC = () => {
                 <div className="org-event-card__body">
                   <h3 className="org-event-card__name">{evt.name}</h3>
                   <div className="org-event-card__meta">
-                    <span>{evt.registrations.toLocaleString()} Registrations</span>
+                    <span>{evt.category} · {evt.max_attendees} capacity</span>
                   </div>
                 </div>
               </motion.div>
             ))}
+            {events.length === 0 && (
+              <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--org-text-tertiary)', fontSize: '0.85rem' }}>
+                No other events. <Link to="/organizer/new-event" style={{ color: 'var(--org-accent-text)', fontWeight: 600, textDecoration: 'underline' }}>Create one</Link>
+              </div>
+            )}
           </div>
         </motion.div>
 

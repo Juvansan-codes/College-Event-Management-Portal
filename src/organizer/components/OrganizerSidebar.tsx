@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import FestForgeLogo from '../../components/FestForgeLogo'
+import { useEvent } from '../../contexts/EventContext'
 
 /* ─── SVG Icon Components ─── */
 const DashboardIcon = () => (
@@ -61,6 +62,13 @@ const HomeIcon = () => (
   </svg>
 )
 
+const SwitchIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="17 1 21 5 17 9" /><path d="M3 11V9a4 4 0 0 1 4-4h14" />
+    <polyline points="7 23 3 19 7 15" /><path d="M21 13v2a4 4 0 0 1-4 4H3" />
+  </svg>
+)
+
 interface NavItem {
   to: string
   label: string
@@ -69,7 +77,7 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { to: '/organizer', label: 'Dashboard', icon: <DashboardIcon />, exact: true },
+  { to: '/organizer/dashboard', label: 'Dashboard', icon: <DashboardIcon />, exact: true },
   { to: '/organizer/certifications', label: 'Certifications', icon: <CertIcon /> },
   { to: '/organizer/agenda', label: 'Agenda Planner', icon: <AgendaIcon /> },
   { to: '/organizer/sponsorships', label: 'Sponsorships', icon: <SponsorIcon /> },
@@ -79,11 +87,15 @@ const NAV_ITEMS: NavItem[] = [
 
 const OrganizerSidebar: React.FC = () => {
   const location = useLocation()
+  const { activeEvent } = useEvent()
 
   const isActive = (item: NavItem) => {
     if (item.exact) return location.pathname === item.to
     return location.pathname.startsWith(item.to)
   }
+
+  /* Hide tool nav items when no event is selected (on event picker / create event pages) */
+  const isEventSelected = Boolean(activeEvent)
 
   return (
     <aside className="org-sidebar">
@@ -93,22 +105,70 @@ const OrganizerSidebar: React.FC = () => {
         FestForge
       </Link>
 
-      {/* Label */}
-      <div className="org-sidebar__label">Organizer Tools</div>
+      {/* Active Event Display */}
+      {isEventSelected && (
+        <>
+          <div className="org-sidebar__label">Active Event</div>
+          <div style={{
+            padding: '0.55rem 0.65rem',
+            margin: '0 0.6rem 0.25rem',
+            borderRadius: '0.5rem',
+            background: 'var(--org-accent-soft)',
+            border: '1px solid var(--org-sidebar-item-active-border)',
+          }}>
+            <div style={{
+              fontSize: '0.82rem',
+              fontWeight: 650,
+              color: 'var(--org-accent-text)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}>
+              {activeEvent!.name}
+            </div>
+            <div style={{
+              fontSize: '0.68rem',
+              color: 'var(--org-text-tertiary)',
+              marginTop: '0.1rem',
+            }}>
+              {activeEvent!.status} · {activeEvent!.category}
+            </div>
+          </div>
 
-      {/* Navigation */}
-      <nav className="org-sidebar__nav">
-        {NAV_ITEMS.map((item) => (
-          <Link
-            key={item.to}
-            to={item.to}
-            className={`org-sidebar__item ${isActive(item) ? 'active' : ''}`}
-          >
-            <span className="org-sidebar__item-icon">{item.icon}</span>
-            {item.label}
-          </Link>
-        ))}
-      </nav>
+          {/* Switch Event Link */}
+          <div style={{ padding: '0 0.6rem', marginBottom: '0.25rem' }}>
+            <Link
+              to="/organizer"
+              className="org-sidebar__item"
+              style={{ fontSize: '0.78rem' }}
+            >
+              <span className="org-sidebar__item-icon"><SwitchIcon /></span>
+              Switch Event
+            </Link>
+          </div>
+
+          <div className="org-sidebar__divider" />
+        </>
+      )}
+
+      {/* Tool Navigation — only when an event is selected */}
+      {isEventSelected && (
+        <>
+          <div className="org-sidebar__label">Organizer Tools</div>
+          <nav className="org-sidebar__nav">
+            {NAV_ITEMS.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={`org-sidebar__item ${isActive(item) ? 'active' : ''}`}
+              >
+                <span className="org-sidebar__item-icon">{item.icon}</span>
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+        </>
+      )}
 
       {/* Footer */}
       <div className="org-sidebar__footer">

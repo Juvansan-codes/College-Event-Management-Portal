@@ -3,11 +3,14 @@ import { Outlet, useLocation, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import OrganizerSidebar from './OrganizerSidebar'
 import ThemeToggle from '../../components/ThemeToggle'
+import { EventProvider } from '../../contexts/EventContext'
 import '../organizer.css'
 
 /* ─── Breadcrumb Mapping ─── */
 const BREADCRUMBS: Record<string, string> = {
-  '/organizer': 'Dashboard',
+  '/organizer': 'Events',
+  '/organizer/new-event': 'Create Event',
+  '/organizer/dashboard': 'Dashboard',
   '/organizer/certifications': 'Certifications',
   '/organizer/agenda': 'Agenda Planner',
   '/organizer/sponsorships': 'Sponsorships',
@@ -33,44 +36,46 @@ const OrganizerLayout: React.FC = () => {
   const isSubPage = location.pathname !== '/organizer'
 
   return (
-    <div className="org-layout">
-      <OrganizerSidebar />
+    <EventProvider>
+      <div className="org-layout">
+        <OrganizerSidebar />
 
-      <div className="org-layout__content">
-        {/* Top Bar */}
-        <header className="org-topbar">
-          <div className="org-topbar__breadcrumb">
-            <Link to="/organizer">Dashboard</Link>
-            {isSubPage && (
-              <>
-                <span className="org-topbar__breadcrumb-sep">›</span>
-                <span className="org-topbar__breadcrumb-current">{currentLabel}</span>
-              </>
-            )}
-          </div>
-          <div className="org-topbar__actions">
-            <ThemeToggle />
-          </div>
-        </header>
+        <div className="org-layout__content">
+          {/* Top Bar */}
+          <header className="org-topbar">
+            <div className="org-topbar__breadcrumb">
+              <Link to="/organizer">Events</Link>
+              {isSubPage && (
+                <>
+                  <span className="org-topbar__breadcrumb-sep">›</span>
+                  <span className="org-topbar__breadcrumb-current">{currentLabel}</span>
+                </>
+              )}
+            </div>
+            <div className="org-topbar__actions">
+              <ThemeToggle />
+            </div>
+          </header>
 
-        {/* Page Content with Transition */}
-        <main className="org-layout__main">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={location.pathname}
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              transition={pageTransition}
-              style={{ willChange: 'transform, opacity, filter' }}
-            >
-              <Outlet />
-            </motion.div>
-          </AnimatePresence>
-        </main>
+          {/* Page Content with Transition */}
+          <main className="org-layout__main">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={location.pathname}
+                variants={pageVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={pageTransition}
+                style={{ willChange: 'transform, opacity, filter' }}
+              >
+                <Outlet />
+              </motion.div>
+            </AnimatePresence>
+          </main>
+        </div>
       </div>
-    </div>
+    </EventProvider>
   )
 }
 

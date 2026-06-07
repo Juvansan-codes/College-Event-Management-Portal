@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { getSupabase, isSupabaseConfigured } from '../lib/supabaseClient'
 
 const SignIn: React.FC = () => {
@@ -25,7 +25,7 @@ const SignIn: React.FC = () => {
 
     try {
       const supabase = getSupabase()
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
@@ -35,7 +35,13 @@ const SignIn: React.FC = () => {
         return
       }
 
-      navigate('/')
+      /* Redirect based on the role stored in user metadata */
+      const role = data.user?.user_metadata?.role
+      if (role === 'organizer') {
+        navigate('/organizer')
+      } else {
+        navigate('/attendee')
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Sign in failed')
     } finally {
@@ -92,6 +98,13 @@ const SignIn: React.FC = () => {
             {isLoading ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
+
+        <p className="mt-5 text-center text-[0.88rem] text-[#666]">
+          Don't have an account?{' '}
+          <Link to="/register" className="font-semibold text-[#111] underline">
+            Register
+          </Link>
+        </p>
       </div>
     </section>
   )

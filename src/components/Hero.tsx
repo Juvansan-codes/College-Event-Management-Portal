@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 
 const Hero: React.FC = () => {
@@ -36,8 +37,9 @@ const Hero: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, delay: 0.3, ease: 'easeOut' }}
       >
-        <button
-          className="px-[22px] py-2.5 rounded-lg text-[0.9rem] font-semibold cursor-pointer transition-all duration-200"
+        <Link
+          to="/organizer"
+          className="px-[22px] py-2.5 rounded-lg text-[0.9rem] font-semibold cursor-pointer transition-all duration-200 no-underline"
           style={{
             border: '1px solid var(--btn-secondary-border)',
             background: 'var(--bg-card)',
@@ -53,9 +55,10 @@ const Hero: React.FC = () => {
           }}
         >
           Book an Event
-        </button>
-        <button
-          className="px-[22px] py-2.5 rounded-lg border-none text-[0.9rem] font-semibold cursor-pointer hover:-translate-y-px transition-all duration-200"
+        </Link>
+        <Link
+          to="/register"
+          className="px-[22px] py-2.5 rounded-lg border-none text-[0.9rem] font-semibold cursor-pointer hover:-translate-y-px transition-all duration-200 no-underline"
           style={{
             background: 'var(--btn-primary-bg)',
             color: 'var(--btn-primary-text)',
@@ -64,7 +67,7 @@ const Hero: React.FC = () => {
           onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--btn-primary-bg)')}
         >
           Register
-        </button>
+        </Link>
       </motion.div>
 
       {/* Scroll indicator */}

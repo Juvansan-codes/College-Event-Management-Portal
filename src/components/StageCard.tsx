@@ -1,10 +1,11 @@
 import React, { useRef, useState, useCallback } from 'react'
+import { Link } from 'react-router-dom'
 
 interface StageCardProps {
   label: string
   title: string
   description: string
-  href?: string
+  to?: string
   icon: React.ReactNode
 }
 
@@ -12,7 +13,7 @@ const StageCard: React.FC<StageCardProps> = ({
   label,
   title,
   description,
-  href = '#',
+  to = '/',
   icon,
 }) => {
   const cardRef = useRef<HTMLAnchorElement>(null)
@@ -36,9 +37,9 @@ const StageCard: React.FC<StageCardProps> = ({
   }, [])
 
   return (
-    <a
+    <Link
       ref={cardRef}
-      href={href}
+      to={to}
       className="stage-card"
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
@@ -69,8 +70,9 @@ const StageCard: React.FC<StageCardProps> = ({
           <polyline points="12 5 19 12 12 19" />
         </svg>
       </span>
-    </a>
+    </Link>
   )
 }
 
 export default StageCard
+

@@ -96,12 +96,14 @@ const EventStage: React.FC = () => {
               title="Organizers"
               description="Plan, manage, and execute unforgettable college events with powerful tools designed for organizers."
               icon={<ClipboardIcon />}
+              to="/organizer"
             />
             <StageCard
               label="For"
               title="Attendees"
               description="Discover exciting events, register instantly, and never miss out on what's happening on campus."
               icon={<TicketIcon />}
+              to="/register"
             />
           </div>
         </motion.div>
