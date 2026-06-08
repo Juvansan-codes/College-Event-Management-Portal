@@ -1,87 +1,83 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import LiquidBackground from './LiquidBackground'
+
+/* ─── Animation Variants ─── */
+const fadeUp = (delay: number) => ({
+  initial: { opacity: 0, y: 25 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.8, delay, ease: [0.22, 1, 0.36, 1] },
+})
 
 const Hero: React.FC = () => {
   return (
     <section
-      className="min-h-[calc(100vh-60px)] flex flex-col justify-center items-center text-center px-10 pt-[60px] pb-10 md:px-5 md:pt-10 md:pb-[30px]"
-      style={{ background: 'var(--bg-primary)' }}
+      className="min-h-screen flex flex-col items-center justify-center text-center px-6"
+      style={{ background: 'var(--bg-primary)', position: 'relative', overflow: 'hidden' }}
     >
-      {/* Headline */}
-      <motion.h1
-        className="text-[clamp(2.6rem,7vw,5rem)] leading-[1.08] font-extrabold tracking-[-0.05em] max-w-[780px] mb-5"
-        style={{ color: 'var(--text-primary)' }}
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: 'easeOut' }}
-      >
-        FestForge
-      </motion.h1>
+      {/* WebGL Liquid Metal Background */}
+      <LiquidBackground />
 
-      {/* Tagline */}
-      <motion.p
-        className="text-[1.05rem] mb-9 italic"
-        style={{ color: 'var(--text-secondary)' }}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 0.15, ease: 'easeOut' }}
-      >
-        "Make your dream college fest come true"
-      </motion.p>
+      {/* ─── Content Stack ─── */}
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: 820 }}>
 
-      {/* CTA buttons */}
-      <motion.div
-        className="flex gap-3 mb-20"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 0.3, ease: 'easeOut' }}
-      >
-        <Link
-          to="/organizer"
-          className="px-[22px] py-2.5 rounded-lg text-[0.9rem] font-semibold cursor-pointer transition-all duration-200 no-underline"
+        {/* Headline — thin Outfit font like the reference */}
+        <motion.h1
+          {...fadeUp(0.12)}
           style={{
-            border: '1px solid var(--btn-secondary-border)',
-            background: 'var(--bg-card)',
-            color: 'var(--btn-secondary-text)',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = 'var(--border-hover)'
-            e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = 'var(--btn-secondary-border)'
-            e.currentTarget.style.boxShadow = 'none'
+            fontFamily: "'Outfit', sans-serif",
+            fontWeight: 300,
+            fontSize: 'clamp(2.8rem, 7vw, 4.8rem)',
+            lineHeight: 1.1,
+            letterSpacing: '-0.03em',
+            color: 'var(--text-primary)',
+            marginBottom: '1.5rem',
           }}
         >
-          Book an Event
-        </Link>
-        <Link
-          to="/register"
-          className="px-[22px] py-2.5 rounded-lg border-none text-[0.9rem] font-semibold cursor-pointer hover:-translate-y-px transition-all duration-200 no-underline"
-          style={{
-            background: 'var(--btn-primary-bg)',
-            color: 'var(--btn-primary-text)',
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--btn-primary-hover)')}
-          onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--btn-primary-bg)')}
-        >
-          Register
-        </Link>
-      </motion.div>
+          Events that you<br />
+          forge Together
+        </motion.h1>
 
-      {/* Scroll indicator */}
-      <motion.div
-        className="scroll-indicator"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 0.8 }}
-      >
-        <div className="scroll-indicator__mouse">
-          <div className="scroll-indicator__dot" />
-        </div>
-        <span>Scroll to explore</span>
-      </motion.div>
+        {/* Sub-description */}
+        <motion.p
+          {...fadeUp(0.24)}
+          style={{
+            fontSize: 'clamp(0.88rem, 1.2vw, 1rem)',
+            lineHeight: 1.65,
+            color: 'var(--text-secondary)',
+            maxWidth: 520,
+            margin: '0 auto 2.2rem',
+          }}
+        >
+          Plan, manage, and experience unforgettable college festivals.
+          Showcase your story through bold events and strategic organization.
+        </motion.p>
+
+        {/* CTA Buttons — both outlined like the reference */}
+        <motion.div
+          {...fadeUp(0.36)}
+          style={{
+            display: 'flex',
+            gap: '0.75rem',
+            justifyContent: 'center',
+            marginBottom: '3.5rem',
+          }}
+        >
+          <Link
+            to="/organizer"
+            className="hero-btn hero-btn--outline"
+          >
+            Book an Event
+          </Link>
+          <Link
+            to="/register"
+            className="hero-btn hero-btn--outline"
+          >
+            Get Started
+          </Link>
+        </motion.div>
+      </div>
     </section>
   )
 }
