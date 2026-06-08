@@ -1,29 +1,19 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
-import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
+import { eventService } from '../services'
 import { useAuth } from './AuthContext'
+import type { FestEvent, CreateEventPayload } from '../types'
 
-/* ─── Types ─── */
-export interface FestEvent {
-  id: string
-  organizer_id: string
-  name: string
-  description: string | null
-  start_date: string
-  end_date: string
-  venue: string | null
-  category: string
-  max_attendees: number
-  status: string
-  created_at: string
-}
+/* ─── Re-export for convenience ─── */
+export type { FestEvent } from '../types'
 
+/* ─── Context Types ─── */
 interface EventContextValue {
   events: FestEvent[]
   activeEvent: FestEvent | null
   isLoading: boolean
   setActiveEvent: (event: FestEvent) => void
   refreshEvents: () => Promise<void>
-  createEvent: (data: Omit<FestEvent, 'id' | 'organizer_id' | 'created_at'>) => Promise<FestEvent | null>
+  createEvent: (data: CreateEventPayload) => Promise<FestEvent | null>
 }
 
 const EventContext = createContext<EventContextValue>({
@@ -50,40 +40,31 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   /* Fetch events for this organizer */
   const refreshEvents = useCallback(async () => {
-    if (!isSupabaseConfigured || !supabase || !user) {
+    if (!user) {
       setEvents([])
       setIsLoading(false)
       return
     }
 
-    try {
-      const { data, error } = await supabase
-        .from('events')
-        .select('*')
-        .eq('organizer_id', user.id)
-        .order('created_at', { ascending: false })
+    const { data, error } = await eventService.getEventsByOrganizer(user.id)
 
-      if (error) {
-        console.error('Error fetching events:', error.message)
-        setEvents([])
-      } else {
-        setEvents(data || [])
+    if (error || !data) {
+      console.error('Error fetching events:', error)
+      setEvents([])
+    } else {
+      setEvents(data)
 
-        /* Restore active event from localStorage */
-        const savedId = localStorage.getItem(ACTIVE_EVENT_KEY)
-        if (savedId && data) {
-          const saved = data.find((e: FestEvent) => e.id === savedId)
-          if (saved) {
-            setActiveEventState(saved)
-          }
+      /* Restore active event from localStorage */
+      const savedId = localStorage.getItem(ACTIVE_EVENT_KEY)
+      if (savedId) {
+        const saved = data.find((e) => e.id === savedId)
+        if (saved) {
+          setActiveEventState(saved)
         }
       }
-    } catch (err) {
-      console.error('Failed to fetch events:', err)
-      setEvents([])
-    } finally {
-      setIsLoading(false)
     }
+
+    setIsLoading(false)
   }, [user])
 
   /* Load events when user is available */
@@ -103,37 +84,23 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     localStorage.setItem(ACTIVE_EVENT_KEY, event.id)
   }, [])
 
-  /* Create a new event in Supabase */
+  /* Create a new event via service */
   const createEvent = useCallback(async (
-    data: Omit<FestEvent, 'id' | 'organizer_id' | 'created_at'>
+    data: CreateEventPayload
   ): Promise<FestEvent | null> => {
-    if (!isSupabaseConfigured || !supabase || !user) return null
+    if (!user) return null
 
-    try {
-      const { data: created, error } = await supabase
-        .from('events')
-        .insert({
-          ...data,
-          organizer_id: user.id,
-        })
-        .select()
-        .single()
+    const { data: created, error } = await eventService.createEvent(data, user.id)
 
-      if (error) {
-        console.error('Error creating event:', error.message)
-        return null
-      }
-
-      /* Refresh the list and set the new event as active */
-      await refreshEvents()
-      if (created) {
-        setActiveEvent(created)
-      }
-      return created
-    } catch (err) {
-      console.error('Failed to create event:', err)
+    if (error || !created) {
+      console.error('Error creating event:', error)
       return null
     }
+
+    /* Refresh the list and set the new event as active */
+    await refreshEvents()
+    setActiveEvent(created)
+    return created
   }, [user, refreshEvents, setActiveEvent])
 
   return (

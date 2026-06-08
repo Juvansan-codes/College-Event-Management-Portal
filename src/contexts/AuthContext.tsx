@@ -1,13 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
-import type { User, Session } from '@supabase/supabase-js'
+import { authService } from '../services'
+import type { AuthUser, UserRole } from '../types'
 
 /* ─── Types ─── */
-export type UserRole = 'student' | 'organizer' | null
+export type { UserRole } from '../types'
 
 interface AuthContextValue {
-  user: User | null
-  session: Session | null
+  user: AuthUser | null
   role: UserRole
   isLoading: boolean
   signOut: () => Promise<void>
@@ -15,7 +14,6 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue>({
   user: null,
-  session: null,
   role: null,
   isLoading: true,
   signOut: async () => {},
@@ -25,7 +23,7 @@ const AuthContext = createContext<AuthContextValue>({
 export const useAuth = () => useContext(AuthContext)
 
 /* ─── Helper: extract role from user metadata ─── */
-const extractRole = (user: User | null): UserRole => {
+const extractRole = (user: AuthUser | null): UserRole => {
   if (!user) return null
   const meta = user.user_metadata
   if (meta?.role === 'organizer') return 'organizer'
@@ -35,47 +33,38 @@ const extractRole = (user: User | null): UserRole => {
 
 /* ─── Provider ─── */
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null)
-  const [session, setSession] = useState<Session | null>(null)
+  const [user, setUser] = useState<AuthUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    if (!isSupabaseConfigured || !supabase) {
+    if (!authService.isConfigured()) {
       setIsLoading(false)
       return
     }
 
     /* 1. Get current session on mount */
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      setSession(currentSession)
-      setUser(currentSession?.user ?? null)
+    authService.getSession().then(({ data }) => {
+      setUser(data?.user ?? null)
       setIsLoading(false)
     })
 
     /* 2. Listen for auth state changes */
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, newSession) => {
-        setSession(newSession)
-        setUser(newSession?.user ?? null)
-      },
-    )
+    const unsubscribe = authService.onAuthStateChange((newUser) => {
+      setUser(newUser)
+    })
 
-    return () => {
-      subscription.unsubscribe()
-    }
+    return unsubscribe
   }, [])
 
   const signOut = async () => {
-    if (!supabase) return
-    await supabase.auth.signOut()
+    await authService.signOut()
     setUser(null)
-    setSession(null)
   }
 
   const role = extractRole(user)
 
   return (
-    <AuthContext.Provider value={{ user, session, role, isLoading, signOut }}>
+    <AuthContext.Provider value={{ user, role, isLoading, signOut }}>
       {children}
     </AuthContext.Provider>
   )

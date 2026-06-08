@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { getSupabase, isSupabaseConfigured } from '../lib/supabaseClient'
+import { authService } from '../services'
 
 const SignUp: React.FC = () => {
   const navigate = useNavigate()
@@ -28,9 +28,9 @@ const SignUp: React.FC = () => {
     setError(null)
     setInfo(null)
 
-    if (!isSupabaseConfigured) {
+    if (!authService.isConfigured()) {
       setError(
-        'Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in your .env, then restart the dev server.',
+        'Auth service is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in your .env, then restart the dev server.',
       )
       return
     }
@@ -42,20 +42,15 @@ const SignUp: React.FC = () => {
 
     setIsLoading(true)
     try {
-      const supabase = getSupabase()
-      const { data, error: signUpError } = await supabase.auth.signUp({
+      const { data, error: signUpError } = await authService.signUp({
         email,
         password,
-        options: {
-          data: {
-            full_name: fullName,
-            role: selectedRole,
-          },
-        },
+        fullName,
+        role: selectedRole,
       })
 
       if (signUpError) {
-        setError(signUpError.message)
+        setError(signUpError)
         return
       }
 

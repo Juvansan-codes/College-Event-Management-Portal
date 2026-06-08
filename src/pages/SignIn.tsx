@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { getSupabase, isSupabaseConfigured } from '../lib/supabaseClient'
+import { authService } from '../services'
 
 const SignIn: React.FC = () => {
   const navigate = useNavigate()
@@ -14,9 +14,9 @@ const SignIn: React.FC = () => {
     e.preventDefault()
     setError(null)
 
-    if (!isSupabaseConfigured) {
+    if (!authService.isConfigured()) {
       setError(
-        'Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in your .env, then restart the dev server.',
+        'Auth service is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in your .env, then restart the dev server.',
       )
       return
     }
@@ -24,19 +24,15 @@ const SignIn: React.FC = () => {
     setIsLoading(true)
 
     try {
-      const supabase = getSupabase()
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
+      const { data, error: signInError } = await authService.signIn({ email, password })
 
       if (signInError) {
-        setError(signInError.message)
+        setError(signInError)
         return
       }
 
       /* Redirect based on the role stored in user metadata */
-      const role = data.user?.user_metadata?.role
+      const role = data?.user?.user_metadata?.role
       if (role === 'organizer') {
         navigate('/organizer')
       } else {
