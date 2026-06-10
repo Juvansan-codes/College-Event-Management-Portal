@@ -9,6 +9,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, useInView, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import { sponsorshipService } from './src/services'
 
 /* ─────────────────────────────────────────────
    TYPES
@@ -211,9 +212,10 @@ const AnimatedCounter: React.FC<{ target: string; suffix?: string }> = ({ target
 ───────────────────────────────────────────── */
 const Section: React.FC<{
   children: React.ReactNode
+  id?: string
   className?: string
   style?: React.CSSProperties
-}> = ({ children, className = '', style }) => {
+}> = ({ children, id, className = '', style }) => {
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-60px' })
   return (
@@ -222,6 +224,7 @@ const Section: React.FC<{
       initial="hidden"
       animate={inView ? 'visible' : 'hidden'}
       variants={staggerParent}
+      id={id}
       className={className}
       style={style}
     >
@@ -328,11 +331,28 @@ const InterestForm: React.FC = () => {
     message: '',
   })
   const [submitted, setSubmitted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!form.company || !form.email) return
-    // In production: POST to your Supabase edge function or backend
-    console.log('Sponsor interest form:', form)
+    setIsSubmitting(true)
+    setError(null)
+
+    const { error: submitError } = await sponsorshipService.createInquiry({
+      company: form.company,
+      contact_name: form.contact || null,
+      email: form.email,
+      interested_tier: form.tier || null,
+      message: form.message || null,
+    })
+
+    setIsSubmitting(false)
+    if (submitError) {
+      setError(submitError)
+      return
+    }
+
     setSubmitted(true)
   }
 
@@ -479,34 +499,40 @@ const InterestForm: React.FC = () => {
 
       <button
         onClick={handleSubmit}
-        disabled={!form.company || !form.email}
+        disabled={!form.company || !form.email || isSubmitting}
         style={{
           padding: '0.875rem 2rem',
-          background: form.company && form.email ? '#fff' : '#1a1a1a',
-          color: form.company && form.email ? '#000' : '#444',
+          background: form.company && form.email && !isSubmitting ? '#fff' : '#1a1a1a',
+          color: form.company && form.email && !isSubmitting ? '#000' : '#444',
           border: 'none',
           borderRadius: '0.5rem',
           fontFamily: "'Outfit', 'Inter', sans-serif",
           fontWeight: 600,
           fontSize: '0.9rem',
           letterSpacing: '0.02em',
-          cursor: form.company && form.email ? 'pointer' : 'not-allowed',
+          cursor: form.company && form.email && !isSubmitting ? 'pointer' : 'not-allowed',
           transition: 'all 0.2s',
           alignSelf: 'flex-start',
         }}
         onMouseEnter={(e) => {
-          if (form.company && form.email) {
+          if (form.company && form.email && !isSubmitting) {
             ;(e.target as HTMLButtonElement).style.background = '#e0e0e0'
           }
         }}
         onMouseLeave={(e) => {
-          if (form.company && form.email) {
+          if (form.company && form.email && !isSubmitting) {
             ;(e.target as HTMLButtonElement).style.background = '#fff'
           }
         }}
       >
         Submit Interest →
       </button>
+
+      {error && (
+        <p style={{ color: '#ef4444', fontSize: '0.78rem', lineHeight: 1.5 }}>
+          {error}
+        </p>
+      )}
     </div>
   )
 }

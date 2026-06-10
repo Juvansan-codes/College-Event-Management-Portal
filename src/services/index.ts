@@ -6,3 +6,5 @@
  */
 export { authService } from './authService'
 export { eventService } from './eventService'
+export { sponsorshipService } from './sponsorshipService'
+export { certificationService } from './certificationService'

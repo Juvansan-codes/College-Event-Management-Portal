@@ -21,6 +21,7 @@ const Agenda = lazy(() => import('./organizer/pages/Agenda'))
 const Sponsorships = lazy(() => import('./organizer/pages/Sponsorships'))
 const Tickets = lazy(() => import('./organizer/pages/Tickets'))
 const Polls = lazy(() => import('./organizer/pages/Polls'))
+const PublicSponsorshipPage = lazy(() => import('../SponsorshipPage'))
 
 /* ─── Lazy-loaded Attendee Pages ─── */
 const AttendeeLayout = lazy(() => import('./attendee/components/AttendeeLayout'))
@@ -94,6 +95,7 @@ const AppShell: React.FC = () => {
           />
 
           {/* Auth — redirect to dashboard if already logged in */}
+          <Route path="/sponsor" element={<PublicSponsorshipPage />} />
           <Route path="/signin" element={<RedirectIfAuth><SignIn /></RedirectIfAuth>} />
           <Route path="/register" element={<RedirectIfAuth><FestForgeApp /></RedirectIfAuth>} />
           <Route path="/signup" element={<RedirectIfAuth><SignUp /></RedirectIfAuth>} />

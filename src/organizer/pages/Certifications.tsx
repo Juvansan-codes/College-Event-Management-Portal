@@ -1,8 +1,11 @@
-import React, { useState, useRef } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import PageHeader from '../components/PageHeader'
 import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
+import { useEvent } from '../../contexts/EventContext'
+import { certificationService } from '../../services'
 
 /* ─── Types ─── */
 interface CertData {
@@ -240,6 +243,8 @@ CertPreview.displayName = 'CertPreview'
 
 /* ─── Main Component ─── */
 const Certifications: React.FC = () => {
+  const navigate = useNavigate()
+  const { activeEvent, isLoading: isEventLoading } = useEvent()
   const [cert, setCert] = useState<CertData>({
     eventName: 'FestForge Summit 2026',
     participantName: 'Priya Kumar',
@@ -260,6 +265,60 @@ const Certifications: React.FC = () => {
   const [showRosterModal, setShowRosterModal] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [templateUrl, setTemplateUrl] = useState<string | undefined>(undefined)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
+  const [syncMessage, setSyncMessage] = useState<string | null>(null)
+  const [syncError, setSyncError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!isEventLoading && !activeEvent) {
+      navigate('/organizer')
+    }
+  }, [activeEvent, isEventLoading, navigate])
+
+  useEffect(() => {
+    if (!activeEvent) return
+
+    let cancelled = false
+    const loadBatch = async () => {
+      setIsLoading(true)
+      setSyncError(null)
+
+      const { data, error } = await certificationService.getBatchByEvent(activeEvent.id)
+      if (cancelled) return
+
+      if (error) {
+        setSyncError(error)
+      } else if (data) {
+        const participants = data.recipients.map((recipient) => recipient.participant_name)
+        setCert({
+          eventName: data.event_name,
+          participantName: participants[0] ?? '',
+          date: data.conducted_date,
+          participants,
+        })
+        setBulkText(participants.join('\n'))
+        setTemplateUrl(data.template_data_url ?? undefined)
+      } else {
+        const defaults = ['Priya Kumar', 'Arjun Mehta', 'Sneha Reddy', 'Rahul Sharma']
+        setCert({
+          eventName: activeEvent.name,
+          participantName: defaults[0],
+          date: activeEvent.end_date,
+          participants: defaults,
+        })
+        setBulkText(defaults.join('\n'))
+        setTemplateUrl(undefined)
+      }
+
+      setIsLoading(false)
+    }
+
+    loadBatch()
+    return () => {
+      cancelled = true
+    }
+  }, [activeEvent])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
@@ -305,18 +364,43 @@ const Certifications: React.FC = () => {
     }
   }
 
-  const handleBulkParse = () => {
+  const handleGenerate = async () => {
+    if (!activeEvent) return
     const names = bulkText
       .split('\n')
       .map((n) => n.trim())
       .filter(Boolean)
-    setCert((prev) => ({ ...prev, participants: names }))
-  }
 
-  const handleGenerate = () => {
-    handleBulkParse()
+    setCert((prev) => ({ ...prev, participants: names, participantName: prev.participantName || names[0] || '' }))
+    setIsSaving(true)
+    setSyncError(null)
+    setSyncMessage(null)
+
+    const { data, error } = await certificationService.saveBatch(activeEvent.id, {
+      event_name: cert.eventName,
+      conducted_date: cert.date,
+      template_data_url: templateUrl ?? null,
+      participants: names,
+    })
+
+    setIsSaving(false)
+    if (error || !data) {
+      setSyncError(error ?? 'Unable to save certificate batch.')
+      return
+    }
+
+    const savedNames = data.recipients.map((recipient) => recipient.participant_name)
+    setCert((prev) => ({
+      ...prev,
+      participants: savedNames,
+      participantName: prev.participantName || savedNames[0] || '',
+    }))
     setGenerated(true)
-    setTimeout(() => setGenerated(false), 3000)
+    setSyncMessage(`${savedNames.length} credentials saved to the database.`)
+    setTimeout(() => {
+      setGenerated(false)
+      setSyncMessage(null)
+    }, 3000)
   }
 
   const exportNamesList = async (names: string[]) => {
@@ -380,6 +464,8 @@ const Certifications: React.FC = () => {
     name.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
+  if (!activeEvent) return null
+
   return (
     <motion.div variants={stagger} initial="initial" animate="animate" className="org-certs-page">
       <style>{`
@@ -388,8 +474,20 @@ const Certifications: React.FC = () => {
       <PageHeader
         eyebrow="Console"
         title="Certification Generator"
-        subtitle="Design corporate participation passes and distribute secure credentials to attendees."
+        subtitle={`Design participation credentials and persist recipient rosters for ${activeEvent.name}.`}
       />
+
+      {syncError && (
+        <div className="org-surface" style={{ padding: '0.85rem 1rem', marginBottom: '1rem', borderColor: 'var(--org-danger)', color: 'var(--org-danger)', fontSize: '0.82rem', fontWeight: 700 }}>
+          {syncError}
+        </div>
+      )}
+
+      {isLoading && (
+        <div className="org-surface org-surface--elevated" style={{ padding: '1rem', marginBottom: '1rem', color: 'var(--org-text-secondary)', fontSize: '0.85rem' }}>
+          Loading certificate batch...
+        </div>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: '2rem', alignItems: 'start' }}>
         {/* Left: Settings */}
@@ -502,8 +600,8 @@ const Certifications: React.FC = () => {
               style={{ minHeight: 90 }}
             />
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.2rem' }}>
-              <button className="org-btn org-btn--accent" onClick={handleGenerate}>
-                Deploy all passes
+              <button className="org-btn org-btn--accent" onClick={handleGenerate} disabled={isSaving || isLoading}>
+                {isSaving ? 'Saving passes...' : 'Deploy all passes'}
               </button>
               <span style={{ fontSize: '0.75rem', color: 'var(--org-text-tertiary)', fontWeight: 600 }}>
                 {bulkText.split('\n').filter((l) => l.trim()).length} names loaded
@@ -574,7 +672,7 @@ const Certifications: React.FC = () => {
                   gap: '0.5rem',
                 }}
               >
-                ✓ {bulkText.split('\n').filter((l) => l.trim()).length} Credentials generated and synced to database!
+                ✓ {syncMessage ?? `${bulkText.split('\n').filter((l) => l.trim()).length} credentials saved to the database.`}
               </motion.div>
             )}
           </AnimatePresence>
