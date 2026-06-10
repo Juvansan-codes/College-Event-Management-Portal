@@ -20,8 +20,14 @@ function getSystemTheme(): ResolvedTheme {
 
 function getStoredTheme(): Theme {
   if (typeof window === 'undefined') return 'system'
-  const stored = localStorage.getItem(STORAGE_KEY)
-  if (stored === 'light' || stored === 'dark' || stored === 'system') return stored
+
+  try {
+    const stored = window.localStorage.getItem(STORAGE_KEY)
+    if (stored === 'light' || stored === 'dark' || stored === 'system') return stored
+  } catch {
+    return 'system'
+  }
+
   return 'system'
 }
 
@@ -37,7 +43,12 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme)
-    localStorage.setItem(STORAGE_KEY, newTheme)
+
+    try {
+      window.localStorage.setItem(STORAGE_KEY, newTheme)
+    } catch {
+      // Ignore storage failures so theme switching still works for this session.
+    }
   }, [])
 
   // Listen to OS theme changes
@@ -46,8 +57,14 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const handler = (e: MediaQueryListEvent) => {
       setSystemTheme(e.matches ? 'dark' : 'light')
     }
-    mq.addEventListener('change', handler)
-    return () => mq.removeEventListener('change', handler)
+
+    if (typeof mq.addEventListener === 'function') {
+      mq.addEventListener('change', handler)
+      return () => mq.removeEventListener('change', handler)
+    }
+
+    mq.addListener(handler)
+    return () => mq.removeListener(handler)
   }, [])
 
   // Apply theme to DOM

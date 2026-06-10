@@ -2,10 +2,14 @@ import React, { useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { authService } from '../services'
 
+const resolveSelectedRole = (rawRole: string | null): 'student' | 'organizer' => {
+  return rawRole === 'organizer' ? 'organizer' : 'student'
+}
+
 const SignUp: React.FC = () => {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const selectedRole = searchParams.get('role') || 'student'
+  const selectedRole = resolveSelectedRole(searchParams.get('role'))
 
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')

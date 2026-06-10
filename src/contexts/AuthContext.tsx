@@ -37,6 +37,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    let isMounted = true
+
     if (!authService.isConfigured()) {
       setIsLoading(false)
       return
@@ -44,16 +46,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     /* 1. Get current session on mount */
     authService.getSession().then(({ data }) => {
+      if (!isMounted) return
       setUser(data?.user ?? null)
       setIsLoading(false)
     })
 
     /* 2. Listen for auth state changes */
     const unsubscribe = authService.onAuthStateChange((newUser) => {
+      if (!isMounted) return
       setUser(newUser)
     })
 
-    return unsubscribe
+    return () => {
+      isMounted = false
+      unsubscribe()
+    }
   }, [])
 
   const signOut = async () => {

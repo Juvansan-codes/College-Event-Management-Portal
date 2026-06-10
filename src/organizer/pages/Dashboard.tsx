@@ -137,7 +137,7 @@ const fadeUp = {
 const Dashboard: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0)
   const { user } = useAuth()
-  const { activeEvent, events } = useEvent()
+  const { activeEvent, events, isLoading } = useEvent()
   const navigate = useNavigate()
 
   const displayName = user?.user_metadata?.full_name || 'Organizer'
@@ -151,10 +151,10 @@ const Dashboard: React.FC = () => {
 
   /* Redirect to event picker if no event selected */
   useEffect(() => {
-    if (!activeEvent) {
+    if (!isLoading && !activeEvent) {
       navigate('/organizer', { replace: true })
     }
-  }, [activeEvent, navigate])
+  }, [activeEvent, isLoading, navigate])
 
   // Autoplay cinematic event visual carousel
   useEffect(() => {

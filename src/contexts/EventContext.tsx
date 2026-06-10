@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react'
 import { eventService } from '../services'
 import { useAuth } from './AuthContext'
 import type { FestEvent, CreateEventPayload } from '../types'
@@ -31,37 +31,86 @@ export const useEvent = () => useContext(EventContext)
 /* ─── localStorage key ─── */
 const ACTIVE_EVENT_KEY = 'festforge_active_event_id'
 
+const getStoredActiveEventId = (): string | null => {
+  if (typeof window === 'undefined') return null
+
+  try {
+    return window.localStorage.getItem(ACTIVE_EVENT_KEY)
+  } catch {
+    return null
+  }
+}
+
+const setStoredActiveEventId = (eventId: string) => {
+  if (typeof window === 'undefined') return
+
+  try {
+    window.localStorage.setItem(ACTIVE_EVENT_KEY, eventId)
+  } catch {
+    // Ignore storage failures so event state still works in restricted browsers.
+  }
+}
+
+const clearStoredActiveEventId = () => {
+  if (typeof window === 'undefined') return
+
+  try {
+    window.localStorage.removeItem(ACTIVE_EVENT_KEY)
+  } catch {
+    // Ignore storage failures so logout and refresh flows remain stable.
+  }
+}
+
 /* ─── Provider ─── */
 export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth()
   const [events, setEvents] = useState<FestEvent[]>([])
   const [activeEvent, setActiveEventState] = useState<FestEvent | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const isMountedRef = useRef(true)
+  const requestIdRef = useRef(0)
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
 
   /* Fetch events for this organizer */
   const refreshEvents = useCallback(async () => {
+    const requestId = ++requestIdRef.current
+    setIsLoading(true)
+
     if (!user) {
+      if (!isMountedRef.current || requestId !== requestIdRef.current) return
       setEvents([])
+      setActiveEventState(null)
+      clearStoredActiveEventId()
       setIsLoading(false)
       return
     }
 
     const { data, error } = await eventService.getEventsByOrganizer(user.id)
+    if (!isMountedRef.current || requestId !== requestIdRef.current) return
 
     if (error || !data) {
       console.error('Error fetching events:', error)
       setEvents([])
+      setActiveEventState(null)
     } else {
       setEvents(data)
+      setActiveEventState((currentActiveEvent) => {
+        const savedId = getStoredActiveEventId()
+        const nextActiveEvent =
+          data.find((event) => event.id === currentActiveEvent?.id) ??
+          (savedId ? data.find((event) => event.id === savedId) ?? null : null)
 
-      /* Restore active event from localStorage */
-      const savedId = localStorage.getItem(ACTIVE_EVENT_KEY)
-      if (savedId) {
-        const saved = data.find((e) => e.id === savedId)
-        if (saved) {
-          setActiveEventState(saved)
+        if (!nextActiveEvent) {
+          clearStoredActiveEventId()
         }
-      }
+
+        return nextActiveEvent
+      })
     }
 
     setIsLoading(false)
@@ -74,6 +123,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } else {
       setEvents([])
       setActiveEventState(null)
+      clearStoredActiveEventId()
       setIsLoading(false)
     }
   }, [user, refreshEvents])
@@ -81,7 +131,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   /* Set active event + persist to localStorage */
   const setActiveEvent = useCallback((event: FestEvent) => {
     setActiveEventState(event)
-    localStorage.setItem(ACTIVE_EVENT_KEY, event.id)
+    setStoredActiveEventId(event.id)
   }, [])
 
   /* Create a new event via service */

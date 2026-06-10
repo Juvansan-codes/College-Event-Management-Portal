@@ -2,8 +2,6 @@ import React, { useEffect, useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import PageHeader from '../components/PageHeader'
-import html2canvas from 'html2canvas'
-import { jsPDF } from 'jspdf'
 import { useEvent } from '../../contexts/EventContext'
 import { certificationService } from '../../services'
 
@@ -269,6 +267,15 @@ const Certifications: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false)
   const [syncMessage, setSyncMessage] = useState<string | null>(null)
   const [syncError, setSyncError] = useState<string | null>(null)
+  const successTimeoutRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (successTimeoutRef.current !== null) {
+        window.clearTimeout(successTimeoutRef.current)
+      }
+    }
+  }, [])
 
   useEffect(() => {
     if (!isEventLoading && !activeEvent) {
@@ -397,7 +404,12 @@ const Certifications: React.FC = () => {
     }))
     setGenerated(true)
     setSyncMessage(`${savedNames.length} credentials saved to the database.`)
-    setTimeout(() => {
+
+    if (successTimeoutRef.current !== null) {
+      window.clearTimeout(successTimeoutRef.current)
+    }
+
+    successTimeoutRef.current = window.setTimeout(() => {
       setGenerated(false)
       setSyncMessage(null)
     }, 3000)
@@ -409,7 +421,11 @@ const Certifications: React.FC = () => {
     setDownloadProgress({ current: 0, total: names.length })
 
     try {
-      let pdf: any = null
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+        import('html2canvas'),
+        import('jspdf'),
+      ])
+      let pdf: InstanceType<typeof jsPDF> | null = null
       const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
       for (let i = 0; i < names.length; i++) {
@@ -423,7 +439,7 @@ const Certifications: React.FC = () => {
         const canvas = await html2canvas(exportRef.current, {
           scale: 2.5,
           useCORS: true,
-          allowTaint: true,
+          allowTaint: false,
           backgroundColor: null,
         })
 
@@ -431,17 +447,18 @@ const Certifications: React.FC = () => {
         const width = canvas.width / 2.5
         const height = canvas.height / 2.5
 
-        if (i === 0) {
-          pdf = new jsPDF({
-            orientation: 'landscape',
-            unit: 'px',
-            format: [width, height],
-          })
-        } else {
-          pdf.addPage([width, height], 'landscape')
+        const currentPdf: InstanceType<typeof jsPDF> = pdf ?? new jsPDF({
+          orientation: 'landscape',
+          unit: 'px',
+          format: [width, height],
+        })
+
+        if (pdf) {
+          currentPdf.addPage([width, height], 'landscape')
         }
 
-        pdf.addImage(imgData, 'PNG', 0, 0, width, height)
+        currentPdf.addImage(imgData, 'PNG', 0, 0, width, height)
+        pdf = currentPdf
         setDownloadProgress({ current: i + 1, total: names.length })
       }
 

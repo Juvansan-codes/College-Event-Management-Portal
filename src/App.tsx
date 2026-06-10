@@ -3,15 +3,13 @@ import { Route, Routes, useLocation, Navigate } from 'react-router-dom'
 import { ThemeProvider } from './components/ThemeProvider'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import Navbar from './components/Navbar'
-import Hero from './components/Hero'
-import EventStage from './components/EventStage'
-import ExperienceShowcase from './components/ExperienceShowcase'
 import Footer from './components/Footer'
-import SignIn from './pages/SignIn'
-import SignUp from './pages/SignUp'
-import FestForgeApp from '../FestForgeApp'
 
 /* ─── Lazy-loaded Organizer Pages ─── */
+const Home = lazy(() => import('./pages/Home'))
+const SignIn = lazy(() => import('./pages/SignIn'))
+const SignUp = lazy(() => import('./pages/SignUp'))
+const FestForgeApp = lazy(() => import('../FestForgeApp'))
 const OrganizerLayout = lazy(() => import('./organizer/components/OrganizerLayout'))
 const EventPicker = lazy(() => import('./organizer/pages/EventPicker'))
 const CreateEvent = lazy(() => import('./organizer/pages/CreateEvent'))
@@ -46,11 +44,17 @@ const PageLoader: React.FC = () => (
 /* ─── Route Guards ─── */
 
 /** Redirects to /signin if user is not authenticated */
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, isLoading } = useAuth()
+const ProtectedRoute: React.FC<{
+  children: React.ReactNode
+  requireOrganizer?: boolean
+}> = ({ children, requireOrganizer = false }) => {
+  const { user, role, isLoading } = useAuth()
 
   if (isLoading) return <PageLoader />
   if (!user) return <Navigate to="/signin" replace />
+  if (requireOrganizer && role !== 'organizer') {
+    return <Navigate to="/attendee" replace />
+  }
 
   return <>{children}</>
 }
@@ -85,13 +89,7 @@ const AppShell: React.FC = () => {
           {/* Landing */}
           <Route
             path="/"
-            element={
-              <>
-                <Hero />
-                <EventStage />
-                <ExperienceShowcase />
-              </>
-            }
+            element={<Home />}
           />
 
           {/* Auth — redirect to dashboard if already logged in */}
@@ -101,7 +99,7 @@ const AppShell: React.FC = () => {
           <Route path="/signup" element={<RedirectIfAuth><SignUp /></RedirectIfAuth>} />
 
           {/* Organizer Portal — protected */}
-          <Route path="/organizer" element={<ProtectedRoute><OrganizerLayout /></ProtectedRoute>}>
+          <Route path="/organizer" element={<ProtectedRoute requireOrganizer><OrganizerLayout /></ProtectedRoute>}>
             <Route index element={<EventPicker />} />
             <Route path="new-event" element={<CreateEvent />} />
             <Route path="dashboard" element={<Dashboard />} />
