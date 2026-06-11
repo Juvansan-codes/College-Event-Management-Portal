@@ -55,6 +55,15 @@ const PollIcon = () => (
   </svg>
 )
 
+const QrIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="7" rx="1" />
+    <rect x="14" y="3" width="7" height="7" rx="1" />
+    <rect x="3" y="14" width="7" height="7" rx="1" />
+    <path d="M14 14h3v3h-3zM18 18h3v3h-3zM18 14h3M14 18v3" />
+  </svg>
+)
+
 const HomeIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
@@ -82,6 +91,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: '/organizer/agenda', label: 'Agenda Planner', icon: <AgendaIcon /> },
   { to: '/organizer/sponsorships', label: 'Sponsorships', icon: <SponsorIcon /> },
   { to: '/organizer/tickets', label: 'Tickets', icon: <TicketIcon /> },
+  { to: '/organizer/attendance', label: 'QR Attendance', icon: <QrIcon /> },
   { to: '/organizer/polls', label: 'Polls', icon: <PollIcon /> },
 ]
 

@@ -12,6 +12,7 @@ const BREADCRUMBS: Record<string, string> = {
   '/attendee/events': 'Browse Events',
   '/attendee/my-tickets': 'My Tickets',
   '/attendee/certificates': 'Certificates',
+  '/attendee/check-in': 'Attendance Check-in',
 }
 
 /* ─── Page Transition ─── */
