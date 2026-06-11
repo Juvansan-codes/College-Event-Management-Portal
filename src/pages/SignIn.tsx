@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { authService } from '../services'
 
 const SignIn: React.FC = () => {
   const navigate = useNavigate()
+  const location = useLocation()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -33,10 +34,15 @@ const SignIn: React.FC = () => {
 
       /* Redirect based on the role stored in user metadata */
       const role = data?.user?.user_metadata?.role
+      const requestedPath = (location.state as { from?: string } | null)?.from
+      if (role !== 'organizer' && requestedPath?.startsWith('/attendee/')) {
+        navigate(requestedPath, { replace: true })
+        return
+      }
       if (role === 'organizer') {
-        navigate('/organizer')
+        navigate('/organizer', { replace: true })
       } else {
-        navigate('/attendee')
+        navigate('/attendee', { replace: true })
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Sign in failed')

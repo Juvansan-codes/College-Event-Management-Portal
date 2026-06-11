@@ -1785,6 +1785,210 @@
   .org-hero__carousel { height: 200px; position: relative; }
 }
 
+/* QR attendance */
+.attendance-alert {
+  padding: 0.75rem 0.9rem;
+  margin-bottom: 1rem;
+  border: 1px solid;
+  border-radius: 0.65rem;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.attendance-alert--success {
+  color: var(--org-success);
+  background: var(--org-success-soft);
+  border-color: rgba(16, 185, 129, 0.22);
+}
+
+.attendance-alert--error {
+  color: var(--org-danger);
+  background: var(--org-danger-soft);
+  border-color: rgba(239, 68, 68, 0.22);
+}
+
+.attendance-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+  gap: 1.25rem;
+  align-items: stretch;
+  margin-bottom: 2rem;
+}
+
+.attendance-panel {
+  padding: 1.4rem;
+}
+
+.attendance-session-meta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.attendance-session-meta > div {
+  padding: 0.85rem;
+  background: var(--org-surface-2);
+  border: 1px solid var(--org-border-subtle);
+  border-radius: 0.65rem;
+}
+
+.attendance-session-meta span {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--org-text-tertiary);
+  font-size: 0.69rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.attendance-session-meta strong {
+  color: var(--org-text-primary);
+  font-size: 1.2rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.attendance-start-btn,
+.attendance-stop-btn {
+  width: 100%;
+  justify-content: center;
+  margin-top: 1.25rem;
+}
+
+.attendance-stop-btn {
+  color: #ffffff;
+  background: var(--org-danger);
+}
+
+.attendance-stop-btn:hover {
+  filter: brightness(1.06);
+}
+
+.attendance-qr-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.attendance-qr {
+  display: flex;
+  padding: 0.8rem;
+  background: #ffffff;
+  border-radius: 0.8rem;
+  box-shadow: var(--org-shadow-md);
+}
+
+.attendance-qr-panel h2,
+.attendance-empty h2 {
+  margin-top: 0.9rem;
+  color: var(--org-text-primary);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.attendance-qr-panel p,
+.attendance-empty p {
+  max-width: 360px;
+  margin-top: 0.3rem;
+  color: var(--org-text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.attendance-link-row {
+  display: flex;
+  width: 100%;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.attendance-link-row .org-input {
+  min-width: 0;
+  font-size: 0.72rem;
+}
+
+.attendance-localhost-warning {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  margin-top: 0.75rem;
+  color: var(--org-warning);
+  background: var(--org-warning-soft);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 0.55rem;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.attendance-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 0;
+}
+
+.attendance-empty__icon {
+  display: grid;
+  width: 72px;
+  height: 72px;
+  place-items: center;
+  color: var(--org-accent);
+  background: var(--org-accent-soft);
+  border: 1px dashed var(--org-accent);
+  border-radius: 1rem;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.attendance-roster {
+  margin-bottom: 2rem;
+}
+
+.attendance-table-empty {
+  padding: 2rem !important;
+  color: var(--org-text-tertiary) !important;
+  text-align: center;
+}
+
+.attendance-user-id {
+  max-width: 240px;
+  margin-top: 0.15rem;
+  overflow: hidden;
+  color: var(--org-text-tertiary);
+  font-size: 0.69rem;
+  text-overflow: ellipsis;
+}
+
+.org-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+  transform: none;
+}
+
+@media (max-width: 900px) {
+  .attendance-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .attendance-session-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .attendance-link-row {
+    flex-direction: column;
+  }
+
+  .attendance-table-empty {
+    white-space: normal;
+  }
+}
+
 
 /* ═══════════════════════════════════════════════════════════════
    ADDITIONS: WORKSPACE LAYOUT & BOARD UTILITIES

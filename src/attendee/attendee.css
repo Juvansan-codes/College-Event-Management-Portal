@@ -180,3 +180,106 @@
   color: var(--org-text-secondary);
   line-height: 1.45;
 }
+
+/* Attendance check-in */
+.attendance-checkin-shell {
+  display: grid;
+  min-height: calc(100vh - 150px);
+  padding: 1rem 0;
+  place-items: center;
+}
+
+.attendance-checkin-card {
+  display: flex;
+  width: min(100%, 520px);
+  padding: 2rem;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.attendance-checkin-icon {
+  display: grid;
+  width: 72px;
+  height: 72px;
+  margin-bottom: 1rem;
+  place-items: center;
+  color: var(--org-accent);
+  background: var(--org-accent-soft);
+  border: 1px solid rgba(var(--org-accent-rgb), 0.2);
+  border-radius: 1.1rem;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.attendance-checkin-icon--success {
+  color: #ffffff;
+  background: var(--org-success);
+  border-color: transparent;
+  border-radius: 50%;
+}
+
+.attendance-checkin-card h1 {
+  margin-top: 0.8rem;
+  color: var(--org-text-primary);
+  font-size: 1.55rem;
+  font-weight: 760;
+  letter-spacing: -0.025em;
+}
+
+.attendance-checkin-card > p {
+  max-width: 410px;
+  margin: 0.55rem 0 1.2rem;
+  color: var(--org-text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.attendance-checkin-card > small {
+  margin: -0.5rem 0 1.1rem;
+  color: var(--org-text-tertiary);
+  line-height: 1.5;
+}
+
+.attendance-checkin-card .attendance-alert {
+  width: 100%;
+  text-align: left;
+}
+
+.attendance-privacy-note {
+  display: flex;
+  width: 100%;
+  padding: 0.9rem 1rem;
+  margin-bottom: 1.1rem;
+  gap: 0.2rem;
+  flex-direction: column;
+  color: var(--org-text-secondary);
+  background: var(--org-surface-2);
+  border: 1px solid var(--org-border-subtle);
+  border-radius: 0.7rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.attendance-privacy-note strong {
+  color: var(--org-text-primary);
+}
+
+.attendance-checkin-button {
+  width: 100%;
+  justify-content: center;
+  padding: 0.7rem 1rem;
+}
+
+@media (max-width: 560px) {
+  .attendance-checkin-shell {
+    min-height: calc(100vh - 110px);
+    padding: 0;
+  }
+
+  .attendance-checkin-card {
+    padding: 1.5rem 1.1rem;
+  }
+}

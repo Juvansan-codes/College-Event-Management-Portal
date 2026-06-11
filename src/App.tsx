@@ -21,11 +21,13 @@ const Agenda = lazy(() => import('./organizer/pages/Agenda'))
 const Sponsorships = lazy(() => import('./organizer/pages/Sponsorships'))
 const Tickets = lazy(() => import('./organizer/pages/Tickets'))
 const Polls = lazy(() => import('./organizer/pages/Polls'))
+const Attendance = lazy(() => import('./organizer/pages/Attendance'))
 const PublicSponsorshipPage = lazy(() => import('../SponsorshipPage'))
 
 /* ─── Lazy-loaded Attendee Pages ─── */
 const AttendeeLayout = lazy(() => import('./attendee/components/AttendeeLayout'))
 const AttendeeDashboard = lazy(() => import('./attendee/pages/AttendeeDashboard'))
+const AttendanceCheckIn = lazy(() => import('./attendee/pages/AttendanceCheckIn'))
 
 /* ─── Loading Fallback ─── */
 const PageLoader: React.FC = () => (
@@ -48,9 +50,18 @@ const PageLoader: React.FC = () => (
 /** Redirects to /signin if user is not authenticated */
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth()
+  const location = useLocation()
 
   if (isLoading) return <PageLoader />
-  if (!user) return <Navigate to="/signin" replace />
+  if (!user) {
+    return (
+      <Navigate
+        to="/signin"
+        replace
+        state={{ from: `${location.pathname}${location.search}` }}
+      />
+    )
+  }
 
   return <>{children}</>
 }
@@ -58,10 +69,17 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 /** Redirects to dashboard if user is already authenticated */
 const RedirectIfAuth: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, role, isLoading } = useAuth()
+  const location = useLocation()
 
   if (isLoading) return <PageLoader />
   if (user) {
-    const dashboardPath = role === 'organizer' ? '/organizer' : '/attendee'
+    const requestedPath = (location.state as { from?: string } | null)?.from
+    const dashboardPath =
+      role !== 'organizer' && requestedPath?.startsWith('/attendee/')
+        ? requestedPath
+        : role === 'organizer'
+          ? '/organizer'
+          : '/attendee'
     return <Navigate to={dashboardPath} replace />
   }
 
@@ -110,11 +128,13 @@ const AppShell: React.FC = () => {
             <Route path="sponsorships" element={<Sponsorships />} />
             <Route path="tickets" element={<Tickets />} />
             <Route path="polls" element={<Polls />} />
+            <Route path="attendance" element={<Attendance />} />
           </Route>
 
           {/* Attendee Portal — protected */}
           <Route path="/attendee" element={<ProtectedRoute><AttendeeLayout /></ProtectedRoute>}>
             <Route index element={<AttendeeDashboard />} />
+            <Route path="check-in" element={<AttendanceCheckIn />} />
             {/* Future pages: events, my-tickets, certificates */}
           </Route>
         </Routes>

@@ -121,3 +121,45 @@ export interface ApiResult<T> {
   data: T | null
   error: string | null
 }
+
+/* --- QR Attendance Types --- */
+
+export interface AttendanceSession {
+  id: string
+  event_id: string
+  token: string
+  latitude: number
+  longitude: number
+  radius_meters: number
+  created_at: string
+  expires_at: string
+  is_active: boolean
+}
+
+export interface AttendanceRecord {
+  id: string
+  event_id: string
+  session_id: string
+  user_id: string
+  user_name: string
+  check_in_time: string
+  latitude: number
+  longitude: number
+  distance_meters: number
+  status: string
+  device_information: string | null
+  ip_address: string | null
+}
+
+export interface AttendanceLog {
+  id: string
+  event_id: string
+  user_id: string | null
+  status: string
+  error_message: string | null
+  created_at: string
+  latitude: number | null
+  longitude: number | null
+  device_information: string | null
+  ip_address: string | null
+}
