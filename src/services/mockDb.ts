@@ -14,7 +14,6 @@ import type {
   AttendanceRecord,
   AttendanceLog,
   Poll,
-  PollOption,
 } from '../types'
 
 // Helpers to read/write localStorage with fallback
@@ -673,7 +672,7 @@ export const mockDb = {
     return newVote
   },
   
-  createPoll(question: string, optionsTexts: string[], organizerId: string): Poll {
+  createPoll(question: string, optionsTexts: string[], _organizerId: string): Poll {
     this.init()
     const polls = getStorageItem<Poll[]>('festforge_polls', [])
     

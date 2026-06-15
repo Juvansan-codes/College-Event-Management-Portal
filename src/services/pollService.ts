@@ -1,5 +1,4 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
-import { mockDb } from './mockDb'
 import type { ApiResult, Poll, PollOption } from '../types'
 
 export const pollService = {
@@ -10,7 +9,7 @@ export const pollService = {
   /** Fetch all polls with aggregated option votes and indicate if a user voted */
   async getPolls(userId?: string): Promise<ApiResult<Poll[]>> {
     if (!isSupabaseConfigured || !supabase) {
-      return { data: mockDb.getPolls(userId), error: null }
+      return { data: null, error: 'Database not configured' }
     }
 
     try {
@@ -30,8 +29,7 @@ export const pollService = {
         .order('created_at', { ascending: false })
 
       if (error) {
-        console.warn('Supabase polls error, falling back to mockDb:', error.message)
-        return { data: mockDb.getPolls(userId), error: null }
+        return { data: null, error: error.message }
       }
 
       // Fetch user's votes to see if they voted on any of the polls
@@ -72,17 +70,14 @@ export const pollService = {
 
       return { data: polls, error: null }
     } catch (err) {
-      console.warn('Supabase polls catch error, falling back to mockDb:', err)
-      return { data: mockDb.getPolls(userId), error: null }
+      return { data: null, error: err instanceof Error ? err.message : 'Failed to fetch polls' }
     }
   },
 
   /** Check if a user has already voted in a specific poll */
   async hasUserVoted(pollId: string, userId: string): Promise<ApiResult<boolean>> {
     if (!isSupabaseConfigured || !supabase) {
-      const votes = mockDb.getVotes?.() || []
-      const hasVoted = votes.some((v: any) => v.poll_id === pollId && v.user_id === userId)
-      return { data: hasVoted, error: null }
+      return { data: null, error: 'Database not configured' }
     }
 
     try {
@@ -106,12 +101,7 @@ export const pollService = {
   /** Cast a vote in a live poll (with constraint check) */
   async vote(pollId: string, optionId: string, userId: string): Promise<ApiResult<any>> {
     if (!isSupabaseConfigured || !supabase) {
-      try {
-        const vote = mockDb.voteInPoll(pollId, optionId, userId)
-        return { data: vote, error: null }
-      } catch (err) {
-        return { data: null, error: err instanceof Error ? err.message : 'Failed to cast vote' }
-      }
+      return { data: null, error: 'Database not configured' }
     }
 
     try {
@@ -139,14 +129,9 @@ export const pollService = {
   },
 
   /** Create a new live poll with custom options */
-  async createPoll(question: string, options: string[], organizerId: string): Promise<ApiResult<Poll>> {
+  async createPoll(question: string, options: string[], _organizerId: string): Promise<ApiResult<Poll>> {
     if (!isSupabaseConfigured || !supabase) {
-      try {
-        const poll = mockDb.createPoll(question, options, organizerId)
-        return { data: poll, error: null }
-      } catch (err) {
-        return { data: null, error: err instanceof Error ? err.message : 'Failed to create poll' }
-      }
+      return { data: null, error: 'Database not configured' }
     }
 
     try {
@@ -193,12 +178,7 @@ export const pollService = {
   /** Close a poll to archiving it */
   async closePoll(pollId: string): Promise<ApiResult<Poll>> {
     if (!isSupabaseConfigured || !supabase) {
-      try {
-        const poll = mockDb.closePoll(pollId)
-        return { data: poll, error: null }
-      } catch (err) {
-        return { data: null, error: err instanceof Error ? err.message : 'Failed to close poll' }
-      }
+      return { data: null, error: 'Database not configured' }
     }
 
     try {

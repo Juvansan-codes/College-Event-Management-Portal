@@ -113,12 +113,17 @@ export const authService = {
     if (!isSupabaseConfigured || !supabase) {
       // Use mock database for development
       try {
-        const session = mockDb.signIn(params.email, params.password)
-        if (session) {
+        const user = mockDb.signIn(params.email, params.password)
+        if (user) {
+          const session: AuthSession = {
+            access_token: 'mock-token-' + user.id,
+            user: user,
+          }
+          mockDb.setSession(session)
           return {
             data: {
-              user: mapUser(session.user),
-              session: mapSession(session),
+              user: user,
+              session: session,
             },
             error: null,
           }

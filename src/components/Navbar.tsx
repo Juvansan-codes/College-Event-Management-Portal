@@ -79,7 +79,6 @@ const Navbar: React.FC = () => {
               style={{ color: 'var(--text-secondary)' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.color = 'var(--text-primary)'
-                const underline = e.currentTarget.querySelector('::after')
               }}
               onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
               onClick={(e) => handleScrollLink(e, link.to)}
