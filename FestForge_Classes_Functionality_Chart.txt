@@ -1,0 +1,259 @@
+╔═══════════════════════════════════════════════════════════════╗
+║               FESTFORGE — CLASSES & FUNCTIONALITY CHART       ║
+╚═══════════════════════════════════════════════════════════════╝
+
+================================================================================
+1.  COMPONENT HIERARCHY
+================================================================================
+
+--- Landing Pages (src/components/) -------------------------------------------
+
+  Component              Type         Props              Purpose
+  ────────────────────────────────────────────────────────────────────────────
+  App                    Page         —                  Root router with theme + auth providers
+  AppShell               Layout       —                  Route shell with Navbar/Footer control
+  Hero                   Section      —                  Landing hero with LiquidBackground, CTAs
+  LiquidBackground       Canvas/WebGL —                  Animated liquid metal background via Three.js
+  EventStage             Section      —                  Sticky-scroll stage with role selection
+  ExperienceShowcase     Section      —                  Scroll-triggered 3-step workflow
+  Navbar                 Navigation   —                  Responsive nav with auth-aware links, avatar
+  Footer                 Navigation   —                  3-column footer + social icons
+  FooterColumn           UI           {heading, links}   Single link column in footer
+  SocialIcons            UI           —                  X, Instagram, YouTube, LinkedIn icons
+  FestForgeLogo          UI           {size}             SVG logo component
+  ThemeToggle            UI           —                  Light/Dark/System cycle toggle
+  ThemeProvider          Provider     {children}          Theme context with localStorage persistence
+  AmbientParticles       Canvas       —                  Floating particle animation overlay
+  RoleCard               UI           {data,index,onClick} Tilt-card for role selection
+  StageCard              UI           {data,index}       Reusable stage card with 3D hover
+  PageLoader             UI           —                  "Loading..." fallback for lazy routes
+  ProtectedRoute         Guard        {children}         Redirects to /signin if unauthenticated
+  RedirectIfAuth         Guard        {children}         Redirects to dashboard if already logged in
+
+--- Auth Pages (src/pages/) ----------------------------------------------------
+
+  Component              Route          Purpose
+  ────────────────────────────────────────────────────────────────────────────
+  SignIn                 /signin        Email/password sign-in, role-based redirect
+  SignUp                 /signup        Registration with ?role=student|organizer
+  FestForgeApp           /register      Role selection (student/organizer) before signup
+
+--- Organizer Portal (src/organizer/) -----------------------------------------
+
+  Component              Route                    Type       Purpose
+  ────────────────────────────────────────────────────────────────────────────
+  OrganizerLayout        /organizer/*             Layout     Sidebar + topbar + animated transitions
+  OrganizerSidebar       —                        Navigation Brand, active event, tool nav items
+  PageHeader             —                        UI         Eyebrow + title + subtitle + actions
+  StatCard               —                        UI         Animated counter with icon + trend
+  EventPicker            /organizer               Page       Grid of events with create-new card
+  CreateEvent            /organizer/new-event     Page       Form: name, desc, dates, venue, category
+  Dashboard              /organizer/dashboard     Page       Welcome hero, stats, module cards, feed
+  Certifications         /organizer/certifications Page     Certificate designer, SVG upload, PDF export
+  CertPreview            —                        UI         Forwarded-ref certificate render (signatures/seal)
+  Agenda                 /organizer/agenda        Page       Notion-style timeline, PDF export
+  Sponsorships           /organizer/sponsorships  Page       Pipeline Kanban, tiers, DB-connected
+  Tickets                /organizer/tickets       Page       Ticket tiers, registration table, pass preview
+  Polls                  /organizer/polls         Page       Live polls with animated bars, archived
+  PollCard               —                        UI         Individual poll with vote progress bars
+
+--- Attendee Portal (src/attendee/) -------------------------------------------
+
+  Component              Route              Type       Purpose
+  ────────────────────────────────────────────────────────────────────────────
+  AttendeeLayout         /attendee/*        Layout     Sidebar + topbar + page transitions
+  AttendeeSidebar        —                  Navigation Dashboard, Events, Tickets, Certs links
+  AttendeeDashboard      /attendee          Page       Welcome hero, quick actions, events table
+
+--- Public Pages (root) -------------------------------------------------------
+
+  Component              Route       Type   Purpose
+  ────────────────────────────────────────────────────────────────────────────
+  SponsorshipPage        /sponsor    Page   Full marketing page: tiers, stats, FAQ, interest form
+  AnimatedCounter        —           UI     Animated number via IntersectionObserver
+  InterestForm           —           UI     Sponsor inquiry form -> Supabase sponsor_inquiries
+  Section                —           UI     Scroll-triggered stagger animation wrapper
+  FAQItem                —           UI     Expandable accordion FAQ item
+
+================================================================================
+2.  SERVICE LAYER (src/services/)
+================================================================================
+
+  Service                Methods                                    Tables Accessed            Purpose
+  ──────────────────────────────────────────────────────────────────────────────────────────────────
+  authService            signUp, signIn, signOut,                    Supabase Auth              Authentication (email,
+                         getSession, onAuthStateChange                                        password, session listener)
+
+  eventService           getEventsByOrganizer,                      events                     Event CRUD
+                         getEventById, createEvent,
+                         updateEvent, deleteEvent
+
+  sponsorshipService     getSponsorsByEvent,                        event_sponsors,            Sponsor pipeline + public
+                         createSponsor, updateSponsorStage,         sponsor_inquiries          inquiries
+                         createInquiry
+
+  certificationService   getBatchByEvent,                           certificate_batches,       Certificate batch upsert
+                         saveBatch                                  event_certificates         with recipient roster
+
+================================================================================
+3.  TYPE DEFINITIONS (src/types/index.ts)
+================================================================================
+
+  Type/Interface                 Kind        Fields / Values
+  ──────────────────────────────────────────────────────────────────────────────
+  FestEvent                      Interface   id, organizer_id, name, description,
+                                               start_date, end_date, venue, category,
+                                               max_attendees, status, created_at
+
+  CreateEventPayload             Type        Omit<FestEvent, 'id'|'organizer_id'|'created_at'>
+
+  SponsorTier                    Type        'Platinum' | 'Gold' | 'Silver'
+
+  SponsorPipelineStage           Type        'Contacted' | 'Proposal' | 'Negotiating' | 'Confirmed'
+
+  EventSponsor                   Interface   id, event_id, name, tier, amount,
+                                               contact_email, pipeline_stage, created_at, updated_at
+
+  CreateSponsorPayload           Interface   name, tier, amount, contact_email
+
+  SponsorInquiryPayload          Interface   company, contact_name, email,
+                                               interested_tier, message
+
+  CertificateBatch               Interface   id, event_id, event_name, conducted_date,
+                                               template_data_url, created_at, updated_at
+
+  EventCertificate               Interface   id, batch_id, event_id, participant_name, issued_at
+
+  CertificateBatchWithRecipients Interface   extends CertificateBatch + recipients[]
+
+  SaveCertificateBatchPayload    Interface   event_name, conducted_date,
+                                               template_data_url, participants[]
+
+  UserRole                       Type        'student' | 'organizer' | null
+
+  AuthUser                       Interface   id, email, user_metadata
+
+  AuthSession                    Interface   access_token, user
+
+  SignUpParams                   Interface   email, password, fullName, role
+
+  SignInParams                   Interface   email, password
+
+  SignUpResult / SignInResult    Interface   user, session
+
+  ApiResult<T>                   Interface   data: T | null, error: string | null
+                                               (generic response wrapper)
+
+================================================================================
+4.  CONTEXT PROVIDERS (src/contexts/)
+================================================================================
+
+  Context          Provider         Values                                    Purpose
+  ─────────────────────────────────────────────────────────────────────────────────────────────
+  AuthContext      AuthProvider     { user, role, isLoading, signOut }        Auth state, role
+                                                                              extraction, session
+                                                                              listener
+
+  EventContext     EventProvider    { events, activeEvent, isLoading,         Event CRUD, active
+                                     setActiveEvent, refreshEvents,           event persistence
+                                     createEvent }                            via localStorage
+
+================================================================================
+5.  UTILITIES & HELPERS
+================================================================================
+
+  Function            Location             Purpose
+  ──────────────────────────────────────────────────────────────────────────────
+  useAuth()           AuthContext          Hook — get auth state
+  useEvent()          EventContext         Hook — get event state
+  useTheme()          ThemeProvider        Hook — get/set theme
+  getSupabase()       lib/supabaseClient   Returns Supabase client (throws if not configured)
+  mapUser()           services/authService Maps raw Supabase user -> AuthUser
+  mapSession()        services/authService Maps raw Supabase session -> AuthSession
+  extractRole()       contexts/AuthContext Extracts role from user metadata
+  toSponsor()         Sponsorships.tsx     Maps EventSponsor -> local Sponsor shape
+
+================================================================================
+6.  DATABASE TABLES (Supabase Migrations)
+================================================================================
+
+--- Migration 001 — events -----------------------------------------------------
+
+  Column          Type            Constraints
+  ──────────────────────────────────────────────────────────────────────────────
+  id              UUID            PK, default gen_random_uuid()
+  organizer_id    UUID            NOT NULL
+  name            TEXT            NOT NULL
+  description     TEXT            nullable
+  start_date      DATE            NOT NULL
+  end_date        DATE            NOT NULL
+  venue           TEXT            nullable
+  category        TEXT            default 'General'
+  max_attendees   INT             default 500
+  status          TEXT            default 'Draft'
+  created_at      TIMESTAMPTZ     default now()
+
+--- Migration 002 — Sponsorships & Certifications ------------------------------
+
+  Table                    Key Columns                                            Relationships
+  ─────────────────────────────────────────────────────────────────────────────────────────────────
+  event_sponsors           id, event_id (FK->events), name, tier (CHECK),         CASCADE delete
+                           amount, contact_email, pipeline_stage (CHECK)          with events
+
+  sponsor_inquiries        id, company, contact_name, email,                      Standalone
+                           interested_tier, message                               (public insert)
+
+  certificate_batches      id, event_id (FK->events, UNIQUE), event_name,         CASCADE delete,
+                           conducted_date, template_data_url                      unique per event
+
+  event_certificates       id, batch_id (FK->batches), event_id (FK->events),     CASCADE delete
+                           participant_name                                       via batch or event
+
+  RLS Policy pattern on all organizer tables:
+    EXISTS (SELECT 1 FROM events WHERE events.organizer_id = auth.uid())
+
+================================================================================
+7.  ROUTE MAP
+================================================================================
+
+  Route                      Component              Auth Required    Role
+  ──────────────────────────────────────────────────────────────────────────────
+  /                          Hero + EventStage +    No               —
+                             ExperienceShowcase
+
+  /sponsor                   SponsorshipPage        No               —
+
+  /signin                    SignIn                 No (redirect)    —
+
+  /signup                    SignUp                 No (redirect)    —
+
+  /register                  FestForgeApp           No               —
+                             (role picker)
+
+  /organizer                 EventPicker            Yes              organizer
+
+  /organizer/new-event       CreateEvent            Yes              organizer
+
+  /organizer/dashboard       Dashboard              Yes              organizer
+
+  /organizer/certifications  Certifications         Yes              organizer
+
+  /organizer/agenda          Agenda                 Yes              organizer
+
+  /organizer/sponsorships    Sponsorships           Yes              organizer
+
+  /organizer/tickets         Tickets                Yes              organizer
+
+  /organizer/polls           Polls                  Yes              organizer
+
+  /attendee                  AttendeeDashboard      Yes              student
+
+  /attendee/events           [NOT BUILT]            Yes              student
+
+  /attendee/my-tickets       [NOT BUILT]            Yes              student
+
+  /attendee/certificates     [NOT BUILT]            Yes              student
+
+================================================================================
+END OF CHART
+================================================================================
