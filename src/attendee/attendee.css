@@ -247,6 +247,108 @@
   text-align: left;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   ENHANCED ANIMATIONS FOR ATTENDEE EXPERIENCE
+   ═══════════════════════════════════════════════════════════════ */
+
+@keyframes slideInCard {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pulseBorder {
+  0%, 100% {
+    border-color: var(--org-border-default);
+  }
+  50% {
+    border-color: var(--org-accent);
+  }
+}
+
+/* Attendee event cards with staggered animation */
+.att-event-card {
+  animation: slideInCard 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Poll cards with smooth transitions */
+.att-poll-card {
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.att-poll-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+.poll-list {
+  display: flex;
+  flex-direction: column;
+  max-width: 720px;
+}
+
+.att-layout .poll-leader-badge--winner {
+  background: rgba(245, 158, 11, 0.12);
+  color: #B45309;
+}
+
+.att-layout .poll-tabs__count {
+  background: var(--org-accent-soft);
+  color: var(--org-accent-text);
+}
+
+/* Poll options with interactive feedback */
+.att-poll-option {
+  transition: all 0.3s ease;
+}
+
+.att-poll-option:hover {
+  background: var(--org-accent-soft);
+  transform: translateX(4px);
+}
+
+.att-poll-option.selected {
+  background: linear-gradient(135deg, var(--org-accent-medium), var(--org-accent-soft));
+  border-color: var(--org-accent);
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.2);
+}
+
+/* Vote button animations */
+.att-vote-btn {
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.att-vote-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+}
+
+.att-vote-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Attendance status badge animation */
+.att-status-badge {
+  animation: slideInCard 0.4s ease;
+}
+
+.att-status-badge.checked-in {
+  background: linear-gradient(135deg, var(--org-success-soft), rgba(16, 185, 129, 0.05));
+  border-color: var(--org-success);
+}
+
+.att-status-badge.not-checked-in {
+  background: linear-gradient(135deg, var(--org-warning-soft), rgba(245, 158, 11, 0.05));
+  border-color: var(--org-warning);
+}
+
 .attendance-privacy-note {
   display: flex;
   width: 100%;

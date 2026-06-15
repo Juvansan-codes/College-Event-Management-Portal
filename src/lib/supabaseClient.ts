@@ -5,7 +5,8 @@ const supabaseKey =
   (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined) ??
   (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined)
 
-export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseKey)
+// Development mode: Use MockDb instead of Supabase
+export const isSupabaseConfigured = false
 
 export const supabase: SupabaseClient | null = isSupabaseConfigured
   ? createClient(supabaseUrl!, supabaseKey!)

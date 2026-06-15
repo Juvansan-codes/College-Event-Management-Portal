@@ -28,9 +28,10 @@ const PublicSponsorshipPage = lazy(() => import('../SponsorshipPage'))
 const AttendeeLayout = lazy(() => import('./attendee/components/AttendeeLayout'))
 const AttendeeDashboard = lazy(() => import('./attendee/pages/AttendeeDashboard'))
 const AttendanceCheckIn = lazy(() => import('./attendee/pages/AttendanceCheckIn'))
+const AttendeePolls = lazy(() => import('./attendee/pages/AttendeePolls'))
 
 /* ─── Loading Fallback ─── */
-const PageLoader: React.FC = () => (
+const PageLoader = () => (
   <div style={{
     display: 'flex',
     alignItems: 'center',
@@ -135,6 +136,7 @@ const AppShell: React.FC = () => {
           <Route path="/attendee" element={<ProtectedRoute><AttendeeLayout /></ProtectedRoute>}>
             <Route index element={<AttendeeDashboard />} />
             <Route path="check-in" element={<AttendanceCheckIn />} />
+            <Route path="polls" element={<AttendeePolls />} />
             {/* Future pages: events, my-tickets, certificates */}
           </Route>
         </Routes>

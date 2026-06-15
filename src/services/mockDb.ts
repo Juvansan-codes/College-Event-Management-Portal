@@ -13,6 +13,8 @@ import type {
   AttendanceSession,
   AttendanceRecord,
   AttendanceLog,
+  Poll,
+  PollOption,
 } from '../types'
 
 // Helpers to read/write localStorage with fallback
@@ -145,6 +147,48 @@ const initialRecords: AttendanceRecord[] = [
   },
 ]
 
+const initialPolls: Poll[] = [
+  {
+    id: '1',
+    question: 'Which keynote track is your top priority for Day 2?',
+    options: [
+      { id: 'a', text: 'AI & Next-Gen Neural Networks', votes: 78 },
+      { id: 'b', text: 'Web3 Paradigms & Sovereign Systems', votes: 34 },
+      { id: 'c', text: 'Serverless Infrastructure scale limits', votes: 45 },
+      { id: 'd', text: 'UX frameworks for AI Agents', votes: 52 },
+    ],
+    isLive: true,
+    totalVotes: 209,
+    createdAt: 'Active Just Now',
+  },
+  {
+    id: '2',
+    question: 'How would you rate the venue operations and catering blocks?',
+    options: [
+      { id: 'a', text: 'Flawless execution ⭐⭐⭐⭐⭐', votes: 94 },
+      { id: 'b', text: 'Solid service flow ⭐⭐⭐⭐', votes: 56 },
+      { id: 'c', text: 'Average checklist ⭐⭐⭐', votes: 12 },
+      { id: 'd', text: 'Needs layout overhaul', votes: 4 },
+    ],
+    isLive: true,
+    totalVotes: 166,
+    createdAt: 'Active 2h ago',
+  },
+  {
+    id: '3',
+    question: 'Preferred start time for networking socials?',
+    options: [
+      { id: 'a', text: 'After luncheon (2:00 PM)', votes: 55 },
+      { id: 'b', text: 'Post workshops (5:30 PM)', votes: 120 },
+      { id: 'c', text: 'Late evening banquet (8:00 PM)', votes: 84 },
+    ],
+    isLive: false,
+    totalVotes: 259,
+    createdAt: 'Yesterday Archive',
+  },
+]
+
+
 export const mockDb = {
   // --- Initialize Storage ---
   init() {
@@ -175,6 +219,12 @@ export const mockDb = {
     }
     if (!localStorage.getItem('festforge_attendance_logs')) {
       setStorageItem('festforge_attendance_logs', [])
+    }
+    if (!localStorage.getItem('festforge_polls')) {
+      setStorageItem('festforge_polls', initialPolls)
+    }
+    if (!localStorage.getItem('festforge_votes')) {
+      setStorageItem('festforge_votes', [])
     }
 
     // Validate stored session: if the session's user ID no longer exists
@@ -561,4 +611,106 @@ export const mockDb = {
   getAttendanceLogsByEvent(eventId: string): AttendanceLog[] {
     return this.getAttendanceLogs().filter((l) => l.event_id === eventId)
   },
+
+  // --- Poll Operations ---
+  getPolls(userId?: string): Poll[] {
+    this.init()
+    const polls = getStorageItem<Poll[]>('festforge_polls', [])
+    const votes = getStorageItem<any[]>('festforge_votes', [])
+    
+    return polls.map((p) => {
+      const userVote = userId ? votes.find((v) => v.poll_id === p.id && v.user_id === userId) : null
+      
+      const mappedOptions = p.options.map((o) => {
+        const dynamicCount = votes.filter((v) => v.poll_id === p.id && v.option_id === o.id).length
+        return {
+          ...o,
+          votes: (o.votes || 0) + dynamicCount,
+        }
+      })
+      
+      const totalVotes = mappedOptions.reduce((acc, curr) => acc + curr.votes, 0)
+      
+      return {
+        ...p,
+        options: mappedOptions,
+        totalVotes,
+        userVotedOptionId: userVote ? userVote.option_id : undefined,
+      }
+    })
+  },
+  
+  voteInPoll(pollId: string, optionId: string, userId: string) {
+    this.init()
+    const votes = getStorageItem<any[]>('festforge_votes', [])
+    
+    // Check if user already voted
+    const existing = votes.find((v) => v.poll_id === pollId && v.user_id === userId)
+    if (existing) {
+      throw new Error('You have already voted in this poll')
+    }
+    
+    // Check if poll exists and is live
+    const polls = getStorageItem<Poll[]>('festforge_polls', [])
+    const poll = polls.find((p) => p.id === pollId)
+    if (!poll) {
+      throw new Error('Poll not found')
+    }
+    if (!poll.isLive) {
+      throw new Error('This poll is closed and no longer accepting votes')
+    }
+    
+    const newVote = {
+      id: generateId(),
+      poll_id: pollId,
+      option_id: optionId,
+      user_id: userId,
+      created_at: new Date().toISOString(),
+    }
+    
+    votes.push(newVote)
+    setStorageItem('festforge_votes', votes)
+    return newVote
+  },
+  
+  createPoll(question: string, optionsTexts: string[], organizerId: string): Poll {
+    this.init()
+    const polls = getStorageItem<Poll[]>('festforge_polls', [])
+    
+    const newPoll: Poll = {
+      id: generateId(),
+      question,
+      options: optionsTexts.map((text, i) => ({
+        id: `opt_${generateId()}_${i}`,
+        text,
+        votes: 0,
+      })),
+      isLive: true,
+      totalVotes: 0,
+      createdAt: 'Live Just Now',
+    }
+    
+    polls.unshift(newPoll)
+    setStorageItem('festforge_polls', polls)
+    return newPoll
+  },
+  
+  closePoll(pollId: string): Poll {
+    this.init()
+    const polls = getStorageItem<Poll[]>('festforge_polls', [])
+    const index = polls.findIndex((p) => p.id === pollId)
+    if (index === -1) {
+      throw new Error('Poll not found')
+    }
+    polls[index].isLive = false
+    setStorageItem('festforge_polls', polls)
+    return polls[index]
+  },
+
+  getVotes(): any[] {
+    this.init()
+    return getStorageItem<any[]>('festforge_votes', [])
+  },
 }
+
+
