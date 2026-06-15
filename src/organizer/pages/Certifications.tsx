@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import PageHeader from '../components/PageHeader'
@@ -25,116 +25,205 @@ const stagger = {
 }
 
 /* ─── Premium Certificate Preview Component ─── */
-const CertPreview = React.forwardRef<HTMLDivElement, { eventName: string; participantName: string; date: string; templateUrl?: string }>(
-  ({ eventName, participantName, date, templateUrl }, ref) => (
-    <div ref={ref} className="org-cert-preview org-surface org-surface--elevated" style={{
-      padding: '2.5rem',
-      position: 'relative',
-      overflow: 'hidden',
-      background: templateUrl ? `url(${templateUrl}) no-repeat center/cover` : '#ece8e1',
-      minHeight: '400px',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-    }}>
-      {/* Elegant border frames */}
-      {!templateUrl && (
-        <>
+interface CertPreviewProps {
+  eventName: string
+  participantName: string
+  date: string
+  templateUrl?: string
+  svgContent?: string
+  editable?: boolean
+  onFieldEdit?: (field: 'participantName' | 'eventName' | 'date', value: string) => void
+}
+
+const CertPreview = React.forwardRef<HTMLDivElement, CertPreviewProps>(
+  ({ eventName, participantName, date, templateUrl: _templateUrl, svgContent, editable = false, onFieldEdit }, ref) => {
+
+    /* When we have inline SVG content, render it directly instead of the default certificate */
+    if (svgContent) {
+      return (
+        <div ref={ref} className="org-cert-preview org-surface org-surface--elevated" style={{
+          position: 'relative',
+          overflow: 'hidden',
+          minHeight: '400px',
+          display: 'flex',
+          flexDirection: 'column',
+        }}>
+          {/* Inline SVG rendered directly — the uploaded template completely replaces the default */}
+          <div
+            className="cert-svg-container"
+            style={{
+              width: '100%',
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            dangerouslySetInnerHTML={{ __html: svgContent }}
+          />
+
+          {/* Editable text overlay fields */}
           <div style={{
             position: 'absolute',
-            inset: '1.25rem',
-            border: '1px solid #b19d85',
-            borderRadius: '6px',
-            pointerEvents: 'none',
-            opacity: 0.85
-          }} />
-          <div style={{
-            position: 'absolute',
-            inset: '1.5rem',
-            border: '1px solid #b19d85',
-            borderRadius: '4px',
-            pointerEvents: 'none',
-            opacity: 0.6
-          }} />
-          
-          {/* Top Salford box logo */}
-          <div style={{
-            position: 'absolute',
-            top: '1.5rem',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '110px',
-            height: '80px',
-            background: '#a58f76',
+            inset: 0,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#fff',
-            padding: '0.4rem',
-            zIndex: 3
+            zIndex: 2,
+            pointerEvents: 'none',
           }}>
-            {/* Real Estate Roof SVG */}
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ marginBottom: '4px' }}>
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-              <polyline points="9 22 9 12 15 12 15 22" />
-            </svg>
-            <div style={{ fontSize: '0.45rem', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase', lineHeight: 1.1 }}>SALFORD&CO.</div>
-            <div style={{ fontSize: '0.35rem', fontStyle: 'italic', fontFamily: "'Playfair Display', serif", opacity: 0.85 }}>real estate agency</div>
-          </div>
-        </>
-      )}
+            <div style={{ transform: 'translateY(15px)', width: '100%', textAlign: 'center', pointerEvents: 'auto' }}>
+              {/* Editable Participant Name */}
+              <h2
+                contentEditable={editable}
+                suppressContentEditableWarning
+                onBlur={(e) => onFieldEdit?.('participantName', e.currentTarget.textContent || '')}
+                style={{
+                  fontFamily: "'Alex Brush', cursive",
+                  fontSize: '3.5rem',
+                  color: '#383531',
+                  margin: 0,
+                  lineHeight: 1,
+                  outline: 'none',
+                  cursor: editable ? 'text' : 'default',
+                  borderBottom: editable ? '2px dashed rgba(165, 143, 118, 0.4)' : 'none',
+                  padding: editable ? '0.2rem 0.5rem' : 0,
+                  transition: 'border-color 0.2s',
+                  minWidth: '200px',
+                  display: 'inline-block',
+                }}
+              >
+                {participantName}
+              </h2>
+              <div style={{ width: '220px', height: '1px', background: '#a58f76', margin: '0.4rem auto 1rem auto' }} />
 
-      {templateUrl ? (
-        /* Overlay dynamic fields only when custom SVG mask is uploaded */
+              {/* Editable Event Name */}
+              <h3
+                contentEditable={editable}
+                suppressContentEditableWarning
+                onBlur={(e) => onFieldEdit?.('eventName', e.currentTarget.textContent || '')}
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontStyle: 'italic',
+                  fontSize: '1rem',
+                  color: '#4a4743',
+                  margin: '0.5rem 0',
+                  fontWeight: 500,
+                  outline: 'none',
+                  cursor: editable ? 'text' : 'default',
+                  borderBottom: editable ? '2px dashed rgba(165, 143, 118, 0.3)' : 'none',
+                  padding: editable ? '0.1rem 0.4rem' : 0,
+                  transition: 'border-color 0.2s',
+                  display: 'inline-block',
+                }}
+              >
+                {eventName}
+              </h3>
+
+              {/* Editable Date */}
+              <p
+                contentEditable={editable}
+                suppressContentEditableWarning
+                onBlur={(e) => onFieldEdit?.('date', e.currentTarget.textContent || '')}
+                style={{
+                  fontFamily: "'Montserrat', sans-serif",
+                  fontSize: '0.75rem',
+                  color: '#787571',
+                  letterSpacing: '1px',
+                  margin: 0,
+                  outline: 'none',
+                  cursor: editable ? 'text' : 'default',
+                  borderBottom: editable ? '2px dashed rgba(165, 143, 118, 0.3)' : 'none',
+                  padding: editable ? '0.1rem 0.4rem' : 0,
+                  transition: 'border-color 0.2s',
+                  display: 'inline-block',
+                }}
+              >
+                {date}
+              </p>
+            </div>
+          </div>
+
+          {/* Edit hint badge */}
+          {editable && (
+            <div style={{
+              position: 'absolute',
+              top: '0.75rem',
+              right: '0.75rem',
+              background: 'rgba(165, 143, 118, 0.9)',
+              color: '#fff',
+              fontSize: '0.65rem',
+              fontWeight: 700,
+              padding: '0.25rem 0.6rem',
+              borderRadius: '0.35rem',
+              letterSpacing: '0.5px',
+              textTransform: 'uppercase',
+              zIndex: 10,
+              backdropFilter: 'blur(4px)',
+            }}>
+              ✎ Click text to edit
+            </div>
+          )}
+        </div>
+      )
+    }
+
+    /* Default certificate — shown when NO template is uploaded */
+    return (
+      <div ref={ref} className="org-cert-preview org-surface org-surface--elevated" style={{
+        padding: '2.5rem',
+        position: 'relative',
+        overflow: 'hidden',
+        background: '#ece8e1',
+        minHeight: '400px',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+      }}>
+        {/* Elegant border frames */}
         <div style={{
           position: 'absolute',
-          inset: 0,
+          inset: '1.25rem',
+          border: '1px solid #b19d85',
+          borderRadius: '6px',
+          pointerEvents: 'none',
+          opacity: 0.85
+        }} />
+        <div style={{
+          position: 'absolute',
+          inset: '1.5rem',
+          border: '1px solid #b19d85',
+          borderRadius: '4px',
+          pointerEvents: 'none',
+          opacity: 0.6
+        }} />
+
+        {/* Top Salford box logo */}
+        <div style={{
+          position: 'absolute',
+          top: '1.5rem',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '110px',
+          height: '80px',
+          background: '#a58f76',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 2,
+          color: '#fff',
+          padding: '0.4rem',
+          zIndex: 3
         }}>
-          <div style={{ transform: 'translateY(15px)', width: '100%', textAlign: 'center' }}>
-            {/* Cursive Participant Name */}
-            <h2 style={{
-              fontFamily: "'Alex Brush', cursive",
-              fontSize: '3.5rem',
-              color: '#383531',
-              margin: 0,
-              lineHeight: 1
-            }}>
-              {participantName}
-            </h2>
-            <div style={{ width: '220px', height: '1px', background: '#a58f76', margin: '0.4rem auto 1rem auto' }} />
-            
-            {/* Event Name */}
-            <h3 style={{
-              fontFamily: "'Playfair Display', serif",
-              fontStyle: 'italic',
-              fontSize: '1rem',
-              color: '#4a4743',
-              margin: '0.5rem 0',
-              fontWeight: 500
-            }}>
-              {eventName}
-            </h3>
-            
-            {/* Date */}
-            <p style={{
-              fontFamily: "'Montserrat', sans-serif",
-              fontSize: '0.75rem',
-              color: '#787571',
-              letterSpacing: '1px',
-              margin: 0
-            }}>
-              {date}
-            </p>
-          </div>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ marginBottom: '4px' }}>
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
+          <div style={{ fontSize: '0.45rem', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase', lineHeight: 1.1 }}>SALFORD&CO.</div>
+          <div style={{ fontSize: '0.35rem', fontStyle: 'italic', fontFamily: "'Playfair Display', serif", opacity: 0.85 }}>real estate agency</div>
         </div>
-      ) : (
-        /* Render Salford & Co template text layouts when default template is active */
+
+        {/* Default certificate text layout */}
         <div style={{ textAlign: 'center', position: 'relative', zIndex: 2, marginTop: '5.5rem' }}>
           <h1 style={{
             fontFamily: "'Playfair Display', serif",
@@ -157,7 +246,7 @@ const CertPreview = React.forwardRef<HTMLDivElement, { eventName: string; partic
           }}>
             OF PARTICIPATION
           </p>
-          
+
           <p style={{
             fontFamily: "'Playfair Display', serif",
             fontStyle: 'italic',
@@ -168,7 +257,6 @@ const CertPreview = React.forwardRef<HTMLDivElement, { eventName: string; partic
             proudly presented to
           </p>
 
-          {/* Cursive Name overlaying line */}
           <div style={{ position: 'relative', margin: '0.5rem auto 1.5rem auto', display: 'inline-block', width: '65%' }}>
             <h2 style={{
               fontFamily: "'Alex Brush', cursive",
@@ -183,7 +271,7 @@ const CertPreview = React.forwardRef<HTMLDivElement, { eventName: string; partic
             </h2>
             <div style={{ width: '100%', height: '1px', background: '#a58f76' }} />
           </div>
-          
+
           <p style={{
             fontFamily: "'Playfair Display', serif",
             fontStyle: 'italic',
@@ -198,14 +286,12 @@ const CertPreview = React.forwardRef<HTMLDivElement, { eventName: string; partic
 
           {/* Bottom Layout with Signatures and Seal */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 1.5rem' }}>
-            {/* Left signature */}
             <div style={{ textAlign: 'center', width: '135px' }}>
               <div style={{ borderBottom: '1px solid #c8bbae', marginBottom: '6px' }} />
               <div style={{ fontSize: '0.62rem', fontWeight: 700, color: '#383531', letterSpacing: '1px', fontFamily: "'Montserrat', sans-serif" }}>OLIVIA WILSON</div>
               <div style={{ fontSize: '0.58rem', fontStyle: 'italic', fontFamily: "'Playfair Display', serif", color: '#787571' }}>director</div>
             </div>
 
-            {/* Seal */}
             <div style={{ margin: '0 0.5rem' }}>
               <svg width="64" height="64" viewBox="0 0 100 100">
                 <circle cx="50" cy="50" r="45" fill="#a58f76" stroke="#8c7760" strokeWidth="1.5" />
@@ -227,7 +313,6 @@ const CertPreview = React.forwardRef<HTMLDivElement, { eventName: string; partic
               </svg>
             </div>
 
-            {/* Right signature */}
             <div style={{ textAlign: 'center', width: '135px' }}>
               <div style={{ borderBottom: '1px solid #c8bbae', marginBottom: '6px' }} />
               <div style={{ fontSize: '0.62rem', fontWeight: 700, color: '#383531', letterSpacing: '1px', fontFamily: "'Montserrat', sans-serif" }}>ISABEL MERCADO</div>
@@ -235,9 +320,9 @@ const CertPreview = React.forwardRef<HTMLDivElement, { eventName: string; partic
             </div>
           </div>
         </div>
-      )}
-    </div>
-  )
+      </div>
+    )
+  }
 )
 CertPreview.displayName = 'CertPreview'
 
@@ -265,6 +350,7 @@ const Certifications: React.FC = () => {
   const [showRosterModal, setShowRosterModal] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [templateUrl, setTemplateUrl] = useState<string | undefined>(undefined)
+  const [svgContent, setSvgContent] = useState<string | undefined>(undefined)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [syncMessage, setSyncMessage] = useState<string | null>(null)
@@ -299,6 +385,19 @@ const Certifications: React.FC = () => {
         })
         setBulkText(participants.join('\n'))
         setTemplateUrl(data.template_data_url ?? undefined)
+        // If the stored template is a data URL pointing to an SVG, decode it into raw SVG content
+        if (data.template_data_url && data.template_data_url.startsWith('data:image/svg+xml')) {
+          try {
+            const svgStr = data.template_data_url.includes(';base64,')
+              ? atob(data.template_data_url.split(';base64,')[1])
+              : decodeURIComponent(data.template_data_url.split(',')[1])
+            setSvgContent(sanitizeSvg(svgStr))
+          } catch {
+            setSvgContent(undefined)
+          }
+        } else {
+          setSvgContent(undefined)
+        }
       } else {
         const defaults = ['Priya Kumar', 'Arjun Mehta', 'Sneha Reddy', 'Rahul Sharma']
         setCert({
@@ -309,6 +408,7 @@ const Certifications: React.FC = () => {
         })
         setBulkText(defaults.join('\n'))
         setTemplateUrl(undefined)
+        setSvgContent(undefined)
       }
 
       setIsLoading(false)
@@ -320,24 +420,59 @@ const Certifications: React.FC = () => {
     }
   }, [activeEvent])
 
+  /** Sanitize SVG: make it fill its container */
+  const sanitizeSvg = useCallback((raw: string): string => {
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(raw, 'image/svg+xml')
+    const svgEl = doc.querySelector('svg')
+    if (svgEl) {
+      svgEl.setAttribute('width', '100%')
+      svgEl.setAttribute('height', '100%')
+      svgEl.style.display = 'block'
+      // Ensure viewBox is preserved for proper scaling
+      if (!svgEl.getAttribute('viewBox')) {
+        const w = svgEl.getAttribute('width') || '800'
+        const h = svgEl.getAttribute('height') || '600'
+        svgEl.setAttribute('viewBox', `0 0 ${parseFloat(w) || 800} ${parseFloat(h) || 600}`)
+      }
+    }
+    return new XMLSerializer().serializeToString(doc)
+  }, [])
+
+  /** Read an SVG file and store both data URL and raw SVG content */
+  const processSvgFile = useCallback((file: File) => {
+    if (file.type !== 'image/svg+xml' && !file.name.toLowerCase().endsWith('.svg')) {
+      alert('Please upload an SVG template file.')
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size exceeds 5MB limit.')
+      return
+    }
+
+    // Read as text so we get the raw SVG markup
+    const textReader = new FileReader()
+    textReader.onload = (ev) => {
+      const rawSvg = ev.target?.result as string
+      if (rawSvg) {
+        setSvgContent(sanitizeSvg(rawSvg))
+      }
+    }
+    textReader.readAsText(file)
+
+    // Also read as data URL for persistence / saving
+    const urlReader = new FileReader()
+    urlReader.onload = (ev) => {
+      setTemplateUrl(ev.target?.result as string)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+    urlReader.readAsDataURL(file)
+  }, [sanitizeSvg])
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (files && files.length > 0) {
-      const file = files[0]
-      if (file.type !== 'image/svg+xml' && !file.name.toLowerCase().endsWith('.svg')) {
-        alert('Please upload an SVG template file.')
-        return
-      }
-      if (file.size > 5 * 1024 * 1024) {
-        alert('File size exceeds 5MB limit.')
-        return
-      }
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        setTemplateUrl(event.target?.result as string)
-        if (fileInputRef.current) fileInputRef.current.value = ''
-      }
-      reader.readAsDataURL(file)
+      processSvgFile(files[0])
     }
   }
 
@@ -346,23 +481,20 @@ const Certifications: React.FC = () => {
     setIsDragOver(false)
     const files = e.dataTransfer.files
     if (files && files.length > 0) {
-      const file = files[0]
-      if (file.type !== 'image/svg+xml' && !file.name.toLowerCase().endsWith('.svg')) {
-        alert('Please upload an SVG template file.')
-        return
-      }
-      if (file.size > 5 * 1024 * 1024) {
-        alert('File size exceeds 5MB limit.')
-        return
-      }
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        setTemplateUrl(event.target?.result as string)
-        if (fileInputRef.current) fileInputRef.current.value = ''
-      }
-      reader.readAsDataURL(file)
+      processSvgFile(files[0])
     }
   }
+
+  /** Handle inline edits from contentEditable fields */
+  const handleFieldEdit = useCallback((field: 'participantName' | 'eventName' | 'date', value: string) => {
+    if (field === 'participantName') {
+      setCert((prev) => ({ ...prev, participantName: value }))
+    } else if (field === 'eventName') {
+      setCert((prev) => ({ ...prev, eventName: value }))
+    } else if (field === 'date') {
+      setCert((prev) => ({ ...prev, date: value }))
+    }
+  }, [])
 
   const handleGenerate = async () => {
     if (!activeEvent) return
@@ -517,10 +649,13 @@ const Certifications: React.FC = () => {
               accept=".svg, image/svg+xml"
               style={{ display: 'none' }}
             />
-            {templateUrl ? (
+            {svgContent ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-                <img src={templateUrl} style={{ maxWidth: '150px', maxHeight: '80px', borderRadius: '4px', border: '1px solid var(--org-border-default)' }} alt="Custom mask" />
-                <p style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--org-text-primary)' }}>Custom Mask Active</p>
+                <div
+                  style={{ maxWidth: '150px', maxHeight: '80px', borderRadius: '4px', border: '1px solid var(--org-border-default)', overflow: 'hidden' }}
+                  dangerouslySetInnerHTML={{ __html: svgContent }}
+                />
+                <p style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--org-text-primary)' }}>Custom Template Active</p>
                 <p style={{ fontSize: '0.7rem', color: 'var(--org-accent-text)' }}>Click or drag to replace template</p>
                 <button
                   className="org-btn org-btn--danger"
@@ -528,6 +663,7 @@ const Certifications: React.FC = () => {
                   onClick={(e) => {
                     e.stopPropagation();
                     setTemplateUrl(undefined);
+                    setSvgContent(undefined);
                     if (fileInputRef.current) fileInputRef.current.value = '';
                   }}
                 >
@@ -628,6 +764,9 @@ const Certifications: React.FC = () => {
                 participantName={cert.participantName}
                 date={cert.date}
                 templateUrl={templateUrl}
+                svgContent={svgContent}
+                editable={!!svgContent}
+                onFieldEdit={handleFieldEdit}
               />
             </motion.div>
           </AnimatePresence>
@@ -687,6 +826,8 @@ const Certifications: React.FC = () => {
           participantName={exportName}
           date={cert.date}
           templateUrl={templateUrl}
+          svgContent={svgContent}
+          editable={false}
         />
       </div>
 
