@@ -795,6 +795,90 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   3D MAKEOVER STYLES
+   ═══════════════════════════════════════════════════════════════ */
+
+.glass-3d-container {
+  perspective: 1500px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.glass-3d-card {
+  width: 100%;
+  height: 100%;
+  border-radius: 1.5rem;
+  position: relative;
+  background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transform-style: preserve-3d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+[data-theme="light"] .glass-3d-card {
+  background: linear-gradient(145deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.2) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+.glass-3d-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 1rem;
+  transform: translateZ(60px) scale(0.95);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  transition: transform 0.2s ease-out;
+}
+
+.svg-progress-ring {
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+
+.svg-progress-circle-bg {
+  stroke: var(--border-color);
+  fill: none;
+  stroke-width: 3;
+}
+
+.svg-progress-circle-fg {
+  stroke: url(#neonGradient);
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
+  filter: drop-shadow(0 0 6px rgba(120, 80, 255, 0.6));
+}
+
+.exp-step-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(var(--bg-card-rgb), 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  color: var(--text-primary);
+  font-weight: 800;
+  font-size: 1.4rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* ═══════════════════════════════════════════════════════════════
    RESPONSIVE (Showcase + Stage)
    ═══════════════════════════════════════════════════════════════ */
 
