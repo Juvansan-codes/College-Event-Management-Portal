@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import FestForgeLogo from './FestForgeLogo'
 import ThemeToggle from './ThemeToggle'
 import { useAuth } from '../contexts/AuthContext'
@@ -65,19 +66,32 @@ const Navbar: React.FC = () => {
       </Link>
 
       <ul className="hidden md:flex items-center gap-7 list-none">
-        {navLinks.map((link) => (
-          <li key={link.label}>
+        {navLinks.map((link, index) => (
+          <motion.li 
+            key={link.label}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1, duration: 0.3 }}
+          >
             <Link
               to={link.to}
-              className="text-[0.88rem] font-medium no-underline transition-colors duration-200"
+              className="text-[0.88rem] font-medium no-underline transition-all duration-300 relative pb-1"
               style={{ color: 'var(--text-secondary)' }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = 'var(--text-primary)'
+              }}
               onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
               onClick={(e) => handleScrollLink(e, link.to)}
             >
               {link.label}
+              <motion.div
+                className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-transparent via-current to-transparent"
+                initial={{ width: 0 }}
+                whileHover={{ width: '100%' }}
+                transition={{ duration: 0.3 }}
+              />
             </Link>
-          </li>
+          </motion.li>
         ))}
       </ul>
 

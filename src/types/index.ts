@@ -163,3 +163,21 @@ export interface AttendanceLog {
   device_information: string | null
   ip_address: string | null
 }
+
+/* --- Poll Types --- */
+
+export interface PollOption {
+  id: string
+  text: string
+  votes: number
+}
+
+export interface Poll {
+  id: string
+  question: string
+  options: PollOption[]
+  isLive: boolean
+  totalVotes: number
+  createdAt: string
+  userVotedOptionId?: string
+}
