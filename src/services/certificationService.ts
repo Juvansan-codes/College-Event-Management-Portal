@@ -115,4 +115,35 @@ export const certificationService = {
       }
     }
   },
+
+  async getMyCertificates(participantName: string): Promise<ApiResult<any[]>> {
+    if (!isSupabaseConfigured || !supabase) {
+      return { data: null, error: 'Certification service is not configured.' }
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('event_certificates')
+        .select(`
+          id,
+          issued_at,
+          participant_name,
+          certificate_batches (
+            event_name,
+            conducted_date,
+            template_data_url
+          )
+        `)
+        .eq('participant_name', participantName)
+        .order('issued_at', { ascending: false })
+
+      if (error) return { data: null, error: error.message }
+      return { data, error: null }
+    } catch (err) {
+      return {
+        data: null,
+        error: err instanceof Error ? err.message : 'Failed to fetch certificates',
+      }
+    }
+  },
 }

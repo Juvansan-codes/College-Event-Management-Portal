@@ -39,6 +39,28 @@ export const eventService = {
     }
   },
 
+  /** Fetch all events (for attendees) */
+  async getAllEvents(): Promise<ApiResult<FestEvent[]>> {
+    if (!isSupabaseConfigured || !supabase) {
+      return { data: null, error: 'Event service is not configured.' }
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .order('start_date', { ascending: true })
+
+      if (error) return { data: null, error: error.message }
+      return { data: data as FestEvent[], error: null }
+    } catch (err) {
+      return {
+        data: null,
+        error: err instanceof Error ? err.message : 'Failed to fetch events',
+      }
+    }
+  },
+
   /** Fetch a single event by ID */
   async getEventById(eventId: string): Promise<ApiResult<FestEvent>> {
     if (!isSupabaseConfigured || !supabase) {

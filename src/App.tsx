@@ -29,6 +29,9 @@ const AttendeeLayout = lazy(() => import('./attendee/components/AttendeeLayout')
 const AttendeeDashboard = lazy(() => import('./attendee/pages/AttendeeDashboard'))
 const AttendanceCheckIn = lazy(() => import('./attendee/pages/AttendanceCheckIn'))
 const AttendeePolls = lazy(() => import('./attendee/pages/AttendeePolls'))
+const MyTickets = lazy(() => import('./attendee/pages/MyTickets'))
+const Events = lazy(() => import('./attendee/pages/Events'))
+const Certificates = lazy(() => import('./attendee/pages/Certificates'))
 
 /* ─── Loading Fallback ─── */
 const PageLoader = () => (
@@ -135,9 +138,11 @@ const AppShell: React.FC = () => {
           {/* Attendee Portal — protected */}
           <Route path="/attendee" element={<ProtectedRoute><AttendeeLayout /></ProtectedRoute>}>
             <Route index element={<AttendeeDashboard />} />
+            <Route path="events" element={<Events />} />
             <Route path="check-in" element={<AttendanceCheckIn />} />
             <Route path="polls" element={<AttendeePolls />} />
-            {/* Future pages: events, my-tickets, certificates */}
+            <Route path="my-tickets" element={<MyTickets />} />
+            <Route path="certificates" element={<Certificates />} />
           </Route>
         </Routes>
       </Suspense>

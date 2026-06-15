@@ -1,7 +1,9 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../contexts/AuthContext'
+import { eventService, registrationService } from '../../services'
+import type { FestEvent } from '../../types'
 
 /* ─── Icons ─── */
 const CalendarIcon = () => (
@@ -33,6 +35,12 @@ const SearchIcon = () => (
 const ArrowIcon = () => (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
     <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+  </svg>
+)
+
+const CheckIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12"></polyline>
   </svg>
 )
 
@@ -68,45 +76,6 @@ const QUICK_ACTIONS = [
   },
 ]
 
-/* ─── Upcoming Events ─── */
-const UPCOMING_EVENTS = [
-  {
-    name: 'TechFest 2026',
-    date: 'Jun 15 – 17, 2026',
-    category: 'Technology',
-    attendees: 847,
-    status: 'Open',
-  },
-  {
-    name: 'UI/UX Design Sprint',
-    date: 'Jun 22, 2026',
-    category: 'Design',
-    attendees: 124,
-    status: 'Open',
-  },
-  {
-    name: 'Hackathon Fall',
-    date: 'Jul 05 – 07, 2026',
-    category: 'Coding',
-    attendees: 412,
-    status: 'Upcoming',
-  },
-  {
-    name: 'Cultural Night',
-    date: 'Jul 12, 2026',
-    category: 'Cultural',
-    attendees: 650,
-    status: 'Upcoming',
-  },
-  {
-    name: 'Mega Concert Night',
-    date: 'Jul 18, 2026',
-    category: 'Entertainment',
-    attendees: 1250,
-    status: 'Coming Soon',
-  },
-]
-
 /* ─── Animations ─── */
 const stagger = {
   animate: { transition: { staggerChildren: 0.08 } },
@@ -126,9 +95,90 @@ const staggerContainer = {
   animate: { transition: { staggerChildren: 0.1 } },
 }
 
+/* ─── Modal Styles (inline for simplicity) ─── */
+const modalOverlayStyle: React.CSSProperties = {
+  position: 'fixed',
+  top: 0, left: 0, right: 0, bottom: 0,
+  backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  backdropFilter: 'blur(6px)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  zIndex: 9999,
+}
+
+const modalContentStyle: React.CSSProperties = {
+  background: 'var(--org-surface)',
+  border: '1px solid var(--org-border-default)',
+  borderRadius: '0.8rem',
+  padding: '2rem',
+  width: '90%',
+  maxWidth: '450px',
+  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)',
+}
+
 const AttendeeDashboard: React.FC = () => {
   const { user } = useAuth()
   const displayName = user?.user_metadata?.full_name || 'Student'
+  const displayEmail = user?.email || ''
+  
+  const [upcomingEvents, setUpcomingEvents] = useState<FestEvent[]>([])
+  const [registeredEventIds, setRegisteredEventIds] = useState<Set<string>>(new Set())
+
+  // Registration Modal State
+  const [selectedEventForReg, setSelectedEventForReg] = useState<FestEvent | null>(null)
+  const [regPhone, setRegPhone] = useState('')
+  const [regTicketType, setRegTicketType] = useState('General Admission')
+  const [isRegistering, setIsRegistering] = useState(false)
+  const [regError, setRegError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      // Fetch events
+      const { data: eventsData } = await eventService.getAllEvents()
+      if (eventsData) {
+        setUpcomingEvents(eventsData)
+      }
+
+      // Fetch user's registrations
+      if (user) {
+        const { data: regData } = await registrationService.getMyRegistrations(user.id)
+        if (regData) {
+          setRegisteredEventIds(new Set(regData))
+        }
+      }
+    }
+    fetchData()
+  }, [user])
+
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedEventForReg || !user) return
+
+    setIsRegistering(true)
+    setRegError(null)
+
+    const result = await registrationService.registerForEvent(
+      selectedEventForReg.id,
+      user.id,
+      displayName,
+      displayEmail,
+      regPhone,
+      regTicketType
+    )
+
+    if (result.error) {
+      setRegError(result.error)
+      setIsRegistering(false)
+    } else {
+      // Success!
+      setRegisteredEventIds((prev) => new Set(prev).add(selectedEventForReg.id))
+      setIsRegistering(false)
+      setSelectedEventForReg(null) // Close modal
+      setRegPhone('')
+      setRegTicketType('General Admission')
+    }
+  }
 
   const getGreeting = () => {
     const hour = new Date().getHours()
@@ -137,8 +187,90 @@ const AttendeeDashboard: React.FC = () => {
     return 'Good Evening'
   }
 
+  const formatDate = (start?: string, end?: string) => {
+    if (!start) return 'TBA'
+    const s = new Date(start).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+    if (end && end !== start) {
+      const e = new Date(end).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+      return `${s} – ${e}`
+    }
+    return s
+  }
+
   return (
     <motion.div variants={stagger} initial="initial" animate="animate" className="org-dashboard-container">
+
+      {/* Registration Modal Overlay */}
+      <AnimatePresence>
+        {selectedEventForReg && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={modalOverlayStyle}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 30, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              style={modalContentStyle}
+            >
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--org-text-primary)' }}>
+                Register for Event
+              </h2>
+              <p style={{ fontSize: '0.9rem', color: 'var(--org-text-secondary)', marginBottom: '1.5rem' }}>
+                You are registering for <strong>{selectedEventForReg.name}</strong>. Please confirm your details.
+              </p>
+
+              <form onSubmit={handleRegisterSubmit}>
+                {regError && (
+                  <div style={{ background: 'var(--org-danger-soft)', color: 'var(--org-danger)', padding: '0.75rem', borderRadius: '0.5rem', fontSize: '0.85rem', marginBottom: '1rem', border: '1px solid rgba(var(--org-danger-rgb), 0.2)' }}>
+                    {regError}
+                  </div>
+                )}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <label className="org-label">
+                    Full Name
+                    <input className="org-input" type="text" value={displayName} disabled style={{ opacity: 0.7 }} />
+                  </label>
+                  <label className="org-label">
+                    Email Address
+                    <input className="org-input" type="email" value={displayEmail} disabled style={{ opacity: 0.7 }} />
+                  </label>
+                  <label className="org-label">
+                    Ticket Tier
+                    <select className="org-select" value={regTicketType} onChange={(e) => setRegTicketType(e.target.value)}>
+                      <option value="Free Student Pass">Free Student Pass</option>
+                      <option value="General Admission">General Admission</option>
+                      <option value="Early Bird discount">Early Bird discount</option>
+                      <option value="VIP All-Access">VIP All-Access</option>
+                    </select>
+                  </label>
+                  <label className="org-label">
+                    Phone Number (Optional)
+                    <input 
+                      className="org-input" 
+                      type="tel" 
+                      placeholder="+1 234 567 8900" 
+                      value={regPhone} 
+                      onChange={(e) => setRegPhone(e.target.value)} 
+                    />
+                  </label>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '2rem' }}>
+                  <button type="button" className="org-btn org-btn--secondary" onClick={() => setSelectedEventForReg(null)} disabled={isRegistering}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="org-btn org-btn--accent" disabled={isRegistering}>
+                    {isRegistering ? 'Registering...' : 'Confirm Registration'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Welcome Hero */}
       <motion.div className="org-hero" variants={fadeUp}>
@@ -157,7 +289,7 @@ const AttendeeDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Decorative gradient panel (no carousel image needed) */}
+        {/* Decorative gradient panel */}
         <div className="org-hero__carousel" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(59,130,246,0.1), rgba(108,92,231,0.08))' }}>
           <div style={{
             position: 'absolute',
@@ -181,7 +313,7 @@ const AttendeeDashboard: React.FC = () => {
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
               }}>
-                {UPCOMING_EVENTS.length}
+                {upcomingEvents.length}
               </div>
               <div style={{
                 fontSize: '0.85rem',
@@ -263,45 +395,64 @@ const AttendeeDashboard: React.FC = () => {
                 <th style={{ padding: '0.85rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: 650, color: 'var(--org-text-tertiary)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Event</th>
                 <th style={{ padding: '0.85rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: 650, color: 'var(--org-text-tertiary)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Date</th>
                 <th style={{ padding: '0.85rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: 650, color: 'var(--org-text-tertiary)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Category</th>
-                <th style={{ padding: '0.85rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: 650, color: 'var(--org-text-tertiary)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Attendees</th>
+                <th style={{ padding: '0.85rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: 650, color: 'var(--org-text-tertiary)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Capacity</th>
                 <th style={{ padding: '0.85rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: 650, color: 'var(--org-text-tertiary)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Status</th>
                 <th style={{ padding: '0.85rem 1.25rem', textAlign: 'right', fontSize: '0.75rem', fontWeight: 650, color: 'var(--org-text-tertiary)', letterSpacing: '0.05em', textTransform: 'uppercase' }}></th>
               </tr>
             </thead>
             <tbody>
-              {UPCOMING_EVENTS.map((evt, idx) => (
-                <motion.tr
-                  key={evt.name}
-                  variants={cardReveal}
-                  style={{
-                    borderBottom: idx < UPCOMING_EVENTS.length - 1 ? '1px solid var(--org-border-subtle)' : 'none',
-                    transition: 'background 0.2s ease',
-                    cursor: 'pointer',
-                  }}
-                  whileHover={{ backgroundColor: 'var(--org-table-row-hover)' }}
-                >
-                  <td style={{ padding: '0.9rem 1.25rem' }}>
-                    <span style={{ fontWeight: 600, color: 'var(--org-text-primary)', fontSize: '0.88rem' }}>{evt.name}</span>
+              {upcomingEvents.length === 0 ? (
+                <tr>
+                  <td colSpan={6} style={{ padding: '2rem', textAlign: 'center', color: 'var(--org-text-tertiary)' }}>
+                    No upcoming events found. Check back later!
                   </td>
-                  <td style={{ padding: '0.9rem 1.25rem', fontSize: '0.84rem', color: 'var(--org-text-secondary)' }}>{evt.date}</td>
-                  <td style={{ padding: '0.9rem 1.25rem' }}>
-                    <span className="org-badge org-badge--neutral">{evt.category}</span>
-                  </td>
-                  <td style={{ padding: '0.9rem 1.25rem', fontSize: '0.84rem', color: 'var(--org-text-secondary)', fontVariantNumeric: 'tabular-nums' }}>
-                    {evt.attendees.toLocaleString()}
-                  </td>
-                  <td style={{ padding: '0.9rem 1.25rem' }}>
-                    <span className={`org-badge org-badge--${evt.status === 'Open' ? 'success' : evt.status === 'Upcoming' ? 'info' : 'neutral'}`}>
-                      {evt.status}
-                    </span>
-                  </td>
-                  <td style={{ padding: '0.9rem 1.25rem', textAlign: 'right' }}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.78rem', fontWeight: 600, color: 'var(--org-accent-text)' }}>
-                      Register <ArrowIcon />
-                    </span>
-                  </td>
-                </motion.tr>
-              ))}
+                </tr>
+              ) : upcomingEvents.map((evt, idx) => {
+                const isRegistered = registeredEventIds.has(evt.id)
+                
+                return (
+                  <tr
+                    key={evt.id}
+                    style={{
+                      borderBottom: idx < upcomingEvents.length - 1 ? '1px solid var(--org-border-subtle)' : 'none',
+                      transition: 'background 0.2s ease',
+                      cursor: 'pointer',
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--org-table-row-hover)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                    onClick={() => !isRegistered && setSelectedEventForReg(evt)}
+                  >
+                    <td style={{ padding: '0.9rem 1.25rem' }}>
+                      <span style={{ fontWeight: 600, color: 'var(--org-text-primary)', fontSize: '0.88rem' }}>{evt.name}</span>
+                    </td>
+                    <td style={{ padding: '0.9rem 1.25rem', fontSize: '0.84rem', color: 'var(--org-text-secondary)' }}>
+                      {formatDate(evt.start_date, evt.end_date)}
+                    </td>
+                    <td style={{ padding: '0.9rem 1.25rem' }}>
+                      <span className="org-badge org-badge--neutral">{evt.category || 'General'}</span>
+                    </td>
+                    <td style={{ padding: '0.9rem 1.25rem', fontSize: '0.84rem', color: 'var(--org-text-secondary)', fontVariantNumeric: 'tabular-nums' }}>
+                      {evt.max_attendees ? evt.max_attendees.toLocaleString() : 'Open'}
+                    </td>
+                    <td style={{ padding: '0.9rem 1.25rem' }}>
+                      <span className={`org-badge org-badge--${evt.status === 'Live' ? 'success' : evt.status === 'Draft' ? 'neutral' : 'info'}`}>
+                        {evt.status || 'Upcoming'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '0.9rem 1.25rem', textAlign: 'right' }}>
+                      {isRegistered ? (
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.78rem', fontWeight: 600, color: 'var(--org-success)' }}>
+                          <CheckIcon /> Registered
+                        </span>
+                      ) : (
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.78rem', fontWeight: 600, color: 'var(--org-accent-text)' }}>
+                          Register <ArrowIcon />
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </motion.div>
@@ -311,3 +462,4 @@ const AttendeeDashboard: React.FC = () => {
 }
 
 export default AttendeeDashboard
+
