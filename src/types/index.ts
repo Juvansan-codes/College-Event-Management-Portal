@@ -62,6 +62,8 @@ export interface EventCertificate {
   event_id: string
   participant_name: string
   issued_at: string
+  recipient_email?: string | null
+  sent_by_email?: string | null
 }
 
 export interface CertificateBatchWithRecipients extends CertificateBatch {
@@ -73,6 +75,7 @@ export interface SaveCertificateBatchPayload {
   conducted_date: string
   template_data_url: string | null
   participants: string[]
+  sent_by_email?: string | null
 }
 
 export type UserRole = 'student' | 'organizer' | null

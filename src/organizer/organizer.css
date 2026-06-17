@@ -1687,6 +1687,36 @@
 
 
 /* ═══════════════════════════════════════════════════════════════
+   INLINE SVG CERTIFICATE TEMPLATE
+   ═══════════════════════════════════════════════════════════════ */
+
+.cert-svg-container {
+  position: relative;
+  width: 100%;
+  min-height: 380px;
+}
+
+.cert-svg-container svg {
+  width: 100% !important;
+  height: auto !important;
+  display: block;
+  max-height: 100%;
+}
+
+/* Editable field focus state */
+.org-cert-preview [contenteditable="true"]:focus {
+  border-bottom-color: rgba(165, 143, 118, 0.8) !important;
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 4px;
+}
+
+.org-cert-preview [contenteditable="true"]:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
    UPLOAD ZONE
    ═══════════════════════════════════════════════════════════════ */
 
