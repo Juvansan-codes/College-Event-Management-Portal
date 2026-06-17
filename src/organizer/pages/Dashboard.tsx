@@ -68,35 +68,35 @@ const TOOLS: ToolItem[] = [
     image: '/organizer/card-certifications.png',
     title: 'Certification Generator',
     description: 'Design and release customized, secure participation credentials for attendees.',
-    accentColor: '#A29BFE'
+    accentColor: '#D4B27A'
   },
   {
     to: '/organizer/agenda',
     image: '/organizer/card-agenda.png',
     title: 'Agenda Planner',
     description: 'Plan complex schedules, curate speaker panels, and export print-ready programs.',
-    accentColor: '#3B82F6'
+    accentColor: '#C5A265'
   },
   {
     to: '/organizer/sponsorships',
     image: '/organizer/card-sponsorships.png',
     title: 'Sponsorship Manager',
     description: 'Structure custom partnership tiers and streamline pipeline revenue management.',
-    accentColor: '#F59E0B'
+    accentColor: '#A38A67'
   },
   {
     to: '/organizer/tickets',
     image: '/organizer/card-tickets.png',
     title: 'Registration & Tickets',
     description: 'Configure multi-tier tickets, design mock entry passes, and audit check-ins.',
-    accentColor: '#10B981'
+    accentColor: '#B59B73'
   },
   {
     to: '/organizer/polls',
     image: '/organizer/card-polls.png',
     title: 'Polls & Engagement',
     description: 'Launch real-time questions, check audience metrics, and chart feedback live.',
-    accentColor: '#EF4444'
+    accentColor: '#8C714C'
   }
 ]
 

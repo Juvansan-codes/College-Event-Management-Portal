@@ -1,7 +1,7 @@
 import React, { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import StageCard from './StageCard'
-import stageBg from '../assets/stage-bg.png'
+import stageBg from '../assets/stage4-bg.png'
 
 /* ─── Icons ─── */
 const ClipboardIcon: React.FC = () => (

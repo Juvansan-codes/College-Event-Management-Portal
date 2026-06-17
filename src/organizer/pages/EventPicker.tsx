@@ -71,19 +71,19 @@ const EventPicker: React.FC = () => {
     <motion.div variants={stagger} initial="initial" animate="animate">
       {/* Page Header */}
       <motion.div variants={fadeUp} style={{ marginBottom: '2.5rem' }}>
-        <p style={{ fontSize: '0.68rem', fontWeight: 650, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--org-accent-text)', marginBottom: '0.35rem' }}>
+        <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--org-accent-text)', marginBottom: '0.35rem' }}>
           Welcome back, {displayName}
         </p>
-        <h1 style={{ fontSize: 'clamp(1.6rem, 2.5vw, 2.2rem)', fontWeight: 780, letterSpacing: '-0.04em', color: 'var(--org-text-primary)', lineHeight: 1.15, marginBottom: '0.4rem' }}>
+        <h1 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(1.8rem, 2.8vw, 2.3rem)', fontWeight: 800, letterSpacing: '-0.04em', color: 'var(--org-text-primary)', lineHeight: 1.15, marginBottom: '0.4rem', background: 'linear-gradient(135deg, var(--org-text-primary) 40%, var(--org-accent) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
           Your Events
         </h1>
-        <p style={{ fontSize: '0.9rem', color: 'var(--org-text-secondary)', lineHeight: 1.55, maxWidth: '500px' }}>
+        <p style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '0.9rem', color: 'var(--org-text-secondary)', lineHeight: 1.55, maxWidth: '500px', fontWeight: 450 }}>
           Select an event to manage, or create a new one to get started.
         </p>
       </motion.div>
 
       {/* Events Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.15rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.25rem' }}>
         {/* Existing Event Cards */}
         {events.map((event) => {
           const statusStyle = STATUS_CONFIG[event.status] || STATUS_CONFIG.Draft
@@ -99,10 +99,11 @@ const EventPicker: React.FC = () => {
             >
               {/* Top row: category + status */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.68rem', fontWeight: 650, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--org-text-tertiary)' }}>
+                <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--org-text-tertiary)' }}>
                   {event.category}
                 </span>
                 <span style={{
+                  fontFamily: "'Plus Jakarta Sans', sans-serif",
                   fontSize: '0.68rem',
                   fontWeight: 700,
                   padding: '0.2rem 0.6rem',
@@ -116,13 +117,13 @@ const EventPicker: React.FC = () => {
               </div>
 
               {/* Event name */}
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 750, color: 'var(--org-text-primary)', letterSpacing: '-0.02em', lineHeight: 1.25 }}>
+              <h3 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.2rem', fontWeight: 800, color: 'var(--org-text-primary)', letterSpacing: '-0.02em', lineHeight: 1.25 }}>
                 {event.name}
               </h3>
 
               {/* Description */}
               {event.description && (
-                <p style={{ fontSize: '0.82rem', color: 'var(--org-text-secondary)', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                <p style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '0.82rem', color: 'var(--org-text-secondary)', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                   {event.description}
                 </p>
               )}
@@ -146,7 +147,7 @@ const EventPicker: React.FC = () => {
               </div>
 
               {/* CTA */}
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.78rem', fontWeight: 600, color: 'var(--org-accent-text)', marginTop: '0.25rem' }}>
+              <span style={{ fontFamily: "'Outfit', sans-serif", display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.78rem', fontWeight: 700, color: 'var(--org-accent-text)', marginTop: '0.25rem' }}>
                 Manage Event
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
@@ -169,12 +170,12 @@ const EventPicker: React.FC = () => {
             gap: '1rem',
             textAlign: 'center',
             minHeight: events.length > 0 ? 'auto' : '280px',
-            border: '2px dashed var(--org-border-default)',
+            border: '2px dashed rgba(var(--org-accent-rgb), 0.35)',
             background: 'transparent',
             cursor: 'pointer',
           }}
           onClick={() => navigate('/organizer/new-event')}
-          whileHover={{ y: -4, borderColor: 'var(--org-accent)' }}
+          whileHover={{ y: -4, borderColor: 'var(--org-accent)', background: 'var(--org-accent-soft)' }}
           transition={{ duration: 0.3 }}
         >
           <div style={{
@@ -186,14 +187,15 @@ const EventPicker: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
           }}>
             <PlusIcon />
           </div>
           <div>
-            <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--org-text-primary)', marginBottom: '0.25rem' }}>
+            <h3 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.05rem', fontWeight: 800, color: 'var(--org-text-primary)', marginBottom: '0.25rem' }}>
               Create New Event
             </h3>
-            <p style={{ fontSize: '0.82rem', color: 'var(--org-text-secondary)', maxWidth: '240px' }}>
+            <p style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '0.82rem', color: 'var(--org-text-secondary)', maxWidth: '240px' }}>
               Set up a new college fest, hackathon, or workshop from scratch.
             </p>
           </div>
@@ -202,7 +204,7 @@ const EventPicker: React.FC = () => {
 
       {/* Empty State */}
       {events.length === 0 && (
-        <motion.p variants={fadeUp} style={{ textAlign: 'center', fontSize: '0.85rem', color: 'var(--org-text-tertiary)', marginTop: '1.5rem' }}>
+        <motion.p variants={fadeUp} style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", textAlign: 'center', fontSize: '0.85rem', color: 'var(--org-text-tertiary)', marginTop: '1.5rem' }}>
           You haven't created any events yet. Click "Create New Event" to begin!
         </motion.p>
       )}

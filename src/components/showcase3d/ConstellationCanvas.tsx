@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from 'react'
+import React, { useRef, useMemo, useState, useEffect } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Float, Sparkles, MeshDistortMaterial, MeshWobbleMaterial } from '@react-three/drei'
 import * as THREE from 'three'
@@ -11,9 +11,9 @@ interface ConstellationCanvasProps {
    COLOR PALETTE
    ═══════════════════════════════════════════════════════════════ */
 const PALETTE = [
-  { main: '#7C5CFC', accent: '#A78BFA' },   // Vivid Purple
+  { main: '#FFFFFF', accent: '#E5E7EB' },   // Silver/White
   { main: '#06B6D4', accent: '#22D3EE' },   // Cyan
-  { main: '#EC4899', accent: '#F472B6' },   // Pink
+  { main: '#9CA3AF', accent: '#D1D5DB' },   // Slate Gray
   { main: '#10B981', accent: '#34D399' },   // Emerald
   { main: '#F59E0B', accent: '#FBBF24' },   // Amber
   { main: '#EF4444', accent: '#F87171' },   // Red
@@ -40,7 +40,7 @@ const OrbitalRing: React.FC<{
 
   return (
     <mesh ref={ref}>
-      <torusGeometry args={[radius, thickness, 16, 100]} />
+      <torusGeometry args={[radius, thickness, 8, 48]} />
       <meshStandardMaterial
         color={color}
         emissive={color}
@@ -57,72 +57,77 @@ const OrbitalRing: React.FC<{
    A central glowing sphere surrounded by 3 tilted orbital rings,
    like a SaaS dashboard visualization.
    ═══════════════════════════════════════════════════════════════ */
-const DataHub: React.FC<{ groupRef: React.RefObject<THREE.Group> }> = ({ groupRef }) => (
-  <group ref={groupRef}>
-    {/* Central glowing distorted core */}
-    <mesh>
-      <sphereGeometry args={[0.5, 64, 64]} />
-      <MeshDistortMaterial
-        color={PALETTE[0].main}
-        emissive={PALETTE[0].main}
-        emissiveIntensity={0.5}
-        distort={0.25}
-        speed={3}
-        roughness={0.15}
-        metalness={0.85}
-      />
-    </mesh>
-    {/* Wireframe outer data lattice */}
-    <mesh scale={1.08}>
-      <sphereGeometry args={[0.5, 16, 16]} />
-      <meshStandardMaterial
-        color={PALETTE[0].accent}
-        emissive={PALETTE[0].accent}
-        emissiveIntensity={0.3}
-        wireframe
-        transparent
-        opacity={0.2}
-      />
-    </mesh>
-    <points scale={1.08}>
-      <sphereGeometry args={[0.5, 16, 16]} />
-      <pointsMaterial
-        color={PALETTE[0].accent}
-        size={0.035}
-        sizeAttenuation
-      />
-    </points>
-    {/* Orbit rings */}
-    <OrbitalRing radius={0.9} color={PALETTE[0].accent} speed={0.6} axis="y" />
-    <OrbitalRing radius={1.1} color={PALETTE[0].main} speed={-0.4} axis="x" />
-    <OrbitalRing radius={1.3} color={PALETTE[0].accent} speed={0.3} axis="z" thickness={0.015} />
-    {/* Small orbiting satellite spheres */}
-    <Float speed={4} floatIntensity={0.5}>
-      <mesh position={[0.9, 0.3, 0]}>
-        <sphereGeometry args={[0.08, 16, 16]} />
-        <meshStandardMaterial color="#fff" emissive="#fff" emissiveIntensity={1.2} />
+const DataHub: React.FC<{ groupRef: React.RefObject<THREE.Group>; isActive?: boolean }> = ({ groupRef, isActive = true }) => {
+  if (!isActive) return <group ref={groupRef} visible={false} />
+  return (
+    <group ref={groupRef}>
+      {/* Central glowing distorted core */}
+      <mesh>
+        <sphereGeometry args={[0.5, 32, 32]} />
+        <MeshDistortMaterial
+          color={PALETTE[0].main}
+          emissive={PALETTE[0].main}
+          emissiveIntensity={0.5}
+          distort={0.25}
+          speed={3}
+          roughness={0.15}
+          metalness={0.85}
+        />
       </mesh>
-    </Float>
-    <Float speed={3} floatIntensity={0.5}>
-      <mesh position={[-0.7, -0.5, 0.4]}>
-        <sphereGeometry args={[0.06, 16, 16]} />
-        <meshStandardMaterial color={PALETTE[0].accent} emissive={PALETTE[0].accent} emissiveIntensity={1.2} />
+      {/* Wireframe outer data lattice */}
+      <mesh scale={1.08}>
+        <sphereGeometry args={[0.5, 16, 16]} />
+        <meshStandardMaterial
+          color={PALETTE[0].accent}
+          emissive={PALETTE[0].accent}
+          emissiveIntensity={0.3}
+          wireframe
+          transparent
+          opacity={0.2}
+        />
       </mesh>
-    </Float>
-  </group>
-)
+      <points scale={1.08}>
+        <sphereGeometry args={[0.5, 16, 16]} />
+        <pointsMaterial
+          color={PALETTE[0].accent}
+          size={0.035}
+          sizeAttenuation
+        />
+      </points>
+      {/* Orbit rings */}
+      <OrbitalRing radius={0.9} color={PALETTE[0].accent} speed={0.6} axis="y" />
+      <OrbitalRing radius={1.1} color={PALETTE[0].main} speed={-0.4} axis="x" />
+      <OrbitalRing radius={1.3} color={PALETTE[0].accent} speed={0.3} axis="z" thickness={0.015} />
+      {/* Small orbiting satellite spheres */}
+      <Float speed={4} floatIntensity={0.5}>
+        <mesh position={[0.9, 0.3, 0]}>
+          <sphereGeometry args={[0.08, 16, 16]} />
+          <meshStandardMaterial color="#fff" emissive="#fff" emissiveIntensity={1.2} />
+        </mesh>
+      </Float>
+      <Float speed={3} floatIntensity={0.5}>
+        <mesh position={[-0.7, -0.5, 0.4]}>
+          <sphereGeometry args={[0.06, 16, 16]} />
+          <meshStandardMaterial color={PALETTE[0].accent} emissive={PALETTE[0].accent} emissiveIntensity={1.2} />
+        </mesh>
+      </Float>
+    </group>
+  )
+}
 
 /* ═══════════════════════════════════════════════════════════════
    NODE 1: "Flow Grid" — Layered translucent planes (Registrations)
    Stacked floating glass panels representing data layers/forms.
    ═══════════════════════════════════════════════════════════════ */
-const FlowGrid: React.FC<{ groupRef: React.RefObject<THREE.Group> }> = ({ groupRef }) => {
+const FlowGrid: React.FC<{ groupRef: React.RefObject<THREE.Group>; isActive?: boolean }> = ({ groupRef, isActive = true }) => {
   const planes = useMemo(() => [
     { y: 0.55, rotZ: 0.1, opacity: 0.3, scale: 1.25 },
     { y: 0.18, rotZ: -0.05, opacity: 0.5, scale: 1.05 },
     { y: -0.18, rotZ: 0.08, opacity: 0.65, scale: 0.88 },
     { y: -0.55, rotZ: -0.12, opacity: 0.35, scale: 0.72 },
   ], [])
+
+  if (!isActive) return <group ref={groupRef} visible={false} />
 
   return (
     <group ref={groupRef}>
@@ -164,16 +169,19 @@ const FlowGrid: React.FC<{ groupRef: React.RefObject<THREE.Group> }> = ({ groupR
    NODE 2: "Crystal Network" — Interconnected icosahedron (Sponsors)
    A wireframe icosahedron with inner solid core and outer glow.
    ═══════════════════════════════════════════════════════════════ */
-const CrystalNetwork: React.FC<{ groupRef: React.RefObject<THREE.Group> }> = ({ groupRef }) => {
+const CrystalNetwork: React.FC<{ groupRef: React.RefObject<THREE.Group>; isActive?: boolean }> = ({ groupRef, isActive = true }) => {
   const coreRef = useRef<THREE.Mesh>(null!)
   const shellRef = useRef<THREE.Mesh>(null!)
   const pointsRef = useRef<THREE.Points>(null!)
 
   useFrame((_, delta) => {
+    if (!isActive) return
     if (coreRef.current) coreRef.current.rotation.y -= delta * 0.4
     if (shellRef.current) shellRef.current.rotation.y += delta * 0.25
     if (pointsRef.current) pointsRef.current.rotation.y += delta * 0.25
   })
+
+  if (!isActive) return <group ref={groupRef} visible={false} />
 
   return (
     <group ref={groupRef}>
@@ -230,20 +238,23 @@ const CrystalNetwork: React.FC<{ groupRef: React.RefObject<THREE.Group> }> = ({ 
    NODE 3: "Pulse Blob" — Organic wobbling sphere (Volunteers)
    A morphing, organic shape that feels alive and dynamic.
    ═══════════════════════════════════════════════════════════════ */
-const PulseBlob: React.FC<{ groupRef: React.RefObject<THREE.Group> }> = ({ groupRef }) => {
+const PulseBlob: React.FC<{ groupRef: React.RefObject<THREE.Group>; isActive?: boolean }> = ({ groupRef, isActive = true }) => {
   const innerRef = useRef<THREE.Mesh>(null!)
   const outerRef = useRef<THREE.Mesh>(null!)
 
   useFrame((_, delta) => {
+    if (!isActive) return
     if (innerRef.current) innerRef.current.rotation.x += delta * 0.15
     if (outerRef.current) outerRef.current.rotation.y -= delta * 0.1
   })
+
+  if (!isActive) return <group ref={groupRef} visible={false} />
 
   return (
     <group ref={groupRef}>
       {/* Organic wobbling core */}
       <mesh ref={innerRef}>
-        <sphereGeometry args={[0.85, 64, 64]} />
+        <sphereGeometry args={[0.85, 32, 32]} />
         <MeshWobbleMaterial
           color={PALETTE[3].main}
           emissive={PALETTE[3].main}
@@ -278,7 +289,7 @@ const PulseBlob: React.FC<{ groupRef: React.RefObject<THREE.Group> }> = ({ group
    NODE 4: "Analytics Prism" — Floating bars + grid (Analytics)
    Abstract 3D bar chart with a surrounding ring, like a dashboard.
    ═══════════════════════════════════════════════════════════════ */
-const AnalyticsPrism: React.FC<{ groupRef: React.RefObject<THREE.Group> }> = ({ groupRef }) => {
+const AnalyticsPrism: React.FC<{ groupRef: React.RefObject<THREE.Group>; isActive?: boolean }> = ({ groupRef, isActive = true }) => {
   const bars = useMemo(() => [
     { x: -0.5, h: 0.6, z: 0 },
     { x: -0.2, h: 1.0, z: 0.1 },
@@ -290,6 +301,7 @@ const AnalyticsPrism: React.FC<{ groupRef: React.RefObject<THREE.Group> }> = ({ 
   const barRefs = useRef<(THREE.Mesh | null)[]>([])
 
   useFrame(({ clock }) => {
+    if (!isActive) return
     const t = clock.getElapsedTime()
     barRefs.current.forEach((bar, i) => {
       if (!bar) return
@@ -302,6 +314,8 @@ const AnalyticsPrism: React.FC<{ groupRef: React.RefObject<THREE.Group> }> = ({ 
       }
     })
   })
+
+  if (!isActive) return <group ref={groupRef} visible={false} />
 
   return (
     <group ref={groupRef}>
@@ -329,7 +343,7 @@ const AnalyticsPrism: React.FC<{ groupRef: React.RefObject<THREE.Group> }> = ({ 
       />
       {/* Base platform disc */}
       <mesh position={[0.1, -0.45, 0]}>
-        <cylinderGeometry args={[1, 1, 0.03, 32]} />
+        <cylinderGeometry args={[1, 1, 0.03, 16]} />
         <meshStandardMaterial
           color={PALETTE[4].accent}
           emissive={PALETTE[4].accent}
@@ -364,7 +378,7 @@ const SignalWave = ({ index, color }: { index: number; color: string }) => {
   })
   return (
     <mesh ref={meshRef} rotation={[Math.PI / 2, 0, 0]}>
-      <torusGeometry args={[0.7, 0.032, 12, 48]} />
+      <torusGeometry args={[0.7, 0.032, 8, 32]} />
       <meshStandardMaterial
         color={color}
         emissive={color}
@@ -376,43 +390,46 @@ const SignalWave = ({ index, color }: { index: number; color: string }) => {
   )
 }
 
-const SignalTower: React.FC<{ groupRef: React.RefObject<THREE.Group> }> = ({ groupRef }) => (
-  <group ref={groupRef}>
-    {/* Base plate */}
-    <mesh position={[0, -0.6, 0]} rotation={[Math.PI / 2, 0, 0]}>
-      <cylinderGeometry args={[0.6, 0.6, 0.03, 32]} />
-      <meshStandardMaterial
-        color={PALETTE[5].main}
-        emissive={PALETTE[5].main}
-        emissiveIntensity={0.2}
-        metalness={0.9}
-        roughness={0.1}
-      />
-    </mesh>
+const SignalTower: React.FC<{ groupRef: React.RefObject<THREE.Group>; isActive?: boolean }> = ({ groupRef, isActive = true }) => {
+  if (!isActive) return <group ref={groupRef} visible={false} />
+  return (
+    <group ref={groupRef}>
+      {/* Base plate */}
+      <mesh position={[0, -0.6, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.6, 0.6, 0.03, 16]} />
+        <meshStandardMaterial
+          color={PALETTE[5].main}
+          emissive={PALETTE[5].main}
+          emissiveIntensity={0.2}
+          metalness={0.9}
+          roughness={0.1}
+        />
+      </mesh>
 
-    {/* Loop of active upward signal waves */}
-    {Array.from({ length: 3 }).map((_, i) => (
-      <SignalWave key={i} index={i} color={PALETTE[5].accent} />
-    ))}
+      {/* Loop of active upward signal waves */}
+      {Array.from({ length: 3 }).map((_, i) => (
+        <SignalWave key={i} index={i} color={PALETTE[5].accent} />
+      ))}
 
-    {/* Central transmitter beam */}
-    <mesh position={[0, 0.05, 0]}>
-      <cylinderGeometry args={[0.03, 0.03, 1.4, 8]} />
-      <meshStandardMaterial
-        color="#fff"
-        emissive="#fff"
-        emissiveIntensity={0.8}
-        transparent
-        opacity={0.35}
-      />
-    </mesh>
-    {/* Glowing top beacon */}
-    <mesh position={[0, 0.8, 0]}>
-      <sphereGeometry args={[0.09, 16, 16]} />
-      <meshStandardMaterial color="#fff" emissive="#fff" emissiveIntensity={1.8} />
-    </mesh>
-  </group>
-)
+      {/* Central transmitter beam */}
+      <mesh position={[0, 0.05, 0]}>
+        <cylinderGeometry args={[0.03, 0.03, 1.4, 8]} />
+        <meshStandardMaterial
+          color="#fff"
+          emissive="#fff"
+          emissiveIntensity={0.8}
+          transparent
+          opacity={0.35}
+        />
+      </mesh>
+      {/* Glowing top beacon */}
+      <mesh position={[0, 0.8, 0]}>
+        <sphereGeometry args={[0.09, 16, 16]} />
+        <meshStandardMaterial color="#fff" emissive="#fff" emissiveIntensity={1.8} />
+      </mesh>
+    </group>
+  )
+}
 
 /* ═══════════════════════════════════════════════════════════════
    NODE SYSTEM — Orchestrates all 6 compositions
@@ -431,11 +448,25 @@ const NodeSystem = ({ activeIndex }: { activeIndex: number }) => {
   const lightRef = useRef<THREE.PointLight>(null!)
   const activeColor = useMemo(() => new THREE.Color(PALETTE[activeIndex].main), [activeIndex])
 
+  const [visibleIndices, setVisibleIndices] = useState<number[]>([activeIndex])
+
+  useEffect(() => {
+    setVisibleIndices((prev) => {
+      if (prev.includes(activeIndex)) return prev
+      return [...prev, activeIndex]
+    })
+
+    const timer = setTimeout(() => {
+      setVisibleIndices((prev) => prev.filter((idx) => idx === activeIndex))
+    }, 800)
+
+    return () => clearTimeout(timer)
+  }, [activeIndex])
+
   useFrame((_, delta) => {
-    // Smoothly transition container x position between 1.8 and -1.8 based on layout side
+    // Smoothly transition container x position strictly to the right side
     if (containerRef.current) {
-      const isEven = activeIndex % 2 === 0
-      const targetX = isEven ? 1.8 : -1.8
+      const targetX = 1.8
       containerRef.current.position.x = THREE.MathUtils.damp(containerRef.current.position.x, targetX, 3.5, delta)
     }
 
@@ -469,13 +500,13 @@ const NodeSystem = ({ activeIndex }: { activeIndex: number }) => {
 
   return (
     <Float speed={1.2} rotationIntensity={0.3} floatIntensity={1}>
-      <group position={[1.8, 0, 0]}>
-        <DataHub groupRef={refs[0]} />
-        <FlowGrid groupRef={refs[1]} />
-        <CrystalNetwork groupRef={refs[2]} />
-        <PulseBlob groupRef={refs[3]} />
-        <AnalyticsPrism groupRef={refs[4]} />
-        <SignalTower groupRef={refs[5]} />
+      <group ref={containerRef} position={[1.8, 0, 0]}>
+        <DataHub groupRef={refs[0]} isActive={visibleIndices.includes(0)} />
+        <FlowGrid groupRef={refs[1]} isActive={visibleIndices.includes(1)} />
+        <CrystalNetwork groupRef={refs[2]} isActive={visibleIndices.includes(2)} />
+        <PulseBlob groupRef={refs[3]} isActive={visibleIndices.includes(3)} />
+        <AnalyticsPrism groupRef={refs[4]} isActive={visibleIndices.includes(4)} />
+        <SignalTower groupRef={refs[5]} isActive={visibleIndices.includes(5)} />
 
         {/* Dynamic accent light */}
         <pointLight ref={lightRef} position={[2, 1.5, 2]} intensity={2.5} distance={10} />
@@ -496,11 +527,11 @@ const ConstellationCanvas: React.FC<ConstellationCanvasProps> = ({ activeIndex }
       pointerEvents: 'none',
     }}>
       <Canvas
-        camera={{ position: [0, 0, 5.5], fov: 50 }}
-        dpr={[1, 1.5]}
-        gl={{ antialias: true, alpha: true }}
-        style={{ background: 'transparent' }}
-      >
+          camera={{ position: [0, 0, 5.5], fov: 50 }}
+          dpr={[1, 1.2]}
+          gl={{ antialias: true, alpha: true }}
+          style={{ background: 'transparent' }}
+        >
         {/* Ambient fill */}
         <ambientLight intensity={0.35} />
 
@@ -508,7 +539,7 @@ const ConstellationCanvas: React.FC<ConstellationCanvasProps> = ({ activeIndex }
         <directionalLight position={[5, 5, 5]} intensity={0.7} color="#ffffff" />
 
         {/* Colored accent fills */}
-        <pointLight position={[-6, 4, -4]} intensity={0.5} color="#7C5CFC" distance={18} />
+        <pointLight position={[-6, 4, -4]} intensity={0.5} color="#9CA3AF" distance={18} />
         <pointLight position={[6, -3, 4]} intensity={0.3} color="#06B6D4" distance={18} />
 
         {/* Subtle ambient particles */}
@@ -521,4 +552,4 @@ const ConstellationCanvas: React.FC<ConstellationCanvasProps> = ({ activeIndex }
   )
 }
 
-export default ConstellationCanvas
+export default React.memo(ConstellationCanvas)
