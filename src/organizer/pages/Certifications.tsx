@@ -5,7 +5,8 @@ import PageHeader from '../components/PageHeader'
 import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
 import { useEvent } from '../../contexts/EventContext'
-import { certificationService } from '../../services'
+import { useAuth } from '../../contexts/AuthContext'
+import { certificationService, registrationService, emailService } from '../../services'
 
 /* ─── Types ─── */
 interface CertData {
@@ -329,6 +330,7 @@ CertPreview.displayName = 'CertPreview'
 /* ─── Main Component ─── */
 const Certifications: React.FC = () => {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const { activeEvent, isLoading: isEventLoading } = useEvent()
   const [cert, setCert] = useState<CertData>({
     eventName: 'FestForge Summit 2026',
@@ -355,6 +357,12 @@ const Certifications: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false)
   const [syncMessage, setSyncMessage] = useState<string | null>(null)
   const [syncError, setSyncError] = useState<string | null>(null)
+
+  const [showSendModal, setShowSendModal] = useState(false)
+  const [registrations, setRegistrations] = useState<any[]>([])
+  const [selectedEmail, setSelectedEmail] = useState('')
+  const [isFetchingRegistrations, setIsFetchingRegistrations] = useState(false)
+  const [isSending, setIsSending] = useState(false)
 
   useEffect(() => {
     if (!isEventLoading && !activeEvent) {
@@ -513,6 +521,7 @@ const Certifications: React.FC = () => {
       conducted_date: cert.date,
       template_data_url: templateUrl ?? null,
       participants: names,
+      sent_by_email: user?.email ?? null,
     })
 
     setIsSaving(false)
@@ -589,6 +598,87 @@ const Certifications: React.FC = () => {
       setIsDownloading(false)
       setDownloadProgress(null)
       setExportName('')
+    }
+  }
+
+  const handleOpenSendModal = async () => {
+    if (!activeEvent) return
+    setIsFetchingRegistrations(true)
+    setShowSendModal(true)
+    setSelectedEmail('')
+
+    const { data, error } = await registrationService.getRegistrationsByEvent(activeEvent.id)
+    setIsFetchingRegistrations(false)
+    if (error) {
+      setSyncError(error)
+    } else if (data) {
+      const validRegs = data.filter((r) => r.user_email)
+      setRegistrations(validRegs)
+      if (validRegs.length > 0) {
+        setSelectedEmail(validRegs[0].user_email || '')
+      }
+    }
+  }
+
+  const handleSendCertificate = async () => {
+    if (!activeEvent || !selectedEmail) return
+
+    const reg = registrations.find((r) => r.user_email === selectedEmail)
+    if (!reg) {
+      alert('Selected email not found in registrations list.')
+      return
+    }
+
+    setIsSending(true)
+    setSyncError(null)
+
+    try {
+      const name = reg.user_name
+      const currentParticipants = [...cert.participants]
+      if (!currentParticipants.includes(name)) {
+        currentParticipants.push(name)
+      }
+
+      const { data, error } = await certificationService.saveBatch(activeEvent.id, {
+        event_name: cert.eventName,
+        conducted_date: cert.date,
+        template_data_url: templateUrl ?? null,
+        participants: currentParticipants,
+        sent_by_email: user?.email ?? null,
+      })
+
+      if (error || !data) {
+        setSyncError(error ?? 'Failed to update certificate batch database.')
+        setIsSending(false)
+        return
+      }
+
+      const savedNames = data.recipients.map((recipient) => recipient.participant_name)
+      setCert((prev) => ({
+        ...prev,
+        participants: savedNames,
+        participantName: name,
+      }))
+      setBulkText(savedNames.join('\n'))
+
+      const emailRes = await emailService.sendCertificateEmail(
+        selectedEmail,
+        name,
+        cert.eventName,
+        templateUrl
+      )
+
+      if (emailRes.success) {
+        setSyncMessage(`Certificate successfully sent to ${selectedEmail}`)
+        setShowSendModal(false)
+        setTimeout(() => setSyncMessage(null), 3000)
+      } else {
+        setSyncError(emailRes.error || 'Failed to deliver email.')
+      }
+    } catch (err) {
+      setSyncError(err instanceof Error ? err.message : 'An error occurred during sending.')
+    } finally {
+      setIsSending(false)
     }
   }
 
@@ -792,6 +882,19 @@ const Certifications: React.FC = () => {
             </button>
           </div>
 
+          <button
+            className="org-btn org-btn--accent"
+            style={{ width: '100%', marginTop: '0.75rem', justifyContent: 'center' }}
+            onClick={handleOpenSendModal}
+            disabled={isDownloading || isLoading}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '0.35rem' }}>
+              <line x1="22" y1="2" x2="11" y2="13" />
+              <polygon points="22 2 15 22 11 13 2 9 22 2" />
+            </svg>
+            Send
+          </button>
+
           <AnimatePresence>
             {generated && (
               <motion.div
@@ -830,6 +933,146 @@ const Certifications: React.FC = () => {
           editable={false}
         />
       </div>
+
+      {/* Send Certificate Modal */}
+      <AnimatePresence>
+        {showSendModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'var(--org-modal-overlay)',
+              backdropFilter: 'blur(8px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1000,
+              padding: '2rem',
+            }}
+            onClick={() => setShowSendModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 15 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 15 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+              className="org-surface org-surface--elevated"
+              style={{
+                width: '100%',
+                maxWidth: '480px',
+                display: 'flex',
+                flexDirection: 'column',
+                background: 'var(--org-surface-0)',
+                overflow: 'hidden',
+                position: 'relative',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--org-border-default)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div>
+                    <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--org-text-primary)' }}>Send Certificate</h2>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--org-text-secondary)', marginTop: '0.2rem' }}>
+                      Deliver participation credentials directly to participant emails.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowSendModal(false)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--org-text-tertiary)',
+                      cursor: 'pointer',
+                      padding: '0.4rem',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'background 0.2s, color 0.2s',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'var(--org-border-subtle)'
+                      e.currentTarget.style.color = 'var(--org-text-primary)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'none'
+                      e.currentTarget.style.color = 'var(--org-text-tertiary)'
+                    }}
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {isFetchingRegistrations ? (
+                  <div style={{ padding: '2rem 1rem', textAlign: 'center', color: 'var(--org-text-secondary)', fontSize: '0.85rem' }}>
+                    Loading registered attendees...
+                  </div>
+                ) : registrations.length === 0 ? (
+                  <div style={{ padding: '2rem 1rem', textAlign: 'center', color: 'var(--org-text-secondary)' }}>
+                    <p style={{ fontSize: '0.85rem', fontWeight: 600 }}>No registered attendees with emails found</p>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--org-text-tertiary)', marginTop: '0.2rem' }}>
+                      Attendees must be registered for this event.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <label className="org-label" style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                      Select Recipient Email
+                      <select
+                        className="org-select"
+                        value={selectedEmail}
+                        onChange={(e) => setSelectedEmail(e.target.value)}
+                        style={{ width: '100%' }}
+                      >
+                        {registrations.map((reg) => (
+                          <option key={reg.id} value={reg.user_email}>
+                            {reg.user_email} ({reg.user_name})
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <div style={{ background: 'var(--org-surface-1)', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid var(--org-border-default)' }}>
+                      <span style={{ fontSize: '0.65rem', color: 'var(--org-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '0.25rem' }}>
+                        Privacy Guard
+                      </span>
+                      <p style={{ fontSize: '0.72rem', color: 'var(--org-text-secondary)', lineHeight: 1.4 }}>
+                        The recipient's email address is used solely for routing the message. It is never rendered on the certificate layout or stored in the public certificate record.
+                      </p>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <div style={{ padding: '1.25rem 1.5rem', borderTop: '1px solid var(--org-border-default)', display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', background: 'var(--org-surface-1)' }}>
+                <button
+                  className="org-btn org-btn--secondary"
+                  onClick={() => setShowSendModal(false)}
+                  style={{ fontSize: '0.8rem' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="org-btn org-btn--accent"
+                  onClick={handleSendCertificate}
+                  disabled={isSending || !selectedEmail || registrations.length === 0}
+                  style={{ fontSize: '0.8rem', minWidth: '100px', justifyContent: 'center' }}
+                >
+                  {isSending ? 'Sending...' : 'Send'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Roster Modal */}
       <AnimatePresence>

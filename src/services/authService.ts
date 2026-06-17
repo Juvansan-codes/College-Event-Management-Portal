@@ -6,7 +6,6 @@
  * component or context.
  */
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
-import { mockDb } from './mockDb'
 import type {
   ApiResult,
   SignUpParams,
@@ -39,44 +38,15 @@ const mapSession = (raw: any): AuthSession | null => {
 /* ─── Public API ─── */
 
 export const authService = {
-  /** Returns whether the auth backend is available (mockDb is always available) */
+  /** Returns whether the auth backend is available */
   isConfigured(): boolean {
-    return true
+    return isSupabaseConfigured
   },
 
   /** Sign up a new user */
   async signUp(params: SignUpParams): Promise<ApiResult<SignUpResult>> {
     if (!isSupabaseConfigured || !supabase) {
-      // Use mock database for development
-      try {
-        const user = mockDb.signUp({
-          email: params.email,
-          passwordHash: params.password,
-          fullName: params.fullName,
-          role: params.role || 'student',
-        })
-        if (user) {
-          const session: AuthSession = {
-            access_token: 'mock-token-' + user.id,
-            user: user,
-          }
-          mockDb.setSession(session)
-          return {
-            data: {
-              user: user,
-              session: session,
-            },
-            error: null,
-          }
-        } else {
-          return { data: null, error: 'Sign up failed' }
-        }
-      } catch (err) {
-        return {
-          data: null,
-          error: err instanceof Error ? err.message : 'Registration failed',
-        }
-      }
+      return { data: null, error: 'Auth service is not configured.' }
     }
 
     try {
@@ -111,31 +81,7 @@ export const authService = {
   /** Sign in an existing user */
   async signIn(params: SignInParams): Promise<ApiResult<SignInResult>> {
     if (!isSupabaseConfigured || !supabase) {
-      // Use mock database for development
-      try {
-        const user = mockDb.signIn(params.email, params.password)
-        if (user) {
-          const session: AuthSession = {
-            access_token: 'mock-token-' + user.id,
-            user: user,
-          }
-          mockDb.setSession(session)
-          return {
-            data: {
-              user: user,
-              session: session,
-            },
-            error: null,
-          }
-        } else {
-          return { data: null, error: 'Invalid email or password' }
-        }
-      } catch (err) {
-        return {
-          data: null,
-          error: err instanceof Error ? err.message : 'Sign in failed',
-        }
-      }
+      return { data: null, error: 'Auth service is not configured.' }
     }
 
     try {
@@ -163,7 +109,9 @@ export const authService = {
 
   /** Sign out the current user */
   async signOut(): Promise<ApiResult<null>> {
-    if (!supabase) return { data: null, error: 'Auth service is not configured.' }
+    if (!isSupabaseConfigured || !supabase) {
+      return { data: null, error: 'Auth service is not configured.' }
+    }
 
     try {
       const { error } = await supabase.auth.signOut()
@@ -180,9 +128,7 @@ export const authService = {
   /** Get the current session (used on app mount) */
   async getSession(): Promise<ApiResult<AuthSession>> {
     if (!isSupabaseConfigured || !supabase) {
-      // Use mock database for development
-      const session = mockDb.getSession()
-      return { data: mapSession(session), error: null }
+      return { data: null, error: 'Auth service is not configured.' }
     }
 
     try {
@@ -200,9 +146,6 @@ export const authService = {
   /**
    * Subscribe to auth state changes.
    * Returns an unsubscribe function.
-   *
-   * NOTE: When you move to a custom backend, replace this with a
-   * token-refresh polling approach or WebSocket listener.
    */
   onAuthStateChange(
     callback: (user: AuthUser | null, session: AuthSession | null) => void,

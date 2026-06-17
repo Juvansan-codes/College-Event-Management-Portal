@@ -134,4 +134,27 @@ export const registrationService = {
       return { data: null, error: err instanceof Error ? err.message : 'Failed to fetch registrations' }
     }
   },
+
+  /** Get all registrations for a specific event (for organizers) */
+  async getRegistrationsByEvent(eventId: string): Promise<ApiResult<EventRegistration[]>> {
+    if (!isSupabaseConfigured || !supabase) {
+      return { data: null, error: 'Database is not configured.' }
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('event_registrations')
+        .select('*')
+        .eq('event_id', eventId)
+        .order('user_name', { ascending: true })
+
+      if (error) return { data: null, error: error.message }
+      return { data: data as EventRegistration[], error: null }
+    } catch (err) {
+      return {
+        data: null,
+        error: err instanceof Error ? err.message : 'Failed to fetch registrations',
+      }
+    }
+  },
 }

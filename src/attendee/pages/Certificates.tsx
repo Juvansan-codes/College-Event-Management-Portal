@@ -35,8 +35,10 @@ const Certificates: React.FC = () => {
 
   useEffect(() => {
     const fetchCertificates = async () => {
-      if (user?.user_metadata?.full_name) {
-        const { data } = await certificationService.getMyCertificates(user.user_metadata.full_name)
+      const name = user?.user_metadata?.full_name || ''
+      const email = user?.email || ''
+      if (name || email) {
+        const { data } = await certificationService.getMyCertificates(name, email)
         if (data) setCertificates(data)
       }
       setIsLoading(false)
@@ -100,10 +102,15 @@ const Certificates: React.FC = () => {
               </div>
 
               <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ marginBottom: '0.75rem' }}>
+                <div style={{ marginBottom: '0.75rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <span className="org-badge org-badge--info">
                     Issued: {formatDate(cert.issued_at)}
                   </span>
+                  {cert.sent_by_email && (
+                    <span className="org-badge org-badge--success" style={{ textTransform: 'none', letterSpacing: 'normal' }}>
+                      Organizer: {cert.sent_by_email}
+                    </span>
+                  )}
                 </div>
                 
                 <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--org-text-primary)', marginBottom: '0.4rem', lineHeight: 1.3 }}>

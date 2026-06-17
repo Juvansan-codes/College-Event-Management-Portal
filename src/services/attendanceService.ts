@@ -1,5 +1,4 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
-import { mockDb } from './mockDb'
 import type {
   ApiResult,
   AttendanceSession,
@@ -45,7 +44,7 @@ export const calculateDistance = (
 
 export const attendanceService = {
   isConfigured(): boolean {
-    return true
+    return isSupabaseConfigured
   },
 
   /** Start a new attendance session for an event */
@@ -57,21 +56,7 @@ export const attendanceService = {
     durationMinutes: number
   ): Promise<ApiResult<AttendanceSession>> {
     if (!isSupabaseConfigured || !supabase) {
-      try {
-        const session = mockDb.startAttendanceSession(
-          eventId,
-          latitude,
-          longitude,
-          radiusMeters,
-          durationMinutes
-        )
-        return { data: session, error: null }
-      } catch (err) {
-        return {
-          data: null,
-          error: err instanceof Error ? err.message : 'Failed to start session',
-        }
-      }
+      return { data: null, error: 'Database is not configured.' }
     }
 
     try {
@@ -113,8 +98,7 @@ export const attendanceService = {
   /** Stop any active attendance session for an event */
   async stopSession(eventId: string): Promise<ApiResult<null>> {
     if (!isSupabaseConfigured || !supabase) {
-      mockDb.stopAttendanceSession(eventId)
-      return { data: null, error: null }
+      return { data: null, error: 'Database is not configured.' }
     }
 
     try {
@@ -137,7 +121,7 @@ export const attendanceService = {
   /** Fetch active session for an event */
   async getActiveSession(eventId: string): Promise<ApiResult<AttendanceSession | null>> {
     if (!isSupabaseConfigured || !supabase) {
-      return { data: mockDb.getActiveSession(eventId), error: null }
+      return { data: null, error: 'Database is not configured.' }
     }
 
     try {
@@ -162,7 +146,7 @@ export const attendanceService = {
   /** Retrieve live attendees that checked in */
   async getLiveAttendance(eventId: string): Promise<ApiResult<AttendanceRecord[]>> {
     if (!isSupabaseConfigured || !supabase) {
-      return { data: mockDb.getAttendanceRecordsByEvent(eventId), error: null }
+      return { data: null, error: 'Database is not configured.' }
     }
 
     try {
@@ -185,7 +169,7 @@ export const attendanceService = {
   /** Retrieve auditing logs */
   async getAttendanceLogs(eventId: string): Promise<ApiResult<AttendanceLog[]>> {
     if (!isSupabaseConfigured || !supabase) {
-      return { data: mockDb.getAttendanceLogsByEvent(eventId), error: null }
+      return { data: null, error: 'Database is not configured.' }
     }
 
     try {
@@ -212,120 +196,46 @@ export const attendanceService = {
     longitude: number,
     user: { id: string; email?: string; fullName: string },
     deviceInfo: string,
-    ipAddress: string
+    _ipAddress: string
   ): Promise<ApiResult<{ record: AttendanceRecord; distance: number }>> {
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { data, error } = await supabase.rpc('mark_event_attendance', {
-          p_token: token,
-          p_latitude: latitude,
-          p_longitude: longitude,
-          p_user_name: user.fullName,
-          p_device_information: deviceInfo,
-        })
-
-        if (error) return { data: null, error: formatAttendanceError(error.message) }
-
-        const result = data as {
-          success: boolean
-          error?: string
-          distance?: number
-          record?: AttendanceRecord
-        }
-
-        if (!result.success || !result.record || result.distance === undefined) {
-          return { data: null, error: result.error ?? 'Attendance could not be marked.' }
-        }
-
-        return {
-          data: {
-            record: result.record,
-            distance: Number(result.distance),
-          },
-          error: null,
-        }
-      } catch (err) {
-        return {
-          data: null,
-          error: err instanceof Error ? err.message : 'Attendance could not be marked.',
-        }
-      }
-    }
-
-    const session = mockDb.verifyToken(token)
-    if (!session) {
-      return { data: null, error: 'QR Code is invalid or has expired. Please ask the organizer to generate a new one.' }
-    }
-
-    const eventId = session.event_id
-    const sessionId = session.id
-
-    // 2. Calculate distance from event center
-    const distance = calculateDistance(
-      latitude,
-      longitude,
-      session.latitude,
-      session.longitude
-    )
-
-    const isInsideRadius = distance <= session.radius_meters
-
-    if (!isInsideRadius) {
-      const errMsg = `You are outside the attendance radius. Event is at coordinates (${session.latitude}, ${session.longitude}). You are ${Math.round(
-        distance
-      )} meters away, but allowed limit is ${session.radius_meters} meters.`
-      
-      const logPayload = {
-        event_id: eventId,
-        user_id: user.id,
-        status: 'Failed_Radius',
-        error_message: errMsg,
-        latitude,
-        longitude,
-        device_information: deviceInfo,
-        ip_address: ipAddress,
-      }
-
-      if (!isSupabaseConfigured || !supabase) {
-        mockDb.logAttendanceAttempt(logPayload)
-      } else {
-        await supabase.from('attendance_logs').insert(logPayload)
-      }
-
-      return { data: null, error: errMsg }
-    }
-
-    // 3. Insert attendance record (Success check-in)
-    const recordPayload = {
-      event_id: eventId,
-      session_id: sessionId,
-      user_id: user.id,
-      user_name: user.fullName,
-      latitude,
-      longitude,
-      distance_meters: Math.round(distance * 10) / 10,
-      status: 'Present',
-      device_information: deviceInfo,
-      ip_address: ipAddress,
+    if (!isSupabaseConfigured || !supabase) {
+      return { data: null, error: 'Database is not configured.' }
     }
 
     try {
-      const record = mockDb.markAttendance(recordPayload)
-      mockDb.logAttendanceAttempt({
-        event_id: eventId,
-        user_id: user.id,
-        status: 'Success',
-        error_message: null,
-        latitude,
-        longitude,
-        device_information: deviceInfo,
-        ip_address: ipAddress,
+      const { data, error } = await supabase.rpc('mark_event_attendance', {
+        p_token: token,
+        p_latitude: latitude,
+        p_longitude: longitude,
+        p_user_name: user.fullName,
+        p_device_information: deviceInfo,
       })
 
-      return { data: { record, distance }, error: null }
+      if (error) return { data: null, error: formatAttendanceError(error.message) }
+
+      const result = data as {
+        success: boolean
+        error?: string
+        distance?: number
+        record?: AttendanceRecord
+      }
+
+      if (!result.success || !result.record || result.distance === undefined) {
+        return { data: null, error: result.error ?? 'Attendance could not be marked.' }
+      }
+
+      return {
+        data: {
+          record: result.record,
+          distance: Number(result.distance),
+        },
+        error: null,
+      }
     } catch (err) {
-      const errMsg = err instanceof Error ? err.message : 'Database error'
-      return { data: null, error: errMsg }
+      return {
+        data: null,
+        error: err instanceof Error ? err.message : 'Attendance could not be marked.',
+      }
     }
   },
 }
