@@ -34,10 +34,11 @@ interface CertPreviewProps {
   svgContent?: string
   editable?: boolean
   onFieldEdit?: (field: 'participantName' | 'eventName' | 'date', value: string) => void
+  sealIdSuffix?: string
 }
 
 const CertPreview = React.forwardRef<HTMLDivElement, CertPreviewProps>(
-  ({ eventName, participantName, date, templateUrl: _templateUrl, svgContent, editable = false, onFieldEdit }, ref) => {
+  ({ eventName, participantName, date, templateUrl: _templateUrl, svgContent, editable = false, onFieldEdit, sealIdSuffix = '' }, ref) => {
 
     /* When we have inline SVG content, render it directly instead of the default certificate */
     if (svgContent) {
@@ -45,9 +46,12 @@ const CertPreview = React.forwardRef<HTMLDivElement, CertPreviewProps>(
         <div ref={ref} className="org-cert-preview org-surface org-surface--elevated" style={{
           position: 'relative',
           overflow: 'hidden',
-          minHeight: '400px',
+          height: '636px',
+          width: '900px',
           display: 'flex',
           flexDirection: 'column',
+          background: '#ece8e1',
+          boxSizing: 'border-box',
         }}>
           {/* Inline SVG rendered directly — the uploaded template completely replaces the default */}
           <div
@@ -80,11 +84,12 @@ const CertPreview = React.forwardRef<HTMLDivElement, CertPreviewProps>(
                 suppressContentEditableWarning
                 onBlur={(e) => onFieldEdit?.('participantName', e.currentTarget.textContent || '')}
                 style={{
-                  fontFamily: "'Alex Brush', cursive",
-                  fontSize: '3.5rem',
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: '2.2rem',
+                  fontWeight: 600,
                   color: '#383531',
                   margin: 0,
-                  lineHeight: 1,
+                  lineHeight: 1.2,
                   outline: 'none',
                   cursor: editable ? 'text' : 'default',
                   borderBottom: editable ? '2px dashed rgba(165, 143, 118, 0.4)' : 'none',
@@ -92,11 +97,13 @@ const CertPreview = React.forwardRef<HTMLDivElement, CertPreviewProps>(
                   transition: 'border-color 0.2s',
                   minWidth: '200px',
                   display: 'inline-block',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
                 }}
               >
                 {participantName}
               </h2>
-              <div style={{ width: '220px', height: '1px', background: '#a58f76', margin: '0.4rem auto 1rem auto' }} />
+              <div style={{ width: '280px', height: '1px', background: '#a58f76', margin: '0.4rem auto 1rem auto' }} />
 
               {/* Editable Event Name */}
               <h3
@@ -106,7 +113,7 @@ const CertPreview = React.forwardRef<HTMLDivElement, CertPreviewProps>(
                 style={{
                   fontFamily: "'Playfair Display', serif",
                   fontStyle: 'italic',
-                  fontSize: '1rem',
+                  fontSize: '1.2rem',
                   color: '#4a4743',
                   margin: '0.5rem 0',
                   fontWeight: 500,
@@ -128,7 +135,7 @@ const CertPreview = React.forwardRef<HTMLDivElement, CertPreviewProps>(
                 onBlur={(e) => onFieldEdit?.('date', e.currentTarget.textContent || '')}
                 style={{
                   fontFamily: "'Montserrat', sans-serif",
-                  fontSize: '0.75rem',
+                  fontSize: '0.85rem',
                   color: '#787571',
                   letterSpacing: '1px',
                   margin: 0,
@@ -172,153 +179,106 @@ const CertPreview = React.forwardRef<HTMLDivElement, CertPreviewProps>(
     /* Default certificate — shown when NO template is uploaded */
     return (
       <div ref={ref} className="org-cert-preview org-surface org-surface--elevated" style={{
-        padding: '2.5rem',
+        padding: '3rem',
         position: 'relative',
         overflow: 'hidden',
         background: '#ece8e1',
-        minHeight: '400px',
+        height: '636px',
+        width: '900px',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
+        boxSizing: 'border-box'
       }}>
-        {/* Elegant border frames */}
-        <div style={{
-          position: 'absolute',
-          inset: '1.25rem',
-          border: '1px solid #b19d85',
-          borderRadius: '6px',
-          pointerEvents: 'none',
-          opacity: 0.85
-        }} />
-        <div style={{
-          position: 'absolute',
-          inset: '1.5rem',
-          border: '1px solid #b19d85',
-          borderRadius: '4px',
-          pointerEvents: 'none',
-          opacity: 0.6
-        }} />
+        {/* Elegant double border frame */}
+        <div style={{ position: 'absolute', inset: '1.5rem', border: '1px solid #b19d85', borderRadius: '8px', pointerEvents: 'none', opacity: 0.85 }} />
+        <div style={{ position: 'absolute', inset: '1.8rem', border: '1px solid #b19d85', borderRadius: '6px', pointerEvents: 'none', opacity: 0.6 }} />
 
-        {/* Top Salford box logo */}
+        {/* Top logo */}
         <div style={{
-          position: 'absolute',
-          top: '1.5rem',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '110px',
-          height: '80px',
-          background: '#a58f76',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: '#fff',
-          padding: '0.4rem',
-          zIndex: 3
+          position: 'absolute', top: '1.8rem', left: '50%', transform: 'translateX(-50%)',
+          width: '120px', height: '85px', background: '#a58f76',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          color: '#fff', padding: '0.4rem', zIndex: 3, borderRadius: '2px'
         }}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ marginBottom: '4px' }}>
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-            <polyline points="9 22 9 12 15 12 15 22" />
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ marginBottom: '4px' }}>
+            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+            <path d="M2 17l10 5 10-5" />
+            <path d="M2 12l10 5 10-5" />
           </svg>
-          <div style={{ fontSize: '0.45rem', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase', lineHeight: 1.1 }}>SALFORD&CO.</div>
-          <div style={{ fontSize: '0.35rem', fontStyle: 'italic', fontFamily: "'Playfair Display', serif", opacity: 0.85 }}>real estate agency</div>
+          <div style={{ fontSize: '0.5rem', fontWeight: 800, letterSpacing: '1.2px', textTransform: 'uppercase', lineHeight: 1.1 }}>FESTFORGE</div>
+          <div style={{ fontSize: '0.38rem', fontStyle: 'italic', fontFamily: "'Playfair Display', serif", opacity: 0.85 }}>event platform</div>
         </div>
 
         {/* Default certificate text layout */}
-        <div style={{ textAlign: 'center', position: 'relative', zIndex: 2, marginTop: '5.5rem' }}>
+        <div style={{ textAlign: 'center', position: 'relative', zIndex: 2, marginTop: '6.5rem', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <h1 style={{
-            fontFamily: "'Playfair Display', serif",
-            fontSize: '2.5rem',
-            fontWeight: 500,
-            color: '#383531',
-            letterSpacing: '5px',
-            margin: '0 0 0.1rem 0',
-            lineHeight: 1
-          }}>
-            CERTIFICATE
-          </h1>
+            fontFamily: "'Playfair Display', serif", fontSize: '2.8rem', fontWeight: 500,
+            color: '#383531', letterSpacing: '6px', margin: '0 0 0.4rem 0', lineHeight: 1.2,
+          }}>CERTIFICATE</h1>
           <p style={{
-            fontFamily: "'Montserrat', sans-serif",
-            fontSize: '0.75rem',
-            letterSpacing: '4.5px',
-            fontWeight: 600,
-            color: '#585551',
-            margin: '0 0 0.8rem 0'
-          }}>
-            OF PARTICIPATION
-          </p>
+            fontFamily: "'Montserrat', sans-serif", fontSize: '0.8rem', letterSpacing: '5px',
+            fontWeight: 600, color: '#585551', margin: '0 0 1rem 0',
+          }}>OF PARTICIPATION</p>
 
           <p style={{
-            fontFamily: "'Playfair Display', serif",
-            fontStyle: 'italic',
-            fontSize: '0.82rem',
-            color: '#787571',
-            margin: '0.4rem 0 1rem 0'
-          }}>
-            proudly presented to
-          </p>
+            fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '0.9rem',
+            color: '#787571', margin: '0.4rem 0 1rem 0',
+          }}>proudly presented to</p>
 
-          <div style={{ position: 'relative', margin: '0.5rem auto 1.5rem auto', display: 'inline-block', width: '65%' }}>
+          {/* Underlined name container */}
+          <div style={{
+            borderBottom: '1px solid #a58f76',
+            paddingBottom: '6px',
+            margin: '0 auto 1.5rem auto',
+            width: '65%',
+            textAlign: 'center'
+          }}>
             <h2 style={{
-              fontFamily: "'Alex Brush', cursive",
-              fontSize: '3.6rem',
-              fontWeight: 400,
+              fontFamily: "'Playfair Display', serif",
+              fontSize: '2.2rem',
+              fontWeight: 600,
               color: '#2c2925',
-              margin: '0 auto -12px auto',
-              lineHeight: 1,
-              textAlign: 'center'
+              margin: 0,
+              lineHeight: 1.2,
+              letterSpacing: '1px',
+              display: 'inline-block',
+              textTransform: 'uppercase',
             }}>
               {participantName || 'Juliana Silva'}
             </h2>
-            <div style={{ width: '100%', height: '1px', background: '#a58f76' }} />
           </div>
 
           <p style={{
-            fontFamily: "'Playfair Display', serif",
-            fontStyle: 'italic',
-            fontSize: '0.8rem',
-            color: '#4a4743',
-            margin: '0.2rem auto 2.2rem auto',
-            maxWidth: '440px',
-            lineHeight: 1.5
+            fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '0.9rem',
+            color: '#4a4743', margin: '0 auto 2rem auto', maxWidth: '500px', lineHeight: 1.6,
           }}>
             for completing the course <span style={{ fontWeight: 600, fontStyle: 'normal', color: '#2c2925' }}>{eventName}</span> conducted on <span style={{ fontWeight: 600, fontStyle: 'normal', color: '#2c2925' }}>{date}</span>
           </p>
+        </div>
 
-          {/* Bottom Layout with Signatures and Seal */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 1.5rem' }}>
-            <div style={{ textAlign: 'center', width: '135px' }}>
-              <div style={{ borderBottom: '1px solid #c8bbae', marginBottom: '6px' }} />
-              <div style={{ fontSize: '0.62rem', fontWeight: 700, color: '#383531', letterSpacing: '1px', fontFamily: "'Montserrat', sans-serif" }}>OLIVIA WILSON</div>
-              <div style={{ fontSize: '0.58rem', fontStyle: 'italic', fontFamily: "'Playfair Display', serif", color: '#787571' }}>director</div>
-            </div>
-
-            <div style={{ margin: '0 0.5rem' }}>
-              <svg width="64" height="64" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="45" fill="#a58f76" stroke="#8c7760" strokeWidth="1.5" />
-                <circle cx="50" cy="50" r="39" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1" strokeDasharray="3 2" />
-                <circle cx="50" cy="50" r="36" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="1" />
-                <polygon points="50,38 53,45 61,45 54,49 57,56 50,52 43,56 46,49 39,45 47,45" fill="#fff" />
-                <path id="sealCurveTop" d="M 24 50 A 26 26 0 0 1 76 50" fill="none" />
-                <path id="sealCurveBottom" d="M 76 50 A 26 26 0 0 1 24 50" fill="none" />
-                <text fontSize="7.5" fontWeight="bold" fill="#fff" letterSpacing="0.8" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                  <textPath href="#sealCurveTop" startOffset="50%" textAnchor="middle">
-                    REAL ESTATE
-                  </textPath>
-                </text>
-                <text fontSize="7.5" fontWeight="bold" fill="#fff" letterSpacing="0.8" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                  <textPath href="#sealCurveBottom" startOffset="50%" textAnchor="middle">
-                    COURSE
-                  </textPath>
-                </text>
-              </svg>
-            </div>
-
-            <div style={{ textAlign: 'center', width: '135px' }}>
-              <div style={{ borderBottom: '1px solid #c8bbae', marginBottom: '6px' }} />
-              <div style={{ fontSize: '0.62rem', fontWeight: 700, color: '#383531', letterSpacing: '1px', fontFamily: "'Montserrat', sans-serif" }}>ISABEL MERCADO</div>
-              <div style={{ fontSize: '0.58rem', fontStyle: 'italic', fontFamily: "'Playfair Display', serif", color: '#787571' }}>manager</div>
-            </div>
+        {/* Bottom Layout with Seal Only */}
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingBottom: '1.25rem', position: 'relative', zIndex: 2 }}>
+          {/* Seal */}
+          <div style={{ margin: '0 auto' }}>
+            <svg width="72" height="72" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="45" fill="#a58f76" stroke="#8c7760" strokeWidth="1.5" />
+              <circle cx="50" cy="50" r="39" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1" strokeDasharray="3 2" />
+              <circle cx="50" cy="50" r="36" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="1" />
+              <polygon points="50,38 53,45 61,45 54,49 57,56 50,52 43,56 46,49 39,45 47,45" fill="#fff" />
+              <path id={`sealCurveTop${sealIdSuffix}`} d="M 24 50 A 26 26 0 0 1 76 50" fill="none" />
+              <path id={`sealCurveBottom${sealIdSuffix}`} d="M 76 50 A 26 26 0 0 1 24 50" fill="none" />
+              <text fontSize="7.5" fontWeight="bold" fill="#fff" letterSpacing="0.8" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                <textPath href={`#sealCurveTop${sealIdSuffix}`} startOffset="50%" textAnchor="middle">
+                  FESTFORGE
+                </textPath>
+              </text>
+              <text fontSize="7.5" fontWeight="bold" fill="#fff" letterSpacing="0.8" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                <textPath href={`#sealCurveBottom${sealIdSuffix}`} startOffset="50%" textAnchor="middle">
+                  VERIFIED
+                </textPath>
+              </text>
+            </svg>
           </div>
         </div>
       </div>
@@ -363,6 +323,22 @@ const Certifications: React.FC = () => {
   const [selectedEmail, setSelectedEmail] = useState('')
   const [isFetchingRegistrations, setIsFetchingRegistrations] = useState(false)
   const [isSending, setIsSending] = useState(false)
+
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [containerWidth, setContainerWidth] = useState(900)
+
+  useEffect(() => {
+    if (!containerRef.current) return
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        setContainerWidth(entry.contentRect.width)
+      }
+    })
+    resizeObserver.observe(containerRef.current)
+    return () => resizeObserver.disconnect()
+  }, [])
+
+  const scale = containerWidth / 900
 
   useEffect(() => {
     if (!isEventLoading && !activeEvent) {
@@ -434,15 +410,15 @@ const Certifications: React.FC = () => {
     const doc = parser.parseFromString(raw, 'image/svg+xml')
     const svgEl = doc.querySelector('svg')
     if (svgEl) {
+      // Read original dimensions BEFORE overwriting for viewBox fallback
+      if (!svgEl.getAttribute('viewBox')) {
+        const origW = svgEl.getAttribute('width') || '800'
+        const origH = svgEl.getAttribute('height') || '600'
+        svgEl.setAttribute('viewBox', `0 0 ${parseFloat(origW) || 800} ${parseFloat(origH) || 600}`)
+      }
       svgEl.setAttribute('width', '100%')
       svgEl.setAttribute('height', '100%')
       svgEl.style.display = 'block'
-      // Ensure viewBox is preserved for proper scaling
-      if (!svgEl.getAttribute('viewBox')) {
-        const w = svgEl.getAttribute('width') || '800'
-        const h = svgEl.getAttribute('height') || '600'
-        svgEl.setAttribute('viewBox', `0 0 ${parseFloat(w) || 800} ${parseFloat(h) || 600}`)
-      }
     }
     return new XMLSerializer().serializeToString(doc)
   }, [])
@@ -556,8 +532,11 @@ const Certifications: React.FC = () => {
       for (let i = 0; i < names.length; i++) {
         const name = names[i]
         setExportName(name)
-        // Wait for React to render the name offscreen
+        // Wait for React to render the name offscreen and fonts to be ready
         await sleep(180)
+        if (typeof document !== 'undefined' && document.fonts) {
+          await document.fonts.ready
+        }
 
         if (!exportRef.current) continue
 
@@ -840,26 +819,38 @@ const Certifications: React.FC = () => {
         <motion.div variants={fadeUp} style={{ position: 'sticky', top: '5.5rem' }}>
           <h3 style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--org-text-primary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '0.75rem' }}>Credential Preview</h3>
           
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`${cert.eventName}-${cert.participantName}-${cert.date}`}
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              transition={{ duration: 0.3 }}
-            >
-              <CertPreview
-                ref={certRef}
-                eventName={cert.eventName}
-                participantName={cert.participantName}
-                date={cert.date}
-                templateUrl={templateUrl}
-                svgContent={svgContent}
-                editable={!!svgContent}
-                onFieldEdit={handleFieldEdit}
-              />
-            </motion.div>
-          </AnimatePresence>
+          <div ref={containerRef} style={{ width: '100%', position: 'relative', overflow: 'hidden', borderRadius: '0.85rem', border: '1px solid var(--org-border-default)', boxShadow: 'var(--org-shadow-lg)', background: '#ece8e1', height: `${containerWidth * (636 / 900)}px` }}>
+            <div style={{
+              width: '900px',
+              height: '636px',
+              transform: `scale(${scale})`,
+              transformOrigin: 'top left',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+            }}>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`${cert.eventName}-${cert.participantName}-${cert.date}`}
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <CertPreview
+                    ref={certRef}
+                    eventName={cert.eventName}
+                    participantName={cert.participantName}
+                    date={cert.date}
+                    templateUrl={templateUrl}
+                    svgContent={svgContent}
+                    editable={!!svgContent}
+                    onFieldEdit={handleFieldEdit}
+                  />
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </div>
 
           <div style={{ display: 'flex', gap: '0.6rem', marginTop: '1rem' }}>
             <button
@@ -922,7 +913,7 @@ const Certifications: React.FC = () => {
       </div>
 
       {/* Offscreen Staging for PDF generation */}
-      <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+      <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none', width: '900px' }}>
         <CertPreview
           ref={exportRef}
           eventName={cert.eventName}
@@ -931,6 +922,7 @@ const Certifications: React.FC = () => {
           templateUrl={templateUrl}
           svgContent={svgContent}
           editable={false}
+          sealIdSuffix="-export"
         />
       </div>
 

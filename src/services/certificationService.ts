@@ -123,14 +123,18 @@ export const certificationService = {
         .from('event_certificates')
         .insert(rows)
         .select()
-        .order('participant_name', { ascending: true })
 
       if (recipientsError) return { data: null, error: recipientsError.message }
+
+      // Sort client-side since .order() after .insert() may be ignored by PostgREST
+      const sortedRecipients = ((recipients ?? []) as EventCertificate[]).sort((a, b) =>
+        a.participant_name.localeCompare(b.participant_name)
+      )
 
       return {
         data: {
           ...typedBatch,
-          recipients: (recipients ?? []) as EventCertificate[],
+          recipients: sortedRecipients,
         },
         error: null,
       }
@@ -148,9 +152,7 @@ export const certificationService = {
     }
 
     try {
-      let query = supabase
-        .from('event_certificates')
-        .select(`
+      const selectFields = `
           id,
           issued_at,
           participant_name,
@@ -161,15 +163,47 @@ export const certificationService = {
             conducted_date,
             template_data_url
           )
-        `)
+        `
+
+      let data: any[] | null = null
+      let error: any = null
 
       if (email) {
-        query = query.or(`participant_name.eq."${participantName}",recipient_email.eq."${email}"`)
-      } else {
-        query = query.eq('participant_name', participantName)
-      }
+        // Query by name and email separately, then merge — avoids string interpolation
+        const [byName, byEmail] = await Promise.all([
+          supabase
+            .from('event_certificates')
+            .select(selectFields)
+            .eq('participant_name', participantName)
+            .order('issued_at', { ascending: false }),
+          supabase
+            .from('event_certificates')
+            .select(selectFields)
+            .eq('recipient_email', email)
+            .order('issued_at', { ascending: false }),
+        ])
 
-      const { data, error } = await query.order('issued_at', { ascending: false })
+        if (byName.error) return { data: null, error: byName.error.message }
+        if (byEmail.error) return { data: null, error: byEmail.error.message }
+
+        // Merge and deduplicate by certificate id
+        const merged = new Map<string, any>()
+        for (const row of [...(byName.data ?? []), ...(byEmail.data ?? [])]) {
+          merged.set(row.id, row)
+        }
+        data = Array.from(merged.values()).sort(
+          (a, b) => new Date(b.issued_at).getTime() - new Date(a.issued_at).getTime()
+        )
+      } else {
+        const result = await supabase
+          .from('event_certificates')
+          .select(selectFields)
+          .eq('participant_name', participantName)
+          .order('issued_at', { ascending: false })
+
+        data = result.data
+        error = result.error
+      }
 
       if (error) return { data: null, error: error.message }
       return { data: data || [], error: null }
