@@ -2,6 +2,13 @@ import React, { useRef, useState, useEffect } from 'react'
 import { motion, useScroll, useMotionValueEvent, AnimatePresence, useSpring, useTransform } from 'framer-motion'
 import ConstellationCanvas from './showcase3d/ConstellationCanvas'
 
+const hexToRgb = (hex: string): string => {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `${r}, ${g}, ${b}`
+}
+
 /* ═══════════════════════════════════════════════════════════════
    FEATURE DATA & WORKFLOWS
    ═══════════════════════════════════════════════════════════════ */
@@ -18,7 +25,7 @@ const ORGANIZER_STEPS: FeatureStep[] = [
     title: 'Create Events',
     description: 'Launch stunning event pages in minutes. Set schedules, add speakers, customize branding, and publish your college fest instantly.',
     iconPath: 'M12 5v14M5 12h14',
-    accentColor: '#7850ff',
+    accentColor: '#d1d5db',
   },
   {
     title: 'Manage Registrations',
@@ -30,7 +37,7 @@ const ORGANIZER_STEPS: FeatureStep[] = [
     title: 'Sponsor Management',
     description: 'Build sponsor packages, showcase brand visibility tiers, and manage relationships with dedicated tracking portals.',
     iconPath: 'M12 1v22 M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6',
-    accentColor: '#ff3090',
+    accentColor: '#a1a1aa',
   },
   {
     title: 'Volunteer Management',
@@ -57,7 +64,7 @@ const ATTENDEE_STEPS: FeatureStep[] = [
     title: 'Discover Events',
     description: 'Browse a curated feed of upcoming campus events. Never miss out on hackathons, cultural fests, workshops, or tournaments.',
     iconPath: 'M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z M21 21l-4.35-4.35',
-    accentColor: '#7850ff',
+    accentColor: '#d1d5db',
   },
   {
     title: 'Quick Registration',
@@ -69,7 +76,7 @@ const ATTENDEE_STEPS: FeatureStep[] = [
     title: 'Digital Pass',
     description: 'Get your event pass delivered as a QR code. Scan at entry for fast check-in and access your ticket details anytime.',
     iconPath: 'M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z M13 5v2 M13 17v2 M13 11v2',
-    accentColor: '#ff3090',
+    accentColor: '#a1a1aa',
   },
   {
     title: 'Event Schedule',
@@ -131,7 +138,6 @@ const ExperienceShowcase: React.FC = () => {
 
   const activeSteps = activeTab === 'organizers' ? ORGANIZER_STEPS : ATTENDEE_STEPS
   const activeStepData = activeSteps[activeIndex]
-  const isEven = activeIndex % 2 === 0
   const activeTopPercent = 4 + ((activeIndex + 0.5) / activeSteps.length) * 92
 
   return (
@@ -191,63 +197,95 @@ const ExperienceShowcase: React.FC = () => {
         }}>
 
           {/* ── Segment Control ── */}
-          <div style={{ marginBottom: '3rem', zIndex: 20 }}>
+          <div style={{ marginBottom: '3.5rem', zIndex: 20 }}>
             <div style={{
               position: 'relative',
               display: 'flex',
-              background: 'rgba(10, 10, 20, 0.75)',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: '99px',
-              padding: '5px',
-              width: '340px',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)',
+              background: 'rgba(8, 8, 14, 0.65)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255, 255, 255, 0.05)',
+              borderRadius: '12px',
+              padding: '4px',
+              width: '350px',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.03)',
             }}>
               <div style={{ display: 'flex', width: '100%', position: 'relative', zIndex: 1 }}>
-                {(['organizers', 'attendees'] as const).map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => handleTabSwitch(tab)}
-                    style={{
-                      flex: 1,
-                      padding: '0.7rem 1rem',
-                      background: 'transparent',
-                      border: 'none',
-                      color: activeTab === tab ? '#fff' : '#606080',
-                      fontWeight: 700,
-                      fontSize: '0.82rem',
-                      cursor: 'pointer',
-                      transition: 'color 0.3s ease',
-                      position: 'relative',
-                      zIndex: 2,
-                      letterSpacing: '0.1em',
-                      textTransform: 'uppercase',
-                      fontFamily: 'Inter, system-ui, sans-serif',
-                    }}
-                  >
-                    {tab}
-                  </button>
-                ))}
+                {(['organizers', 'attendees'] as const).map((tab) => {
+                  const isActive = activeTab === tab
+                  const activeColor = tab === 'organizers' ? '#FFFFFF' : '#06B6D4'
+                  return (
+                    <button
+                      key={tab}
+                      onClick={() => handleTabSwitch(tab)}
+                      style={{
+                        flex: 1,
+                        padding: '0.8rem 1rem',
+                        background: 'transparent',
+                        border: 'none',
+                        color: isActive ? '#f0f0f5' : '#505065',
+                        fontWeight: 600,
+                        fontSize: '0.78rem',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                        position: 'relative',
+                        zIndex: 2,
+                        letterSpacing: '0.15em',
+                        textTransform: 'uppercase',
+                        fontFamily: 'Outfit, sans-serif',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                      }}
+                    >
+                      {/* Connection indicator dot for active tab */}
+                      {isActive && (
+                        <motion.span
+                          layoutId="activeDot"
+                          className="w-1.5 h-1.5 rounded-full"
+                          style={{
+                            background: activeColor,
+                            boxShadow: `0 0 8px ${activeColor}`,
+                          }}
+                          transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                        />
+                      )}
+                      {tab}
+                    </button>
+                  )
+                })}
               </div>
 
-              {/* Animated neon indicator */}
+              {/* Slider Panel Indicator */}
               <motion.div
                 initial={false}
                 animate={{ x: activeTab === 'attendees' ? '100%' : '0%' }}
-                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                 style={{
                   position: 'absolute',
-                  top: '5px',
-                  left: '5px',
-                  width: 'calc(50% - 5px)',
-                  height: 'calc(100% - 10px)',
-                  background: 'linear-gradient(135deg, #7850ff, #00d2ff)',
-                  borderRadius: '99px',
-                  boxShadow: '0 0 24px rgba(120, 80, 255, 0.5), 0 0 60px rgba(120, 80, 255, 0.15)',
+                  top: '4px',
+                  left: '4px',
+                  width: 'calc(50% - 4px)',
+                  height: 'calc(100% - 8px)',
+                  background: 'rgba(255, 255, 255, 0.03)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
                   zIndex: 0,
+                  display: 'flex',
+                  alignItems: 'flex-end',
                 }}
-              />
+              >
+                {/* Micro tech line on active tab bottom border */}
+                <div
+                  style={{
+                    width: '100%',
+                    height: '2px',
+                    background: `linear-gradient(to right, transparent, ${activeTab === 'organizers' ? '#FFFFFF' : '#06B6D4'}, transparent)`,
+                  }}
+                />
+              </motion.div>
             </div>
           </div>
 
@@ -278,7 +316,7 @@ const ExperienceShowcase: React.FC = () => {
                 <motion.line
                   x1="50%"
                   y1={`${activeTopPercent}%`}
-                  x2={isEven ? "calc(50% - 30px)" : "calc(50% + 30px)"}
+                  x2="calc(50% - 30px)"
                   y2={`${activeTopPercent}%`}
                   stroke={activeStepData.accentColor}
                   strokeWidth="5"
@@ -293,7 +331,7 @@ const ExperienceShowcase: React.FC = () => {
                 <motion.line
                   x1="50%"
                   y1={`${activeTopPercent}%`}
-                  x2={isEven ? "calc(50% - 30px)" : "calc(50% + 30px)"}
+                  x2="calc(50% - 30px)"
                   y2={`${activeTopPercent}%`}
                   stroke={activeStepData.accentColor}
                   strokeWidth="1.5"
@@ -306,9 +344,9 @@ const ExperienceShowcase: React.FC = () => {
 
                 {/* Line 2 (Vertical to Center level) - Glow & Sharp */}
                 <motion.line
-                  x1={isEven ? "calc(50% - 30px)" : "calc(50% + 30px)"}
+                  x1="calc(50% - 30px)"
                   y1={`${activeTopPercent}%`}
-                  x2={isEven ? "calc(50% - 30px)" : "calc(50% + 30px)"}
+                  x2="calc(50% - 30px)"
                   y2="50%"
                   stroke={activeStepData.accentColor}
                   strokeWidth="5"
@@ -321,9 +359,9 @@ const ExperienceShowcase: React.FC = () => {
                   transition={{ duration: 0.25, ease: "easeInOut", delay: 0.15 }}
                 />
                 <motion.line
-                  x1={isEven ? "calc(50% - 30px)" : "calc(50% + 30px)"}
+                  x1="calc(50% - 30px)"
                   y1={`${activeTopPercent}%`}
-                  x2={isEven ? "calc(50% - 30px)" : "calc(50% + 30px)"}
+                  x2="calc(50% - 30px)"
                   y2="50%"
                   stroke={activeStepData.accentColor}
                   strokeWidth="1.5"
@@ -336,9 +374,9 @@ const ExperienceShowcase: React.FC = () => {
 
                 {/* Line 3 (Horizontal to Card edge) - Glow & Sharp */}
                 <motion.line
-                  x1={isEven ? "calc(50% - 30px)" : "calc(50% + 30px)"}
+                  x1="calc(50% - 30px)"
                   y1="50%"
-                  x2={isEven ? "calc(46% - 40px)" : "calc(54% + 40px)"}
+                  x2="calc(46% - 40px)"
                   y2="50%"
                   stroke={activeStepData.accentColor}
                   strokeWidth="5"
@@ -351,9 +389,9 @@ const ExperienceShowcase: React.FC = () => {
                   transition={{ duration: 0.2, ease: "easeOut", delay: 0.4 }}
                 />
                 <motion.line
-                  x1={isEven ? "calc(50% - 30px)" : "calc(50% + 30px)"}
+                  x1="calc(50% - 30px)"
                   y1="50%"
-                  x2={isEven ? "calc(46% - 40px)" : "calc(54% + 40px)"}
+                  x2="calc(46% - 40px)"
                   y2="50%"
                   stroke={activeStepData.accentColor}
                   strokeWidth="1.5"
@@ -366,7 +404,7 @@ const ExperienceShowcase: React.FC = () => {
 
                 {/* Contact glow dot */}
                 <motion.circle
-                  cx={isEven ? "calc(46% - 40px)" : "calc(54% + 40px)"}
+                  cx="calc(46% - 40px)"
                   cy="50%"
                   r="3.5"
                   fill="#fff"
@@ -639,24 +677,21 @@ const ExperienceShowcase: React.FC = () => {
                 key={`${activeTab}-${activeIndex}`}
                 initial={{
                   opacity: 0,
-                  x: isEven ? -60 : 60,
-                  rotateY: isEven ? 25 : -25,
+                  x: -60,
+                  rotateY: 25,
                   scale: 0.88,
-                  filter: 'blur(10px)',
                 }}
                 animate={{
                   opacity: 1,
                   x: 0,
                   rotateY: 0,
                   scale: 1,
-                  filter: 'blur(0px)',
                 }}
                 exit={{
                   opacity: 0,
-                  x: isEven ? 40 : -40,
-                  rotateY: isEven ? -15 : 15,
+                  x: 40,
+                  rotateY: -15,
                   scale: 0.92,
-                  filter: 'blur(10px)',
                 }}
                 transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
                 style={{
@@ -665,20 +700,75 @@ const ExperienceShowcase: React.FC = () => {
                   transform: 'translateY(-50%)',
                   transformStyle: 'preserve-3d' as const,
                   perspective: '1200px',
-                  ...(isEven
-                    ? { right: '54%', marginRight: '40px' }
-                    : { left: '54%', marginLeft: '40px' }),
+                  right: '54%',
+                  marginRight: '40px',
                   width: '420px',
-                  background: 'rgba(8, 8, 16, 0.65)',
-                  border: `1px solid ${activeStepData.accentColor}25`,
+                  background: `radial-gradient(circle at top right, rgba(${hexToRgb(activeStepData.accentColor)}, 0.15) 0%, rgba(8, 8, 14, 0.85) 60%)`,
+                  border: `1px solid rgba(${hexToRgb(activeStepData.accentColor)}, 0.22)`,
                   borderRadius: '1.25rem',
-                  padding: '2.5rem',
-                  backdropFilter: 'blur(24px)',
-                  WebkitBackdropFilter: 'blur(24px)',
-                  boxShadow: `0 30px 60px rgba(0,0,0,0.6), 0 0 50px ${activeStepData.accentColor}08, inset 0 1px 0 rgba(255,255,255,0.06)`,
+                  padding: '3rem 2.5rem 2.5rem',
+                  backdropFilter: 'blur(28px)',
+                  WebkitBackdropFilter: 'blur(28px)',
+                  boxShadow: `0 30px 60px rgba(0,0,0,0.7), 0 0 50px rgba(${hexToRgb(activeStepData.accentColor)}, 0.08), inset 0 1px 0 rgba(255,255,255,0.06)`,
                   zIndex: 5,
+                  overflow: 'hidden',
                 }}
               >
+                {/* Large Watermark Number in background */}
+                <div style={{
+                  position: 'absolute',
+                  bottom: '-1.2rem',
+                  right: '0.8rem',
+                  fontSize: '9.5rem',
+                  fontWeight: 900,
+                  color: activeStepData.accentColor,
+                  opacity: 0.15,
+                  fontFamily: 'Outfit, sans-serif',
+                  userSelect: 'none',
+                  pointerEvents: 'none',
+                  lineHeight: 1,
+                  letterSpacing: '-0.05em',
+                }}>
+                  {`0${activeIndex + 1}`}
+                </div>
+
+                {/* Technical status tags */}
+                <div style={{
+                  position: 'absolute',
+                  top: '20px',
+                  left: '24px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '0.6rem',
+                  fontFamily: 'monospace',
+                  color: 'rgba(255,255,255,0.25)',
+                  letterSpacing: '1px',
+                  userSelect: 'none',
+                }}>
+                  <span style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    background: activeStepData.accentColor,
+                    boxShadow: `0 0 8px ${activeStepData.accentColor}`,
+                  }} />
+                  FF // NODE_LIVE
+                </div>
+
+                <div style={{
+                  position: 'absolute',
+                  top: '20px',
+                  right: '24px',
+                  fontSize: '0.6rem',
+                  fontFamily: 'monospace',
+                  color: 'rgba(255,255,255,0.2)',
+                  letterSpacing: '2px',
+                  userSelect: 'none',
+                }}>
+                  SYS_V2.0
+                </div>
+
                 {/* Diagonal Sheen Sweep Effect */}
                 <motion.div
                   key={`sheen-${activeTab}-${activeIndex}`}
@@ -699,10 +789,11 @@ const ExperienceShowcase: React.FC = () => {
                 />
 
                 {/* Corner HUD Brackets */}
-                <div style={{ position: 'absolute', top: '10px', left: '10px', width: '12px', height: '12px', borderTop: `2px solid ${activeStepData.accentColor}`, borderLeft: `2px solid ${activeStepData.accentColor}`, opacity: 0.5 }} />
-                <div style={{ position: 'absolute', top: '10px', right: '10px', width: '12px', height: '12px', borderTop: `2px solid ${activeStepData.accentColor}`, borderRight: `2px solid ${activeStepData.accentColor}`, opacity: 0.5 }} />
-                <div style={{ position: 'absolute', bottom: '10px', left: '10px', width: '12px', height: '12px', borderBottom: `2px solid ${activeStepData.accentColor}`, borderLeft: `2px solid ${activeStepData.accentColor}`, opacity: 0.5 }} />
-                <div style={{ position: 'absolute', bottom: '10px', right: '10px', width: '12px', height: '12px', borderBottom: `2px solid ${activeStepData.accentColor}`, borderRight: `2px solid ${activeStepData.accentColor}`, opacity: 0.5 }} />
+                <div style={{ position: 'absolute', top: '10px', left: '10px', width: '12px', height: '12px', borderTop: `2px solid ${activeStepData.accentColor}`, borderLeft: `2px solid ${activeStepData.accentColor}`, opacity: 0.4 }} />
+                <div style={{ position: 'absolute', top: '10px', right: '10px', width: '12px', height: '12px', borderTop: `2px solid ${activeStepData.accentColor}`, borderRight: `2px solid ${activeStepData.accentColor}`, opacity: 0.4 }} />
+                <div style={{ position: 'absolute', bottom: '10px', left: '10px', width: '12px', height: '12px', borderBottom: `2px solid ${activeStepData.accentColor}`, borderLeft: `2px solid ${activeStepData.accentColor}`, opacity: 0.4 }} />
+                <div style={{ position: 'absolute', bottom: '10px', right: '10px', width: '12px', height: '12px', borderBottom: `2px solid ${activeStepData.accentColor}`, borderRight: `2px solid ${activeStepData.accentColor}`, opacity: 0.4 }} />
+                
                 {/* Icon Badge — floats continuously after drawing */}
                 <motion.div
                   animate={{ y: [0, -3, 0] }}
@@ -710,13 +801,14 @@ const ExperienceShowcase: React.FC = () => {
                   style={{
                     width: '52px',
                     height: '52px',
-                    marginBottom: '1.5rem',
+                    marginBottom: '1.25rem',
                     borderRadius: '14px',
-                    background: `${activeStepData.accentColor}18`,
-                    border: `1px solid ${activeStepData.accentColor}30`,
+                    background: `rgba(${hexToRgb(activeStepData.accentColor)}, 0.12)`,
+                    border: `1px solid rgba(${hexToRgb(activeStepData.accentColor)}, 0.25)`,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    boxShadow: `0 4px 20px rgba(${hexToRgb(activeStepData.accentColor)}, 0.15)`,
                   }}
                 >
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={activeStepData.accentColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -730,23 +822,7 @@ const ExperienceShowcase: React.FC = () => {
                   </svg>
                 </motion.div>
 
-                {/* Step Label */}
-                <motion.span
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.15, duration: 0.4 }}
-                  style={{
-                    display: 'block',
-                    fontSize: '0.72rem',
-                    fontWeight: 700,
-                    letterSpacing: '0.18em',
-                    textTransform: 'uppercase',
-                    color: activeStepData.accentColor,
-                    marginBottom: '0.6rem',
-                  }}
-                >
-                  Step {activeIndex + 1} of {activeSteps.length}
-                </motion.span>
+
 
                 {/* Title */}
                 <motion.h3
@@ -756,10 +832,11 @@ const ExperienceShowcase: React.FC = () => {
                   style={{
                     fontSize: '1.85rem',
                     fontWeight: 800,
-                    color: '#f0f0f5',
+                    color: '#f9f9fb',
                     letterSpacing: '-0.03em',
                     lineHeight: 1.2,
                     marginBottom: '0.8rem',
+                    fontFamily: 'Outfit, sans-serif',
                   }}
                 >
                   {activeStepData.title}
@@ -771,9 +848,11 @@ const ExperienceShowcase: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.35, duration: 0.5 }}
                   style={{
-                    fontSize: '0.95rem',
-                    color: '#9090a5',
-                    lineHeight: 1.7,
+                    fontSize: '0.92rem',
+                    color: '#a1a1b5',
+                    lineHeight: 1.75,
+                    fontFamily: "'Outfit', sans-serif",
+                    fontWeight: 300,
                   }}
                 >
                   {activeStepData.description}

@@ -119,28 +119,11 @@ const OrganizerSidebar: React.FC = () => {
       {isEventSelected && (
         <>
           <div className="org-sidebar__label">Active Event</div>
-          <div style={{
-            padding: '0.55rem 0.65rem',
-            margin: '0 0.6rem 0.25rem',
-            borderRadius: '0.5rem',
-            background: 'var(--org-accent-soft)',
-            border: '1px solid var(--org-sidebar-item-active-border)',
-          }}>
-            <div style={{
-              fontSize: '0.82rem',
-              fontWeight: 650,
-              color: 'var(--org-accent-text)',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}>
+          <div className="org-sidebar__active-event">
+            <div className="org-sidebar__active-event-name">
               {activeEvent!.name}
             </div>
-            <div style={{
-              fontSize: '0.68rem',
-              color: 'var(--org-text-tertiary)',
-              marginTop: '0.1rem',
-            }}>
+            <div className="org-sidebar__active-event-meta">
               {activeEvent!.status} · {activeEvent!.category}
             </div>
           </div>

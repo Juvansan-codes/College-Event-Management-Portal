@@ -47,6 +47,10 @@
   --stage-overlay-bg: rgba(0, 0, 0, 0.25);
   --stage-header-color: #ffffff;
   --stage-eyebrow-color: rgba(255, 255, 255, 0.7);
+
+  /* ─── HUD Navbar (Light) ─── */
+  --bg-active-tab: rgba(0, 0, 0, 0.05);
+  --border-active-tab: rgba(0, 0, 0, 0.08);
 }
 
 [data-theme="dark"] {
@@ -67,8 +71,8 @@
   --btn-secondary-text: #f0f0f5;
   --btn-secondary-border: rgba(255, 255, 255, 0.12);
   --btn-secondary-hover-bg: rgba(255, 255, 255, 0.06);
-  --glow-color: rgba(120, 80, 255, 0.18);
-  --glow-accent: rgba(140, 100, 255, 0.3);
+  --glow-color: rgba(255, 255, 255, 0.05);
+  --glow-accent: rgba(255, 255, 255, 0.1);
   --particle-color: rgba(255, 255, 255, 0.04);
   --logo-primary: #f0f0f5;
   --logo-secondary: #505065;
@@ -82,14 +86,18 @@
   /* ─── Stage Cards (Dark) ─── */
   --stage-card-bg: rgba(12, 12, 24, 0.85);
   --stage-card-border: rgba(255, 255, 255, 0.06);
-  --stage-card-border-hover: rgba(120, 90, 255, 0.3);
+  --stage-card-border-hover: rgba(255, 255, 255, 0.2);
   --stage-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  --stage-card-shadow-hover: 0 16px 48px rgba(100, 60, 255, 0.15);
-  --stage-card-glow: rgba(120, 80, 255, 0.1);
-  --stage-card-icon-bg: rgba(120, 80, 255, 0.18);
+  --stage-card-shadow-hover: 0 16px 48px rgba(255, 255, 255, 0.08);
+  --stage-card-glow: rgba(255, 255, 255, 0.02);
+  --stage-card-icon-bg: rgba(255, 255, 255, 0.06);
   --stage-overlay-bg: rgba(0, 0, 0, 0.35);
   --stage-header-color: #f0f0f5;
   --stage-eyebrow-color: rgba(200, 200, 220, 0.7);
+
+  /* ─── HUD Navbar (Dark) ─── */
+  --bg-active-tab: rgba(255, 255, 255, 0.06);
+  --border-active-tab: rgba(255, 255, 255, 0.09);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -123,7 +131,7 @@
 
   body {
     background: var(--bg-primary);
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Outfit', system-ui, sans-serif;
     color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -600,7 +608,7 @@
 }
 
 [data-theme="dark"] .exp-showcase-bg {
-  background: radial-gradient(ellipse at 50% -20%, rgba(120, 100, 255, 0.08) 0%, transparent 70%);
+  background: radial-gradient(ellipse at 50% -20%, rgba(255, 255, 255, 0.04) 0%, transparent 70%);
 }
 
 .exp-showcase-inner {
@@ -978,4 +986,103 @@
     font-size: 1.5rem;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   HUD NAV CAPSULES
+   ═══════════════════════════════════════════════════════════════ */
+.hud-panel {
+  position: relative;
+  background: rgba(8, 8, 14, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+[data-theme="light"] .hud-panel {
+  background: rgba(245, 245, 245, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Mouse spotlight background sheen */
+.hud-panel-sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 0;
+}
+
+.hud-panel:hover .hud-panel-sheen {
+  opacity: 1;
+}
+
+[data-theme="dark"] .hud-panel-sheen {
+  background: radial-gradient(circle 100px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.06), transparent 80%);
+}
+
+[data-theme="light"] .hud-panel-sheen {
+  background: radial-gradient(circle 100px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(0, 0, 0, 0.03), transparent 80%);
+}
+
+/* Mouse spotlight border glow */
+.hud-panel::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 1;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+}
+
+.hud-panel:hover::before {
+  opacity: 1;
+}
+
+[data-theme="dark"] .hud-panel::before {
+  background: radial-gradient(circle 100px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.15), transparent 80%);
+}
+
+[data-theme="light"] .hud-panel::before {
+  background: radial-gradient(circle 100px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(0, 0, 0, 0.1), transparent 80%);
+}
+
+/* Technical L-shaped corner brackets */
+.hud-corner {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-color: rgba(255, 255, 255, 0.15);
+  border-style: solid;
+  pointer-events: none;
+  z-index: 2;
+  transition: border-color 0.3s ease;
+}
+
+[data-theme="light"] .hud-corner {
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+.hud-panel:hover .hud-corner {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+[data-theme="light"] .hud-panel:hover .hud-corner {
+  border-color: rgba(0, 0, 0, 0.3);
+}
+
+.hud-corner-tl { top: 3px; left: 3px; border-width: 1px 0 0 1px; }
+.hud-corner-tr { top: 3px; right: 3px; border-width: 1px 1px 0 0; }
+.hud-corner-bl { bottom: 3px; left: 3px; border-width: 0 0 1px 1px; }
+.hud-corner-br { bottom: 3px; right: 3px; border-width: 0 1px 1px 0; }
 
