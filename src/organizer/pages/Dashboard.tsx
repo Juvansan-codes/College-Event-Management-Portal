@@ -329,7 +329,8 @@ const Dashboard: React.FC = () => {
       // Registrations → activity items
       for (const reg of registrations.slice(0, 5)) {
         const { label, ts } = relativeTime(reg.created_at)
-        const tierName = reg.ticket_tiers?.name || 'General'
+        const tierData: any = reg.ticket_tiers
+        const tierName = (Array.isArray(tierData) ? tierData[0]?.name : tierData?.name) || 'General'
         activities.push({
           time: label,
           timestamp: ts,
@@ -345,7 +346,8 @@ const Dashboard: React.FC = () => {
       // Sponsors → activity items
       for (const sponsor of sponsors.slice(0, 5)) {
         const { label, ts } = relativeTime(sponsor.created_at)
-        const packageName = sponsor.sponsor_packages?.name || 'Custom'
+        const packageData: any = sponsor.sponsor_packages
+        const packageName = (Array.isArray(packageData) ? packageData[0]?.name : packageData?.name) || 'Custom'
         activities.push({
           time: label,
           timestamp: ts,
