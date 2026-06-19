@@ -55,7 +55,7 @@ const ArrowIcon = () => (
 /* ─── Tool Cards Data ─── */
 interface ToolItem {
   to: string
-  image: string
+  visual: React.ReactNode
   title: string
   description: string
   accentColor: string
@@ -64,35 +64,87 @@ interface ToolItem {
 const TOOLS: ToolItem[] = [
   {
     to: '/organizer/certifications',
-    image: '/organizer/card-certifications.png',
+    visual: (
+      <div className="mock-ui-container mock-cert">
+        <div className="mock-cert-card">
+          <div className="mock-cert-badge" />
+          <div className="mock-line mock-line--title" />
+          <div className="mock-line" />
+          <div className="mock-line mock-line--short" />
+        </div>
+      </div>
+    ),
     title: 'Certification Generator',
     description: 'Design and release customized, secure participation credentials for attendees.',
     accentColor: '#D4B27A'
   },
   {
     to: '/organizer/agenda',
-    image: '/organizer/card-agenda.png',
+    visual: (
+      <div className="mock-ui-container mock-agenda">
+        <div className="mock-agenda-sidebar" />
+        <div className="mock-agenda-grid">
+          <div className="mock-agenda-block mock-agenda-block--1" />
+          <div className="mock-agenda-block mock-agenda-block--2" />
+          <div className="mock-agenda-block mock-agenda-block--3" />
+        </div>
+      </div>
+    ),
     title: 'Agenda Planner',
     description: 'Plan complex schedules, curate speaker panels, and export print-ready programs.',
     accentColor: '#C5A265'
   },
   {
     to: '/organizer/sponsorships',
-    image: '/organizer/card-sponsorships.png',
+    visual: (
+      <div className="mock-ui-container mock-kanban">
+        <div className="mock-kanban-col">
+          <div className="mock-kanban-card" />
+          <div className="mock-kanban-card" />
+        </div>
+        <div className="mock-kanban-col">
+          <div className="mock-kanban-card mock-kanban-card--accent" />
+        </div>
+        <div className="mock-kanban-col">
+          <div className="mock-kanban-card" />
+        </div>
+      </div>
+    ),
     title: 'Sponsorship Manager',
     description: 'Structure custom partnership tiers and streamline pipeline revenue management.',
     accentColor: '#A38A67'
   },
   {
     to: '/organizer/tickets',
-    image: '/organizer/card-tickets.png',
+    visual: (
+      <div className="mock-ui-container mock-ticket-wrap">
+        <div className="mock-ticket">
+          <div className="mock-ticket-hole mock-ticket-hole--top" />
+          <div className="mock-ticket-hole mock-ticket-hole--bottom" />
+          <div className="mock-ticket-barcode">
+            <div className="mock-barcode-line" /><div className="mock-barcode-line" /><div className="mock-barcode-line" />
+          </div>
+          <div className="mock-laser-scanner" />
+        </div>
+      </div>
+    ),
     title: 'Registration & Tickets',
     description: 'Configure multi-tier tickets, design mock entry passes, and audit check-ins.',
     accentColor: '#B59B73'
   },
   {
     to: '/organizer/polls',
-    image: '/organizer/card-polls.png',
+    visual: (
+      <div className="mock-ui-container mock-chart">
+        <div className="mock-chart-bg">
+          <div className="mock-chart-bar mock-chart-bar--1" />
+          <div className="mock-chart-bar mock-chart-bar--2" />
+          <div className="mock-chart-bar mock-chart-bar--3" />
+          <div className="mock-chart-bar mock-chart-bar--4" />
+          <div className="mock-chart-pulse-node" />
+        </div>
+      </div>
+    ),
     title: 'Polls & Engagement',
     description: 'Launch real-time questions, check audience metrics, and chart feedback live.',
     accentColor: '#8C714C'
@@ -240,12 +292,12 @@ const Dashboard: React.FC = () => {
       ] = await Promise.all([
         supabase
           .from('event_registrations')
-          .select('id, user_name, user_email, status, ticket_type, created_at')
+          .select('id, user_name, user_email, status, ticket_tier_id, ticket_tiers(name), created_at')
           .eq('event_id', eventId)
           .order('created_at', { ascending: false }),
         supabase
           .from('event_sponsors')
-          .select('id, name, tier, amount, pipeline_stage, contact_email, created_at, updated_at')
+          .select('id, name, package_id, sponsor_packages(name), amount, pipeline_stage, contact_email, created_at, updated_at')
           .eq('event_id', eventId)
           .order('created_at', { ascending: false }),
         supabase
@@ -275,15 +327,16 @@ const Dashboard: React.FC = () => {
       const activities: ActivityItem[] = []
 
       // Registrations → activity items
-      for (const reg of registrations.slice(0, 10)) {
+      for (const reg of registrations.slice(0, 5)) {
         const { label, ts } = relativeTime(reg.created_at)
+        const tierName = reg.ticket_tiers?.name || 'General'
         activities.push({
           time: label,
           timestamp: ts,
           user: getInitials(reg.user_name || 'U'),
           name: reg.user_name || 'Unknown User',
-          action: 'registered for',
-          target: `${activeEvent.name} (${reg.ticket_type || 'General'})`,
+          action: 'purchased a ticket for',
+          target: `${activeEvent.name} (${tierName})`,
           badge: reg.status === 'confirmed' ? 'Confirmed' : 'Registered',
           statusType: reg.status === 'confirmed' ? 'success' : 'info',
         })
@@ -292,12 +345,13 @@ const Dashboard: React.FC = () => {
       // Sponsors → activity items
       for (const sponsor of sponsors.slice(0, 5)) {
         const { label, ts } = relativeTime(sponsor.created_at)
+        const packageName = sponsor.sponsor_packages?.name || 'Custom'
         activities.push({
           time: label,
           timestamp: ts,
           user: getInitials(sponsor.name),
           name: sponsor.name,
-          action: `joined as ${sponsor.tier} sponsor for`,
+          action: `joined as ${packageName} sponsor for`,
           target: `₹${(sponsor.amount || 0).toLocaleString('en-IN')}`,
           badge: sponsor.pipeline_stage || 'Contacted',
           statusType: sponsor.pipeline_stage === 'Confirmed' ? 'success' : 'warning',
@@ -547,7 +601,7 @@ const Dashboard: React.FC = () => {
           >
             <Link to={tool.to} className="org-module-card">
               <div className="org-module-card__visual">
-                <img src={tool.image} className="org-module-card__img" alt={tool.title} />
+                {tool.visual}
                 {/* Radial Glow follow hover effect via CSS border mask */}
                 <div className="org-module-glow-overlay" style={{ '--tool-accent': tool.accentColor } as React.CSSProperties} />
               </div>
@@ -564,7 +618,7 @@ const Dashboard: React.FC = () => {
       </motion.div>
 
       {/* Horizontal Event Timeline scroll + Linear activity feed */}
-      <div className="org-split-grid" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '1.5rem', marginTop: '0.5rem' }}>
+      <div className="org-split-grid" style={{ marginTop: '0.5rem' }}>
         
         {/* Horizontal Event Scroll */}
         <motion.div
@@ -629,8 +683,16 @@ const Dashboard: React.FC = () => {
           </motion.div>
           <motion.div variants={cardReveal} className="org-surface org-surface--elevated" style={{ padding: '1.25rem' }}>
             {isLoadingActivity ? (
-              <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--org-text-tertiary)', fontSize: '0.85rem' }}>
-                Loading activity…
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '0.5rem' }}>
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} style={{ display: 'flex', gap: '1rem', alignItems: 'center', opacity: 1 - i * 0.15 }}>
+                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--org-surface-2)' }} />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ height: '10px', width: '60%', background: 'var(--org-surface-2)', borderRadius: '4px', marginBottom: '8px' }} />
+                      <div style={{ height: '8px', width: '40%', background: 'var(--org-surface-2)', borderRadius: '4px' }} />
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : recentActivity.length === 0 ? (
               <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--org-text-tertiary)', fontSize: '0.85rem' }}>

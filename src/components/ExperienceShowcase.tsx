@@ -108,8 +108,15 @@ const ExperienceShowcase: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'organizers' | 'attendees'>('organizers')
   const [activeIndex, setActiveIndex] = useState(0)
   const [isClient, setIsClient] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
-  useEffect(() => { setIsClient(true) }, [])
+  useEffect(() => { 
+    setIsClient(true) 
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -207,7 +214,8 @@ const ExperienceShowcase: React.FC = () => {
               border: '1px solid rgba(255, 255, 255, 0.05)',
               borderRadius: '12px',
               padding: '4px',
-              width: '350px',
+              width: '100%',
+              maxWidth: '350px',
               boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.03)',
             }}>
               <div style={{ display: 'flex', width: '100%', position: 'relative', zIndex: 1 }}>
@@ -300,6 +308,7 @@ const ExperienceShowcase: React.FC = () => {
           }}>
 
             {/* ── Circuit Connector Lines ── */}
+            {!isMobile && (
             <AnimatePresence mode="wait">
               <motion.svg
                 key={`connector-${activeTab}-${activeIndex}`}
@@ -418,9 +427,10 @@ const ExperienceShowcase: React.FC = () => {
                 />
               </motion.svg>
             </AnimatePresence>
+            )}
 
             {/* ── Comet Timeline ── */}
-            <div style={{
+            <div className="hidden md:block" style={{
               position: 'absolute',
               top: '0',
               bottom: '0',
@@ -601,6 +611,7 @@ const ExperienceShowcase: React.FC = () => {
                             height: '100%',
                             borderRadius: '50%',
                             border: `1px solid ${step.accentColor}`,
+                            opacity: 0.5,
                           }}
                         />
                         <motion.div
@@ -613,6 +624,7 @@ const ExperienceShowcase: React.FC = () => {
                             height: '100%',
                             borderRadius: '50%',
                             border: `1px solid ${step.accentColor}`,
+                            opacity: 0.3,
                           }}
                         />
                       </>
@@ -671,13 +683,13 @@ const ExperienceShowcase: React.FC = () => {
               })}
             </div>
 
-            {/* ── Alternating Glass Card ── */}
+          <div className="exp-card-positioner">
             <AnimatePresence mode="wait">
               <motion.div
                 key={`${activeTab}-${activeIndex}`}
                 initial={{
                   opacity: 0,
-                  x: -60,
+                  x: isMobile ? 0 : -60,
                   rotateY: 25,
                   scale: 0.88,
                 }}
@@ -689,24 +701,19 @@ const ExperienceShowcase: React.FC = () => {
                 }}
                 exit={{
                   opacity: 0,
-                  x: 40,
+                  x: isMobile ? 0 : 40,
                   rotateY: -15,
                   scale: 0.92,
                 }}
                 transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
                 style={{
-                  position: 'absolute',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
+                  width: '100%',
                   transformStyle: 'preserve-3d' as const,
                   perspective: '1200px',
-                  right: '54%',
-                  marginRight: '40px',
-                  width: '420px',
                   background: `radial-gradient(circle at top right, rgba(${hexToRgb(activeStepData.accentColor)}, 0.15) 0%, rgba(8, 8, 14, 0.85) 60%)`,
                   border: `1px solid rgba(${hexToRgb(activeStepData.accentColor)}, 0.22)`,
                   borderRadius: '1.25rem',
-                  padding: '3rem 2.5rem 2.5rem',
+                  padding: isMobile ? '1.8rem 1.5rem 1.5rem' : '3rem 2.5rem 2.5rem',
                   backdropFilter: 'blur(28px)',
                   WebkitBackdropFilter: 'blur(28px)',
                   boxShadow: `0 30px 60px rgba(0,0,0,0.7), 0 0 50px rgba(${hexToRgb(activeStepData.accentColor)}, 0.08), inset 0 1px 0 rgba(255,255,255,0.06)`,
@@ -717,9 +724,9 @@ const ExperienceShowcase: React.FC = () => {
                 {/* Large Watermark Number in background */}
                 <div style={{
                   position: 'absolute',
-                  bottom: '-1.2rem',
-                  right: '0.8rem',
-                  fontSize: '9.5rem',
+                  bottom: isMobile ? '-0.8rem' : '-1.2rem',
+                  right: isMobile ? '-0.2rem' : '0.8rem',
+                  fontSize: isMobile ? '6.5rem' : '9.5rem',
                   fontWeight: 900,
                   color: activeStepData.accentColor,
                   opacity: 0.15,
@@ -785,6 +792,7 @@ const ExperienceShowcase: React.FC = () => {
                     transform: 'skewX(-20deg)',
                     pointerEvents: 'none',
                     zIndex: 6,
+                    opacity: 0.6,
                   }}
                 />
 
@@ -830,7 +838,7 @@ const ExperienceShowcase: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.25, duration: 0.5 }}
                   style={{
-                    fontSize: '1.85rem',
+                    fontSize: isMobile ? '1.5rem' : '1.85rem',
                     fontWeight: 800,
                     color: '#f9f9fb',
                     letterSpacing: '-0.03em',
@@ -848,9 +856,9 @@ const ExperienceShowcase: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.35, duration: 0.5 }}
                   style={{
-                    fontSize: '0.92rem',
-                    color: '#a1a1b5',
-                    lineHeight: 1.75,
+                    color: 'rgba(255, 255, 255, 0.6)',
+                    fontSize: isMobile ? '0.82rem' : '0.9rem',
+                    lineHeight: 1.675,
                     fontFamily: "'Outfit', sans-serif",
                     fontWeight: 300,
                   }}
@@ -859,6 +867,7 @@ const ExperienceShowcase: React.FC = () => {
                 </motion.p>
               </motion.div>
             </AnimatePresence>
+          </div>
 
           </div>
         </div>

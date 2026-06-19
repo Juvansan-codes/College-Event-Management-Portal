@@ -145,7 +145,7 @@ const Navbar: React.FC = () => {
 
         {/* ─── Action/Auth Module (Right) ─── */}
         <div
-          className="hud-panel pointer-events-auto flex items-center gap-3 px-3 h-[52px] rounded-[14px]"
+          className="hud-panel pointer-events-auto flex items-center md:gap-3 gap-1.5 md:px-3 px-2 h-[52px] rounded-[14px]"
           onMouseMove={handleMouseMove}
         >
           <div className="hud-panel-sheen" />
@@ -196,7 +196,7 @@ const Navbar: React.FC = () => {
                     {initials}
                   </span>
                   <span
-                    className="text-[0.78rem] font-medium max-w-[80px] truncate"
+                    className="hidden md:block text-[0.78rem] font-medium max-w-[80px] truncate"
                     style={{ color: 'var(--text-primary)', fontFamily: 'Outfit, sans-serif' }}
                   >
                     {displayName}
@@ -205,7 +205,7 @@ const Navbar: React.FC = () => {
 
                 <button
                   onClick={handleSignOut}
-                  className="px-[12px] py-[5px] rounded-lg text-[0.78rem] font-semibold cursor-pointer transition-all duration-200 border border-white/5 dark:border-white/5 border-black/5 bg-white/[0.02] hover:bg-white/[0.06] hover:border-white/[0.18] hover:text-white"
+                  className="hidden md:block px-[12px] py-[5px] rounded-lg text-[0.78rem] font-semibold cursor-pointer transition-all duration-200 border border-white/5 dark:border-white/5 border-black/5 bg-white/[0.02] hover:bg-white/[0.06] hover:border-white/[0.18] hover:text-white"
                   style={{
                     color: 'var(--text-secondary)',
                     fontFamily: 'Outfit, sans-serif',
@@ -218,7 +218,7 @@ const Navbar: React.FC = () => {
               <>
                 <Link
                   to="/signin"
-                  className="px-3 py-[5px] rounded-lg text-[0.78rem] font-semibold cursor-pointer transition-all duration-200 border border-white/5 dark:border-white/5 border-black/5 bg-white/[0.02] hover:bg-white/[0.06] hover:border-white/[0.18] hover:text-white"
+                  className="hidden md:block md:px-3 px-2 py-[5px] rounded-lg text-[0.78rem] font-semibold cursor-pointer transition-all duration-200 border border-white/5 dark:border-white/5 border-black/5 bg-white/[0.02] hover:bg-white/[0.06] hover:border-white/[0.18] hover:text-white"
                   style={{
                     color: 'var(--text-secondary)',
                     fontFamily: 'Outfit, sans-serif',
@@ -229,7 +229,7 @@ const Navbar: React.FC = () => {
 
                 <Link
                   to="/register"
-                  className="px-3.5 py-[5px] rounded-lg text-[0.78rem] font-semibold cursor-pointer hover:-translate-y-px transition-all duration-200 border"
+                  className="md:px-3.5 px-2.5 py-[5px] rounded-lg text-[0.78rem] font-semibold cursor-pointer hover:-translate-y-px transition-all duration-200 border"
                   style={{
                     background: 'var(--text-primary)',
                     color: 'var(--bg-primary)',
@@ -304,6 +304,36 @@ const Navbar: React.FC = () => {
                 </Link>
               )
             })}
+
+            <div className="h-px w-full my-1 opacity-20" style={{ background: 'var(--border-color)' }} />
+            
+            {isLoggedIn ? (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  handleSignOut()
+                }}
+                className="px-4 py-2.5 rounded-lg text-[0.84rem] font-semibold text-left transition-all duration-200"
+                style={{
+                  color: 'var(--text-secondary)',
+                  fontFamily: 'Outfit, sans-serif',
+                }}
+              >
+                Sign out
+              </button>
+            ) : (
+              <Link
+                to="/signin"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-4 py-2.5 rounded-lg text-[0.84rem] font-semibold text-left transition-all duration-200"
+                style={{
+                  color: 'var(--text-secondary)',
+                  fontFamily: 'Outfit, sans-serif',
+                }}
+              >
+                Sign in
+              </Link>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
