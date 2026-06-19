@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import StatCard from '../components/StatCard'
 import { useAuth } from '../../contexts/AuthContext'
 import { useEvent } from '../../contexts/EventContext'
+import { supabase, isSupabaseConfigured } from '../../lib/supabaseClient'
 
 /* ─── Event Visual Slides for Cinematic Hero ─── */
 const HERO_SLIDES = [
@@ -23,8 +24,6 @@ const HERO_SLIDES = [
     category: 'Coding Battles'
   }
 ]
-
-// SVG illustrations removed in favor of premium dashboard module image assets.
 
 /* ─── Metric Icons ─── */
 const EventIcon = () => (
@@ -100,15 +99,46 @@ const TOOLS: ToolItem[] = [
   }
 ]
 
+/* ─── Activity Item Type ─── */
+interface ActivityItem {
+  time: string
+  timestamp: number
+  user: string
+  name: string
+  action: string
+  target: string
+  badge: string
+  statusType: string
+}
 
-/* ─── Notion/Linear-Style Recent Activity ─── */
-const RECENT_ACTIVITY = [
-  { time: '2m ago', user: 'PK', name: 'Priya Kumar', action: 'registered for', target: 'TechFest 2026', badge: 'Checked In', statusType: 'info' },
-  { time: '15m ago', user: 'CT', name: 'CloudTech Solutions', action: 'confirmed sponsorship for', target: 'Platinum Tier', badge: 'Revenue', statusType: 'success' },
-  { time: '1h ago', user: 'AN', name: 'Aditya Nair', action: 'updated agenda slot', target: 'AI Keynote at 10:00 AM', badge: 'Updated', statusType: 'warning' },
-  { time: '3h ago', user: 'SR', name: 'Sneha Reddy', action: 'voted in live poll', target: 'Best Hackathon Tracks', badge: 'Audience', statusType: 'accent' },
-  { time: 'Yesterday', user: 'FF', name: 'FestForge Engine', action: 'auto-generated certs for', target: 'Design Sprint Attendees', badge: 'Finished', statusType: 'neutral' }
-]
+/* ─── Relative Time Helper ─── */
+function relativeTime(dateStr: string): { label: string; ts: number } {
+  const date = new Date(dateStr)
+  const ts = date.getTime()
+  const now = Date.now()
+  const diffMs = now - ts
+  const diffSec = Math.floor(diffMs / 1000)
+  const diffMin = Math.floor(diffSec / 60)
+  const diffHr = Math.floor(diffMin / 60)
+  const diffDay = Math.floor(diffHr / 24)
+
+  if (diffSec < 60) return { label: 'Just now', ts }
+  if (diffMin < 60) return { label: `${diffMin}m ago`, ts }
+  if (diffHr < 24) return { label: `${diffHr}h ago`, ts }
+  if (diffDay === 1) return { label: 'Yesterday', ts }
+  if (diffDay < 7) return { label: `${diffDay}d ago`, ts }
+  return { label: date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }), ts }
+}
+
+/* ─── Initials from name ─── */
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map(w => w[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
+}
 
 /* ─── Animations ─── */
 const stagger = {
@@ -159,6 +189,14 @@ const Dashboard: React.FC = () => {
   const { activeEvent, events } = useEvent()
   const navigate = useNavigate()
 
+  /* ─── Real data state ─── */
+  const [registrationCount, setRegistrationCount] = useState(0)
+  const [sponsorRevenue, setSponsorRevenue] = useState(0)
+  const [certsIssued, setCertsIssued] = useState(0)
+  const [checkedInCount, setCheckedInCount] = useState(0)
+  const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([])
+  const [isLoadingActivity, setIsLoadingActivity] = useState(true)
+
   const displayName = user?.user_metadata?.full_name || 'Organizer'
 
   const getGreeting = () => {
@@ -182,6 +220,218 @@ const Dashboard: React.FC = () => {
     }, 4500)
     return () => clearInterval(timer)
   }, [])
+
+  /* ─── Fetch real dashboard data ─── */
+  const fetchDashboardData = useCallback(async () => {
+    if (!activeEvent || !isSupabaseConfigured || !supabase) {
+      setIsLoadingActivity(false)
+      return
+    }
+
+    const eventId = activeEvent.id
+
+    try {
+      // Fetch all data sources in parallel
+      const [
+        registrationsRes,
+        sponsorsRes,
+        certificatesRes,
+        attendanceRes,
+      ] = await Promise.all([
+        supabase
+          .from('event_registrations')
+          .select('id, user_name, user_email, status, ticket_type, created_at')
+          .eq('event_id', eventId)
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('event_sponsors')
+          .select('id, name, tier, amount, pipeline_stage, contact_email, created_at, updated_at')
+          .eq('event_id', eventId)
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('event_certificates')
+          .select('id, participant_name, issued_at, event_id')
+          .eq('event_id', eventId)
+          .order('issued_at', { ascending: false }),
+        supabase
+          .from('attendance_records')
+          .select('id, user_name, check_in_time, status')
+          .eq('event_id', eventId)
+          .order('check_in_time', { ascending: false }),
+      ])
+
+      // ── Stat card values ──
+      const registrations = registrationsRes.data || []
+      const sponsors = sponsorsRes.data || []
+      const certificates = certificatesRes.data || []
+      const attendanceRecords = attendanceRes.data || []
+
+      setRegistrationCount(registrations.length)
+      setSponsorRevenue(sponsors.reduce((sum: number, s: any) => sum + (s.amount || 0), 0))
+      setCertsIssued(certificates.length)
+      setCheckedInCount(attendanceRecords.filter((r: any) => r.status === 'verified').length)
+
+      // ── Build unified activity feed from real data ──
+      const activities: ActivityItem[] = []
+
+      // Registrations → activity items
+      for (const reg of registrations.slice(0, 10)) {
+        const { label, ts } = relativeTime(reg.created_at)
+        activities.push({
+          time: label,
+          timestamp: ts,
+          user: getInitials(reg.user_name || 'U'),
+          name: reg.user_name || 'Unknown User',
+          action: 'registered for',
+          target: `${activeEvent.name} (${reg.ticket_type || 'General'})`,
+          badge: reg.status === 'confirmed' ? 'Confirmed' : 'Registered',
+          statusType: reg.status === 'confirmed' ? 'success' : 'info',
+        })
+      }
+
+      // Sponsors → activity items
+      for (const sponsor of sponsors.slice(0, 5)) {
+        const { label, ts } = relativeTime(sponsor.created_at)
+        activities.push({
+          time: label,
+          timestamp: ts,
+          user: getInitials(sponsor.name),
+          name: sponsor.name,
+          action: `joined as ${sponsor.tier} sponsor for`,
+          target: `₹${(sponsor.amount || 0).toLocaleString('en-IN')}`,
+          badge: sponsor.pipeline_stage || 'Contacted',
+          statusType: sponsor.pipeline_stage === 'Confirmed' ? 'success' : 'warning',
+        })
+      }
+
+      // Certificates → activity items
+      for (const cert of certificates.slice(0, 5)) {
+        const { label, ts } = relativeTime(cert.issued_at)
+        activities.push({
+          time: label,
+          timestamp: ts,
+          user: getInitials(cert.participant_name),
+          name: cert.participant_name,
+          action: 'was issued a certificate for',
+          target: activeEvent.name,
+          badge: 'Certificate',
+          statusType: 'accent',
+        })
+      }
+
+      // Attendance → activity items
+      for (const record of attendanceRecords.slice(0, 5)) {
+        const { label, ts } = relativeTime(record.check_in_time)
+        activities.push({
+          time: label,
+          timestamp: ts,
+          user: getInitials(record.user_name),
+          name: record.user_name,
+          action: 'checked in to',
+          target: activeEvent.name,
+          badge: record.status === 'verified' ? 'Verified' : 'Check-In',
+          statusType: record.status === 'verified' ? 'success' : 'info',
+        })
+      }
+
+      // Sort by most recent and take top 8
+      activities.sort((a, b) => b.timestamp - a.timestamp)
+      setRecentActivity(activities.slice(0, 8))
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err)
+    } finally {
+      setIsLoadingActivity(false)
+    }
+  }, [activeEvent])
+
+  useEffect(() => {
+    fetchDashboardData()
+  }, [fetchDashboardData])
+
+  /* ─── Real-time subscription for live updates ─── */
+  useEffect(() => {
+    if (!activeEvent || !isSupabaseConfigured || !supabase) return
+
+    const eventId = activeEvent.id
+
+    // Subscribe to new registrations
+    const registrationChannel = supabase
+      .channel(`dashboard-registrations-${eventId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'event_registrations',
+          filter: `event_id=eq.${eventId}`,
+        },
+        () => {
+          // Refetch all data to keep stats + activity in sync
+          fetchDashboardData()
+        }
+      )
+      .subscribe()
+
+    // Subscribe to sponsor changes
+    const sponsorChannel = supabase
+      .channel(`dashboard-sponsors-${eventId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'event_sponsors',
+          filter: `event_id=eq.${eventId}`,
+        },
+        () => {
+          fetchDashboardData()
+        }
+      )
+      .subscribe()
+
+    // Subscribe to attendance changes
+    const attendanceChannel = supabase
+      .channel(`dashboard-attendance-${eventId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'attendance_records',
+          filter: `event_id=eq.${eventId}`,
+        },
+        () => {
+          fetchDashboardData()
+        }
+      )
+      .subscribe()
+
+    // Subscribe to certificate changes
+    const certChannel = supabase
+      .channel(`dashboard-certs-${eventId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'event_certificates',
+          filter: `event_id=eq.${eventId}`,
+        },
+        () => {
+          fetchDashboardData()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      if (supabase) {
+        supabase.removeChannel(registrationChannel)
+        supabase.removeChannel(sponsorChannel)
+        supabase.removeChannel(attendanceChannel)
+        supabase.removeChannel(certChannel)
+      }
+    }
+  }, [activeEvent, fetchDashboardData])
 
   if (!activeEvent) return null
 
@@ -259,12 +509,12 @@ const Dashboard: React.FC = () => {
         </div>
       </motion.div>
 
-      {/* Floating Glass Stats Row — dynamic from active event */}
+      {/* Floating Glass Stats Row — real data from active event */}
       <div className="org-stats-grid">
-        <StatCard icon={<EventIcon />} label="Your Events" value={events.length} colorClass="accent" trend={`${activeEvent.status}`} trendUp index={0} />
-        <StatCard icon={<UsersIcon />} label="Max Capacity" value={activeEvent.max_attendees} colorClass="success" trend={activeEvent.category} trendUp index={1} />
-        <StatCard icon={<StarIcon />} label="Event Status" value={0} colorClass="warning" trend={activeEvent.status} trendUp index={2} />
-        <StatCard icon={<DollarIcon />} label="Days Until" value={Math.max(0, Math.ceil((new Date(activeEvent.start_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))} colorClass="info" trend={eventDateRange} trendUp index={3} />
+        <StatCard icon={<EventIcon />} label="Registrations" value={registrationCount} colorClass="accent" trend={`of ${activeEvent.max_attendees} capacity`} trendUp={registrationCount > 0} index={0} />
+        <StatCard icon={<UsersIcon />} label="Checked In" value={checkedInCount} colorClass="success" trend={registrationCount > 0 ? `${Math.round((checkedInCount / registrationCount) * 100)}% attendance` : 'No registrations'} trendUp={checkedInCount > 0} index={1} />
+        <StatCard icon={<DollarIcon />} label="Sponsor Revenue" value={sponsorRevenue} prefix="₹" colorClass="warning" trend={activeEvent.status} trendUp={sponsorRevenue > 0} index={2} />
+        <StatCard icon={<StarIcon />} label="Certs Issued" value={certsIssued} colorClass="info" trend={`${Math.max(0, Math.ceil((new Date(activeEvent.start_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))} days until event`} trendUp={certsIssued > 0} index={3} />
       </div>
 
       {/* Organizer Premium Feature Showcases */}
@@ -364,7 +614,7 @@ const Dashboard: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Linear/Notion Style Activity Feed */}
+        {/* Linear/Notion Style Activity Feed — REAL DATA */}
         <motion.div
           initial="initial"
           whileInView="animate"
@@ -378,26 +628,36 @@ const Dashboard: React.FC = () => {
             </div>
           </motion.div>
           <motion.div variants={cardReveal} className="org-surface org-surface--elevated" style={{ padding: '1.25rem' }}>
-            <motion.div variants={staggerContainer} className="org-activity-feed">
-              {RECENT_ACTIVITY.map((item, idx) => (
-                <motion.div key={idx} variants={feedItemReveal} className="org-activity-item">
-                  <div className="org-activity__avatar" style={{ background: `var(--org-${item.statusType})` }}>
-                    {item.user}
-                  </div>
-                  <div className="org-activity__content">
-                    <div className="org-activity__text">
-                      <strong>{item.name}</strong> {item.action} <strong>{item.target}</strong>
+            {isLoadingActivity ? (
+              <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--org-text-tertiary)', fontSize: '0.85rem' }}>
+                Loading activity…
+              </div>
+            ) : recentActivity.length === 0 ? (
+              <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--org-text-tertiary)', fontSize: '0.85rem' }}>
+                No recent activity yet. Operations will appear here as registrations, sponsorships, check-ins, and certificates are created.
+              </div>
+            ) : (
+              <motion.div variants={staggerContainer} className="org-activity-feed">
+                {recentActivity.map((item, idx) => (
+                  <motion.div key={`${item.statusType}-${item.timestamp}-${idx}`} variants={feedItemReveal} className="org-activity-item">
+                    <div className="org-activity__avatar" style={{ background: `var(--org-${item.statusType})` }}>
+                      {item.user}
                     </div>
-                    <div className="org-activity__time">{item.time}</div>
-                  </div>
-                  <div className="org-activity__type">
-                    <span className={`org-badge org-badge--${item.statusType}`}>
-                      {item.badge}
-                    </span>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
+                    <div className="org-activity__content">
+                      <div className="org-activity__text">
+                        <strong>{item.name}</strong> {item.action} <strong>{item.target}</strong>
+                      </div>
+                      <div className="org-activity__time">{item.time}</div>
+                    </div>
+                    <div className="org-activity__type">
+                      <span className={`org-badge org-badge--${item.statusType}`}>
+                        {item.badge}
+                      </span>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
           </motion.div>
         </motion.div>
       </div>
