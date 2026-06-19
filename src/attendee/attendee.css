@@ -1,24 +1,139 @@
 /* ═══════════════════════════════════════════════════════════════
-   FESTFORGE ATTENDEE — Uses the Organizer Design System
-   Imports organizer.css for shared layout/sidebar/surface classes
-   Only adds attendee-specific overrides here
+   FESTFORGE ATTENDEE — Obsidian Black & Antique Gold Theme
+   Aligns the Attendee Dashboard visuals with the Organizer Dashboard branding
    ═══════════════════════════════════════════════════════════════ */
 
-/* Attendee accent — fresh green teal instead of purple */
+/* Attendee Visual System Alignment — Obsidian Black & Antique Gold */
 .att-layout {
-  --org-accent: #10B981;
-  --org-accent-rgb: 16, 185, 129;
-  --org-accent-soft: rgba(16, 185, 129, 0.08);
-  --org-accent-medium: rgba(16, 185, 129, 0.15);
-  --org-accent-text: #059669;
+  --org-content-bg: #050505;
+  --org-content-bg-rgb: 5, 5, 5;
+  --org-sidebar-bg: #0B0B0B;
+  --org-surface-0: #0B0B0B;
+  --org-surface-1: #0D0D0D;
+  --org-surface-2: #111111;
+  --org-accent: #B89B5E;
+  --org-accent-rgb: 184, 155, 94;
+  --org-border-hover: #B89B5E;
+  --org-sidebar-item-active-border: #B89B5E;
+  --org-accent-text: #C8AE73;
+  --org-border-default: rgba(184, 155, 94, 0.20);
+  --org-sidebar-border: rgba(184, 155, 94, 0.20);
+  --org-text-primary: #F5F5F5;
+  --org-text-secondary: #C8D0D8;
+  --org-text-tertiary: #9AABB8;
+  
+  --org-accent-soft: rgba(184, 155, 94, 0.08);
+  --org-accent-medium: rgba(184, 155, 94, 0.15);
+  
+  --org-sidebar-item-hover: rgba(184, 155, 94, 0.04);
+  --org-sidebar-item-active-bg: rgba(184, 155, 94, 0.08);
+  --org-topbar-bg: rgba(5, 5, 5, 0.85);
+  --org-border-subtle: rgba(184, 155, 94, 0.08);
 }
 
 [data-theme="dark"] .att-layout {
-  --org-accent: #34D399;
-  --org-accent-rgb: 52, 211, 153;
-  --org-accent-soft: rgba(52, 211, 153, 0.10);
-  --org-accent-medium: rgba(52, 211, 153, 0.14);
-  --org-accent-text: #6EE7B7;
+  --org-content-bg: #050505;
+  --org-content-bg-rgb: 5, 5, 5;
+  --org-sidebar-bg: #0B0B0B;
+  --org-surface-0: #0B0B0B;
+  --org-surface-1: #0D0D0D;
+  --org-surface-2: #111111;
+  --org-accent: #B89B5E;
+  --org-accent-rgb: 184, 155, 94;
+  --org-border-hover: #B89B5E;
+  --org-sidebar-item-active-border: #B89B5E;
+  --org-accent-text: #C8AE73;
+  --org-border-default: rgba(184, 155, 94, 0.20);
+  --org-sidebar-border: rgba(184, 155, 94, 0.20);
+  --org-text-primary: #F5F5F5;
+  --org-text-secondary: #C8D0D8;
+  --org-text-tertiary: #9AABB8;
+  
+  --org-accent-soft: rgba(184, 155, 94, 0.08);
+  --org-accent-medium: rgba(184, 155, 94, 0.15);
+  
+  --org-sidebar-item-hover: rgba(184, 155, 94, 0.04);
+  --org-sidebar-item-active-bg: rgba(184, 155, 94, 0.08);
+  --org-topbar-bg: rgba(5, 5, 5, 0.85);
+  --org-border-subtle: rgba(184, 155, 94, 0.08);
+}
+
+/* Base components styles overriding */
+.att-layout .org-surface {
+  background: #0D0D0D !important;
+  border: 1px solid rgba(184, 155, 94, 0.15) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+.att-layout .org-surface--elevated {
+  background: #111111 !important;
+  border: 1px solid rgba(184, 155, 94, 0.2) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55), 0 0 20px rgba(184, 155, 94, 0.03) !important;
+}
+
+/* Attendee Hero Redesign styling */
+.att-layout .org-hero {
+  background: #0B0B0B !important;
+  border: 1px solid rgba(184, 155, 94, 0.20) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 0 40px rgba(184, 155, 94, 0.03) !important;
+}
+
+.att-hero-gradient {
+  background: linear-gradient(135deg, rgba(184, 155, 94, 0.15), rgba(200, 174, 115, 0.08), rgba(5, 5, 5, 0.8)) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.att-hero-gradient::after {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -20%;
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(184, 155, 94, 0.12), transparent 70%);
+  pointer-events: none;
+}
+
+/* Button overrides */
+.att-layout .org-btn--primary {
+  background: linear-gradient(135deg, #C8AE73 0%, #B89B5E 100%) !important;
+  color: #050505 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 4px 15px rgba(184, 155, 94, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+.att-layout .org-btn--primary:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+  box-shadow: 0 6px 20px rgba(184, 155, 94, 0.4), 0 0 15px rgba(184, 155, 94, 0.15) !important;
+}
+
+.att-layout .org-btn--secondary {
+  background: #0D0D0D !important;
+  color: #F5F5F5 !important;
+  border: 1px solid rgba(184, 155, 94, 0.3) !important;
+  box-shadow: none !important;
+}
+
+.att-layout .org-btn--secondary:hover {
+  background: #111111 !important;
+  border-color: #B89B5E !important;
+  box-shadow: 0 0 12px rgba(184, 155, 94, 0.15) !important;
+  transform: translateY(-1px);
+}
+
+.att-layout .org-btn--accent {
+  background: linear-gradient(135deg, #C8AE73 0%, #B89B5E 100%) !important;
+  color: #050505 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 4px 15px rgba(184, 155, 94, 0.2) !important;
+}
+
+.att-layout .org-btn--accent:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
 }
 
 /* Attendee event browse cards */
@@ -31,12 +146,11 @@
 
 .att-event-card {
   position: relative;
-  background: var(--org-surface-1);
-  border: 1px solid var(--org-border-default);
+  background: #0D0D0D !important;
+  border: 1px solid rgba(184, 155, 94, 0.15) !important;
   border-radius: 0.85rem;
   overflow: hidden;
-  backdrop-filter: saturate(150%) blur(14px);
-  box-shadow: var(--org-shadow-sm);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
   transition: transform 0.35s cubic-bezier(0.33, 1, 0.68, 1),
               box-shadow 0.35s ease,
               border-color 0.3s ease;
@@ -44,8 +158,8 @@
 
 .att-event-card:hover {
   transform: translateY(-3px);
-  box-shadow: var(--org-shadow-lg);
-  border-color: var(--org-border-hover);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 15px rgba(184, 155, 94, 0.08) !important;
+  border-color: #B89B5E !important;
 }
 
 .att-event-card__banner {
@@ -135,13 +249,12 @@
   align-items: center;
   gap: 1rem;
   padding: 1.25rem 1.35rem;
-  background: var(--org-surface-1);
-  border: 1px solid var(--org-border-default);
+  background: #0D0D0D !important;
+  border: 1px solid rgba(184, 155, 94, 0.15) !important;
   border-radius: 0.85rem;
   text-decoration: none;
   color: inherit;
-  backdrop-filter: saturate(150%) blur(14px);
-  box-shadow: var(--org-shadow-sm);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
   transition: transform 0.3s cubic-bezier(0.33, 1, 0.68, 1),
               box-shadow 0.3s ease,
               border-color 0.3s ease;
@@ -149,8 +262,8 @@
 
 .att-quick-card:hover {
   transform: translateY(-2px);
-  box-shadow: var(--org-shadow-md);
-  border-color: var(--org-border-hover);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 15px rgba(184, 155, 94, 0.08) !important;
+  border-color: #B89B5E !important;
 }
 
 .att-quick-card__icon {
@@ -163,10 +276,15 @@
   flex-shrink: 0;
 }
 
-.att-quick-card__icon--green { background: var(--org-accent-soft); color: var(--org-accent); }
-.att-quick-card__icon--blue { background: var(--org-info-soft); color: var(--org-info); }
-.att-quick-card__icon--amber { background: var(--org-warning-soft); color: var(--org-warning); }
-.att-quick-card__icon--purple { background: rgba(108, 92, 231, 0.08); color: #6C5CE7; }
+/* Convert all card icons to gold branding */
+.att-quick-card__icon--green,
+.att-quick-card__icon--blue,
+.att-quick-card__icon--amber,
+.att-quick-card__icon--purple {
+  background: rgba(184, 155, 94, 0.08) !important;
+  color: #C8AE73 !important;
+  border: 1px solid rgba(184, 155, 94, 0.15) !important;
+}
 
 .att-quick-card__text h3 {
   font-size: 0.9rem;
@@ -283,8 +401,8 @@
 
 .att-poll-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(16, 185, 129, 0.15);
-  border-color: rgba(16, 185, 129, 0.25);
+  box-shadow: 0 12px 32px rgba(184, 155, 94, 0.12) !important;
+  border-color: rgba(184, 155, 94, 0.3) !important;
 }
 
 .poll-list {
@@ -309,14 +427,14 @@
 }
 
 .att-poll-option:hover {
-  background: var(--org-accent-soft);
+  background: rgba(184, 155, 94, 0.06) !important;
   transform: translateX(4px);
 }
 
 .att-poll-option.selected {
-  background: linear-gradient(135deg, var(--org-accent-medium), var(--org-accent-soft));
-  border-color: var(--org-accent);
-  box-shadow: 0 0 16px rgba(16, 185, 129, 0.2);
+  background: linear-gradient(135deg, rgba(184, 155, 94, 0.15), rgba(184, 155, 94, 0.05)) !important;
+  border-color: #B89B5E !important;
+  box-shadow: 0 0 16px rgba(184, 155, 94, 0.15) !important;
 }
 
 /* Vote button animations */
@@ -326,7 +444,7 @@
 
 .att-vote-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 8px 20px rgba(184, 155, 94, 0.25) !important;
 }
 
 .att-vote-btn:disabled {

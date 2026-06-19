@@ -129,9 +129,28 @@ const feedItemReveal = {
   animate: { opacity: 1, x: 0, transition: { duration: 0.3 } }
 }
 
-const fadeUp = {
-  initial: { opacity: 0, y: 30, filter: 'blur(10px)' },
-  animate: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
+const heroContainer = {
+  initial: { opacity: 0, y: 20 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: [0.22, 1, 0.36, 1],
+      staggerChildren: 0.08,
+      delayChildren: 0.1
+    }
+  }
+}
+
+const heroChildFade = {
+  initial: { opacity: 0, y: 15, filter: 'blur(4px)' },
+  animate: {
+    opacity: 1,
+    y: 0,
+    filter: 'blur(0px)',
+    transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] }
+  }
 }
 
 const Dashboard: React.FC = () => {
@@ -172,26 +191,9 @@ const Dashboard: React.FC = () => {
   const eventDateRange = `${formatDate(activeEvent.start_date)} – ${formatDate(activeEvent.end_date)}`
 
   return (
-    <motion.div variants={stagger} initial="initial" animate="animate" className="org-dashboard-container">
+    <motion.div variants={stagger} initial="initial" animate="animate" className="org-dashboard-container org-dashboard-page">
       {/* Cinematic Welcome Hero */}
-      <motion.div className="org-hero" variants={fadeUp}>
-        <div className="org-hero__content">
-          <h1 className="org-hero__title">{getGreeting()}, {displayName}</h1>
-          <p className="org-hero__desc">
-            Managing <strong>{activeEvent.name}</strong> ({eventDateRange}).
-            {activeEvent.venue && <> at {activeEvent.venue}.</>}
-            {' '}Command all credentials, ticket registrations, and agenda timelines from this control center.
-          </p>
-          <div className="org-hero__actions">
-            <Link to="/organizer/agenda" className="org-btn org-btn--primary">
-              Manage Schedule
-            </Link>
-            <Link to="/organizer/tickets" className="org-btn org-btn--secondary">
-              View Tickets
-            </Link>
-          </div>
-        </div>
-
+      <motion.div className="org-hero org-hero--immersive" variants={heroContainer} initial="initial" animate="animate">
         {/* Cinematic Media Slider */}
         <div className="org-hero__carousel">
           <AnimatePresence mode="wait">
@@ -199,32 +201,61 @@ const Dashboard: React.FC = () => {
               key={currentSlide}
               className="org-hero__slide"
               style={{ backgroundImage: `url(${HERO_SLIDES[currentSlide].image})` }}
-              initial={{ opacity: 0, scale: 1.05 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+              initial={{ opacity: 0, scale: 1.02 }}
+              animate={{ opacity: 1, scale: 1.08 }}
+              exit={{ opacity: 0 }}
+              transition={{
+                opacity: { duration: 0.8, ease: "easeInOut" },
+                scale: { duration: 4.5, ease: "linear" }
+              }}
             />
           </AnimatePresence>
-          <div className="org-hero__carousel-overlay">
-            <span className="org-badge org-badge--accent" style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }}>
-              {activeEvent.category}
-            </span>
-            <h4 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 700, marginTop: '0.4rem', textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
-              {activeEvent.name}
-            </h4>
-          </div>
+        </div>
 
-          {/* Autoplay Slide Indicators */}
-          <div className="org-hero__indicators">
-            {HERO_SLIDES.map((_, i) => (
-              <span
-                key={i}
-                className={`org-hero__dot ${currentSlide === i ? 'org-hero__dot--active' : ''}`}
-                onClick={() => setCurrentSlide(i)}
-                style={{ cursor: 'pointer' }}
-              />
-            ))}
-          </div>
+        {/* Ambient Dark Gradient Overlay */}
+        <div className="org-hero__overlay" />
+
+        {/* Floating Text Content */}
+        <div className="org-hero__content">
+          <motion.h1 className="org-hero__title" variants={heroChildFade}>
+            <span className="org-hero__greeting">{getGreeting()},</span>
+            <span className="org-hero__name">{displayName}</span>
+          </motion.h1>
+          <motion.p className="org-hero__desc" variants={heroChildFade}>
+            Managing <strong className="org-hero__event-brand">{activeEvent.name}</strong> <span className="org-hero__event-dates">({eventDateRange})</span>
+            {activeEvent.venue && <span className="org-hero__event-venue"> at {activeEvent.venue}</span>}.
+            <span className="org-hero__desc-text">Command all credentials, ticket registrations, and agenda timelines from this control center.</span>
+          </motion.p>
+          <motion.div className="org-hero__actions" variants={heroChildFade}>
+            <Link to="/organizer/agenda" className="org-btn org-btn--primary">
+              Manage Schedule
+            </Link>
+            <Link to="/organizer/tickets" className="org-btn org-btn--secondary">
+              View Tickets
+            </Link>
+          </motion.div>
+        </div>
+
+        {/* Floating Event Info Overlay in bottom right */}
+        <motion.div className="org-hero__info-overlay" variants={heroChildFade}>
+          <span className="org-badge org-badge--accent" style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }}>
+            {activeEvent.category}
+          </span>
+          <h4 style={{ color: '#fff', fontSize: '1rem', fontWeight: 700, marginTop: '0.4rem', textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
+            {activeEvent.name}
+          </h4>
+        </motion.div>
+
+        {/* Autoplay Slide Indicators */}
+        <div className="org-hero__indicators">
+          {HERO_SLIDES.map((_, i) => (
+            <span
+              key={i}
+              className={`org-hero__dot ${currentSlide === i ? 'org-hero__dot--active' : ''}`}
+              onClick={() => setCurrentSlide(i)}
+              style={{ cursor: 'pointer' }}
+            />
+          ))}
         </div>
       </motion.div>
 

@@ -290,7 +290,7 @@ const AttendeeDashboard: React.FC = () => {
         </div>
 
         {/* Decorative gradient panel */}
-        <div className="org-hero__carousel" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(59,130,246,0.1), rgba(108,92,231,0.08))' }}>
+        <div className="org-hero__carousel att-hero-gradient">
           <div style={{
             position: 'absolute',
             inset: 0,
@@ -304,14 +304,15 @@ const AttendeeDashboard: React.FC = () => {
               color: 'var(--org-text-primary)',
             }}>
               <div style={{
-                fontSize: '3.5rem',
+                fontSize: '3.8rem',
                 fontWeight: 800,
                 letterSpacing: '-0.04em',
                 lineHeight: 1,
                 marginBottom: '0.5rem',
-                background: 'linear-gradient(135deg, #10B981, #3B82F6)',
+                background: 'linear-gradient(135deg, #C8AE73, #B89B5E)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
+                fontFamily: "'General Sans', 'Satoshi', 'Geist', sans-serif",
               }}>
                 {upcomingEvents.length}
               </div>

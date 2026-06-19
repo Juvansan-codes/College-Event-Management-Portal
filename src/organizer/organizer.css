@@ -4,6 +4,8 @@
    ═══════════════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=general-sans@200,300,400,500,600,700,800,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 /* ─── Light Theme Tokens (Alabaster & Bronze Gold) ─── */
 :root,
@@ -14,6 +16,7 @@
   --org-sidebar-item-active-bg: rgba(163, 138, 103, 0.08);
   --org-sidebar-item-active-border: rgba(163, 138, 103, 0.4);
   --org-content-bg: #FAF9F6;
+  --org-content-bg-rgb: 250, 248, 245;
   --org-surface-0: #ffffff;
   --org-surface-1: rgba(255, 255, 255, 0.85);
   --org-surface-2: rgba(255, 255, 255, 0.55);
@@ -66,6 +69,7 @@
   --org-sidebar-item-active-bg: rgba(212, 178, 122, 0.08);
   --org-sidebar-item-active-border: rgba(212, 178, 122, 0.4);
   --org-content-bg: #070709;
+  --org-content-bg-rgb: 7, 7, 9;
   --org-surface-0: #0E0E12;
   --org-surface-1: rgba(14, 14, 18, 0.78);
   --org-surface-2: rgba(22, 22, 28, 0.45);
@@ -242,6 +246,10 @@
   z-index: 50;
   overflow-y: auto;
   overflow-x: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .org-sidebar__brand {
@@ -249,23 +257,23 @@
   align-items: center;
   gap: 0.6rem;
   padding: 1.5rem 1.25rem 1.15rem;
-  font-size: 1.1rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.035em;
   color: var(--org-text-primary);
   text-decoration: none;
   flex-shrink: 0;
-  font-family: 'Outfit', sans-serif;
+  font-family: 'General Sans', 'Satoshi', 'Geist', 'Inter', sans-serif;
 }
 
 .org-sidebar__label {
   padding: 1.25rem 1.25rem 0.45rem;
   font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--org-text-tertiary);
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 .org-sidebar__nav {
@@ -279,11 +287,12 @@
 .org-sidebar__item {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
-  padding: 0.55rem 0.75rem;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
   border-radius: 0.5rem;
-  font-size: 0.84rem;
+  font-size: 0.82rem;
   font-weight: 500;
+  letter-spacing: -0.015em;
   color: var(--org-text-secondary);
   text-decoration: none;
   transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -293,6 +302,7 @@
   width: 100%;
   text-align: left;
   position: relative;
+  font-family: 'Inter', sans-serif;
 }
 
 .org-sidebar__item:hover {
@@ -303,7 +313,8 @@
 .org-sidebar__item.active {
   background: var(--org-sidebar-item-active-bg);
   color: var(--org-accent-text);
-  font-weight: 600;
+  font-weight: 550;
+  letter-spacing: -0.018em;
   border-color: var(--org-sidebar-item-active-border);
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
@@ -331,20 +342,23 @@
 }
 
 .org-sidebar__active-event-name {
-  font-size: 0.84rem;
-  font-weight: 700;
+  font-size: 0.82rem;
+  font-weight: 600;
   color: var(--org-accent-text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
+  font-family: 'Inter', sans-serif;
 }
 
 .org-sidebar__active-event-meta {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   color: var(--org-text-tertiary);
   margin-top: 0.15rem;
-  font-weight: 500;
+  font-weight: 450;
+  letter-spacing: -0.01em;
+  font-family: 'Inter', sans-serif;
 }
 
 .org-sidebar__divider {
@@ -581,6 +595,113 @@
   width: 20px;
   border-radius: 3px;
   background: rgba(255,255,255,0.85);
+}
+
+/* Immersive Hero Modifiers */
+.org-hero--immersive {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  min-height: 380px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 3.5rem;
+  overflow: visible;
+}
+
+.org-hero--immersive .org-hero__carousel {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.org-hero--immersive .org-hero__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: 16px;
+  background: 
+    linear-gradient(90deg, 
+      rgba(var(--org-content-bg-rgb), 1) 0%, 
+      rgba(var(--org-content-bg-rgb), 0.95) 25%, 
+      rgba(var(--org-content-bg-rgb), 0.7) 50%, 
+      rgba(var(--org-content-bg-rgb), 0.25) 75%, 
+      transparent 100%
+    ),
+    linear-gradient(0deg, 
+      rgba(var(--org-content-bg-rgb), 1) 0%, 
+      rgba(var(--org-content-bg-rgb), 0.45) 15%, 
+      transparent 35%
+    );
+  pointer-events: none;
+}
+
+.org-hero--immersive .org-hero__content {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  max-width: 650px;
+  padding: 3rem 0 3rem 2.5rem;
+  background: none;
+}
+
+.org-hero--immersive .org-hero__desc {
+  max-width: 480px;
+}
+
+.org-hero--immersive .org-hero__info-overlay {
+  position: absolute;
+  bottom: 2.5rem;
+  right: 2.5rem;
+  z-index: 3;
+  text-align: right;
+  pointer-events: none;
+}
+
+.org-hero--immersive .org-hero__indicators {
+  position: absolute;
+  bottom: 1.25rem;
+  right: 2.5rem;
+  z-index: 3;
+  display: flex;
+  gap: 6px;
+}
+
+@media (max-width: 768px) {
+  .org-hero--immersive {
+    min-height: 340px;
+    align-items: flex-end;
+    margin-bottom: 2rem;
+  }
+  .org-hero--immersive .org-hero__content {
+    padding: 2rem 1.25rem 1.5rem;
+    max-width: 100%;
+  }
+  .org-hero--immersive .org-hero__overlay {
+    background: 
+      linear-gradient(180deg, 
+        rgba(var(--org-content-bg-rgb), 0.3) 0%, 
+        rgba(var(--org-content-bg-rgb), 0.85) 60%, 
+        rgba(var(--org-content-bg-rgb), 1) 100%
+      );
+  }
+  .org-hero--immersive .org-hero__info-overlay {
+    top: 1.5rem;
+    right: 1.5rem;
+    bottom: auto;
+    left: auto;
+    text-align: right;
+  }
+  .org-hero--immersive .org-hero__indicators {
+    bottom: 1rem;
+    right: 1.5rem;
+  }
 }
 
 
@@ -3093,5 +3214,245 @@
   }
 
   .poll-search { max-width: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ORGANIZER DASHBOARD PREMIUM TYPOGRAPHY REDESIGN
+   ═══════════════════════════════════════════════════════════════ */
+
+.org-dashboard-page {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Section titles & subtitles */
+.org-dashboard-page .org-section__title {
+  font-family: 'General Sans', 'Satoshi', 'Geist', sans-serif !important;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--org-text-primary);
+}
+
+.org-dashboard-page .org-section__subtitle {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.82rem;
+  font-weight: 450;
+  color: var(--org-text-tertiary);
+  letter-spacing: -0.01em;
+}
+
+/* Immersive Hero Welcome Title (Display Typography) */
+.org-dashboard-page .org-hero__title {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-family: 'General Sans', 'Satoshi', 'Geist', 'Inter', sans-serif !important;
+  line-height: 1.05 !important;
+  margin-bottom: 1.25rem !important;
+  letter-spacing: normal;
+}
+
+.org-dashboard-page .org-hero__greeting {
+  font-family: 'General Sans', 'Satoshi', sans-serif !important;
+  font-size: clamp(1.6rem, 3.2vw, 2.3rem);
+  font-weight: 400;
+  color: var(--org-text-secondary);
+  opacity: 0.9;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 0.15rem;
+}
+
+.org-dashboard-page .org-hero__name {
+  font-family: 'General Sans', 'Satoshi', sans-serif !important;
+  font-size: clamp(2.8rem, 6.2vw, 4.2rem);
+  font-weight: 850;
+  color: var(--org-text-primary);
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+  background: linear-gradient(135deg, var(--org-text-primary) 30%, var(--org-accent-text) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
+}
+
+/* Event Info Hierarchy within Description */
+.org-dashboard-page .org-hero__desc {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  font-weight: 450;
+  color: var(--org-text-secondary);
+  max-width: 480px;
+  margin-bottom: 1.75rem !important;
+}
+
+.org-dashboard-page .org-hero__event-brand {
+  font-family: 'General Sans', 'Satoshi', sans-serif !important;
+  font-weight: 700;
+  font-size: 1.02rem;
+  letter-spacing: -0.02em;
+  color: var(--org-accent-text);
+  margin-right: 0.15rem;
+}
+
+.org-dashboard-page .org-hero__event-dates {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: var(--org-text-tertiary);
+  letter-spacing: -0.01em;
+}
+
+.org-dashboard-page .org-hero__event-venue {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 450;
+  font-size: 0.85rem;
+  color: var(--org-text-secondary);
+}
+
+.org-dashboard-page .org-hero__desc-text {
+  display: block;
+  margin-top: 0.6rem;
+  font-size: 0.85rem;
+  color: var(--org-text-secondary);
+  opacity: 0.85;
+  line-height: 1.55;
+}
+
+/* Floating event info details (bottom right) */
+.org-dashboard-page .org-hero__info-overlay h4 {
+  font-family: 'General Sans', 'Satoshi', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em;
+}
+
+/* Button Typography & Spacing */
+.org-dashboard-page .org-btn {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 550;
+  letter-spacing: -0.015em;
+  font-size: 0.84rem;
+  padding: 0.55rem 1.25rem;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Metric/Stat Cards */
+.org-dashboard-page .org-stats-grid {
+  margin-bottom: 2.75rem !important;
+}
+
+.org-dashboard-page .org-stat-card {
+  padding: 1.35rem 1.5rem !important;
+}
+
+.org-dashboard-page .org-stat-card__value {
+  font-family: 'General Sans', 'Satoshi', 'Geist', sans-serif !important;
+  font-size: 2.25rem !important;
+  font-weight: 750 !important;
+  letter-spacing: -0.04em !important;
+  line-height: 1.1 !important;
+  color: var(--org-text-primary);
+  margin-bottom: 0.2rem !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.org-dashboard-page .org-stat-card__label {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  color: var(--org-text-tertiary) !important;
+  margin-bottom: 0.45rem !important;
+}
+
+.org-dashboard-page .org-stat-card__trend {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.010em !important;
+}
+
+/* Workspace Modules */
+.org-dashboard-page .org-module-card__title {
+  font-family: 'General Sans', 'Satoshi', sans-serif !important;
+  font-size: 1rem !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.org-dashboard-page .org-module-card__desc {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.82rem !important;
+  font-weight: 450 !important;
+  line-height: 1.5 !important;
+  color: var(--org-text-secondary);
+}
+
+.org-dashboard-page .org-module-card__cta {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 550 !important;
+  font-size: 0.78rem !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Upcoming Timeline Scroll */
+.org-dashboard-page .org-event-card__name {
+  font-family: 'General Sans', 'Satoshi', sans-serif !important;
+  font-weight: 650 !important;
+  font-size: 0.95rem !important;
+  letter-spacing: -0.02em !important;
+}
+
+.org-dashboard-page .org-event-card__meta {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.76rem !important;
+  font-weight: 450 !important;
+  color: var(--org-text-tertiary);
+}
+
+.org-dashboard-page .org-event-card__date-badge {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 550 !important;
+  font-size: 0.72rem !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Recent Operations activity feed */
+.org-dashboard-page .org-activity__text {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.82rem !important;
+  font-weight: 400 !important;
+  color: var(--org-text-secondary);
+  line-height: 1.45;
+}
+
+.org-dashboard-page .org-activity__text strong {
+  font-family: 'General Sans', 'Satoshi', sans-serif !important;
+  font-weight: 600 !important;
+  color: var(--org-text-primary);
+  letter-spacing: -0.01em !important;
+}
+
+.org-dashboard-page .org-activity__time {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.72rem !important;
+  font-weight: 450 !important;
+  color: var(--org-text-tertiary);
+  margin-top: 0.15rem;
+}
+
+.org-dashboard-page .org-badge {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 550 !important;
+  font-size: 0.68rem !important;
+  letter-spacing: 0.02em !important;
 }
 
