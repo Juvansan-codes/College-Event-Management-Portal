@@ -92,7 +92,7 @@ export const certificationService = {
       if (batchError) return { data: null, error: batchError.message }
 
       const typedBatch = batch as CertificateBatch
-      
+
       // 3. Delete existing certificates for this batch
       const { error: deleteError } = await supabase
         .from('event_certificates')
