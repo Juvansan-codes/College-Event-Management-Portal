@@ -78,6 +78,13 @@ const SwitchIcon = () => (
   </svg>
 )
 
+const CloseIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18"></line>
+    <line x1="6" y1="6" x2="18" y2="18"></line>
+  </svg>
+)
+
 interface NavItem {
   to: string
   label: string
@@ -95,7 +102,12 @@ const NAV_ITEMS: NavItem[] = [
   { to: '/organizer/polls', label: 'Polls', icon: <PollIcon /> },
 ]
 
-const OrganizerSidebar: React.FC = () => {
+interface OrganizerSidebarProps {
+  isOpen?: boolean
+  onClose?: () => void
+}
+
+const OrganizerSidebar: React.FC<OrganizerSidebarProps> = ({ isOpen = false, onClose }) => {
   const location = useLocation()
   const { activeEvent } = useEvent()
 
@@ -108,12 +120,20 @@ const OrganizerSidebar: React.FC = () => {
   const isEventSelected = Boolean(activeEvent)
 
   return (
-    <aside className="org-sidebar">
+    <aside className={`org-sidebar ${isOpen ? 'open' : ''}`}>
       {/* Brand */}
-      <Link to="/organizer" className="org-sidebar__brand">
-        <FestForgeLogo size={20} />
-        FestForge
-      </Link>
+      <div className="flex items-center justify-between px-5 pt-6 pb-4">
+        <Link to="/organizer" className="flex items-center gap-2.5 text-[1.15rem] font-bold tracking-tight text-[var(--org-text-primary)] no-underline" style={{ fontFamily: "'General Sans', sans-serif" }}>
+          <FestForgeLogo size={20} />
+          FestForge
+        </Link>
+        <button 
+          className="lg:hidden p-1.5 -mr-1 rounded-md text-[var(--org-text-secondary)] hover:text-[var(--org-text-primary)] transition-colors hover:bg-white/5"
+          onClick={onClose}
+        >
+          <CloseIcon />
+        </button>
+      </div>
 
       {/* Active Event Display */}
       {isEventSelected && (

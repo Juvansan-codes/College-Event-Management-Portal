@@ -345,7 +345,7 @@
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--org-accent-text);
-  overflow: hidden;
+  overflow-x: auto; overflow-y: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   letter-spacing: -0.015em;
@@ -391,7 +391,6 @@
   margin-bottom: 0.35rem;
   font-family: 'Outfit', sans-serif;
 }
-
 .org-page-header__title {
   font-family: 'Outfit', sans-serif;
   font-size: clamp(1.8rem, 2.8vw, 2.3rem);
@@ -471,7 +470,7 @@
 .org-hero {
   position: relative;
   border-radius: 1rem;
-  overflow: hidden;
+  overflow-x: auto; overflow-y: hidden;
   margin-bottom: 2rem;
   min-height: 320px;
   display: flex;
@@ -542,7 +541,7 @@
 .org-hero__carousel {
   position: relative;
   flex: 1;
-  overflow: hidden;
+  overflow-x: auto; overflow-y: hidden;
 }
 
 .org-hero__slide {
@@ -618,7 +617,7 @@
   height: 100%;
   z-index: 1;
   border-radius: 16px;
-  overflow: hidden;
+  overflow-x: auto; overflow-y: hidden;
 }
 
 .org-hero--immersive .org-hero__overlay {
@@ -675,12 +674,12 @@
 
 @media (max-width: 768px) {
   .org-hero--immersive {
-    min-height: 340px;
+    min-height: 220px;
     align-items: flex-end;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
   }
   .org-hero--immersive .org-hero__content {
-    padding: 2rem 1.25rem 1.5rem;
+    padding: 1.5rem 1rem 1rem;
     max-width: 100%;
   }
   .org-hero--immersive .org-hero__overlay {
@@ -692,11 +691,7 @@
       );
   }
   .org-hero--immersive .org-hero__info-overlay {
-    top: 1.5rem;
-    right: 1.5rem;
-    bottom: auto;
-    left: auto;
-    text-align: right;
+    display: none;
   }
   .org-hero--immersive .org-hero__indicators {
     bottom: 1rem;
@@ -784,6 +779,7 @@
   font-weight: 600;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.2rem;
 }
 .org-stat-card__trend--up { color: var(--org-success); }
@@ -822,7 +818,7 @@
   background: var(--org-surface-1);
   border: 1px solid var(--org-border-default);
   border-radius: 0.85rem;
-  overflow: hidden;
+  overflow-x: auto; overflow-y: hidden;
   text-decoration: none;
   color: inherit;
   display: flex;
@@ -845,47 +841,90 @@
   position: relative;
   height: 170px;
   overflow: hidden;
-  background: var(--org-accent-soft);
+  background: var(--org-surface-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid var(--org-border-default);
 }
 
-.org-module-card__img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s cubic-bezier(0.33, 1, 0.68, 1);
-}
-
-.org-module-card:hover .org-module-card__img {
-  transform: scale(1.06);
-}
-
-/* glass overlay on hover */
-.org-module-card__visual::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    transparent 40%,
-    rgba(0, 0, 0, 0.35) 100%
-  );
-  opacity: 0.5;
-  transition: opacity 0.35s ease;
-}
-
-.org-module-card:hover .org-module-card__visual::after {
-  opacity: 0.7;
-}
-
-/* gradient icon placeholder when no image */
-.org-module-card__visual-icon {
+/* Base Mock UI Container */
+.mock-ui-container {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  background-size: 20px 20px;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
   z-index: 1;
 }
+
+/* 1. Certification Generator */
+.mock-cert { background: radial-gradient(circle at center, rgba(212, 178, 122, 0.05), transparent 60%); }
+.mock-cert-card {
+  width: 120px; height: 80px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(212, 178, 122, 0.2);
+  border-radius: 6px;
+  padding: 10px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  transition: transform 0.4s ease;
+}
+.org-module-card:hover .mock-cert-card { transform: scale(1.05) translateY(-2px); border-color: rgba(212, 178, 122, 0.5); }
+.mock-cert-badge { width: 24px; height: 24px; border-radius: 50%; background: rgba(212, 178, 122, 0.15); border: 1px solid rgba(212, 178, 122, 0.4); box-shadow: 0 0 10px rgba(212, 178, 122, 0.2); transition: box-shadow 0.3s ease; }
+.org-module-card:hover .mock-cert-badge { box-shadow: 0 0 15px rgba(212, 178, 122, 0.6); }
+.mock-line { height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; width: 80%; }
+.mock-line--title { width: 50%; height: 4px; background: rgba(212, 178, 122, 0.3); }
+.mock-line--short { width: 30%; }
+
+/* 2. Agenda Planner */
+.mock-agenda { background: radial-gradient(circle at top right, rgba(197, 162, 101, 0.05), transparent 70%); }
+.mock-agenda-sidebar { width: 20px; height: 100px; border-right: 1px dashed rgba(197, 162, 101, 0.2); margin-right: 15px; }
+.mock-agenda-grid { display: flex; flex-direction: column; gap: 8px; width: 100px; }
+.mock-agenda-block { height: 16px; border-radius: 3px; background: rgba(197, 162, 101, 0.1); border-left: 2px solid rgba(197, 162, 101, 0.5); transition: transform 0.3s ease; }
+.mock-agenda-block--1 { width: 80%; }
+.mock-agenda-block--2 { width: 60%; margin-left: 10px; }
+.mock-agenda-block--3 { width: 90%; }
+.org-module-card:hover .mock-agenda-block { transform: translateX(4px); background: rgba(197, 162, 101, 0.15); }
+
+/* 3. Sponsorship Manager */
+.mock-kanban { display: flex; gap: 8px; background: radial-gradient(circle at bottom left, rgba(163, 138, 103, 0.05), transparent 70%); }
+.mock-kanban-col { display: flex; flex-direction: column; gap: 6px; width: 35px; height: 100px; background: rgba(255,255,255,0.01); border-radius: 4px; padding: 4px; }
+.mock-kanban-card { height: 20px; background: rgba(255,255,255,0.04); border-radius: 3px; border: 1px solid rgba(255,255,255,0.05); transition: transform 0.3s ease, background 0.3s ease; }
+.mock-kanban-card--accent { background: rgba(163, 138, 103, 0.15); border-color: rgba(163, 138, 103, 0.4); }
+.org-module-card:hover .mock-kanban-card { transform: translateY(-2px); }
+.org-module-card:hover .mock-kanban-card--accent { box-shadow: 0 4px 10px rgba(163, 138, 103, 0.2); }
+
+/* 4. Registration & Tickets */
+.mock-ticket-wrap { background: radial-gradient(circle at center, rgba(181, 155, 115, 0.05), transparent 60%); }
+.mock-ticket { width: 140px; height: 60px; background: rgba(255,255,255,0.02); border: 1px solid rgba(181, 155, 115, 0.3); border-radius: 8px; position: relative; display: flex; align-items: center; justify-content: flex-end; padding-right: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); overflow: hidden; transition: transform 0.4s ease; }
+.org-module-card:hover .mock-ticket { transform: scale(1.05) rotate(1deg); border-color: rgba(181, 155, 115, 0.6); }
+.mock-ticket-hole { position: absolute; width: 12px; height: 12px; background: var(--org-surface-2); border-radius: 50%; right: 40px; border: 1px solid rgba(181, 155, 115, 0.3); }
+.mock-ticket-hole--top { top: -7px; border-bottom: none; }
+.mock-ticket-hole--bottom { bottom: -7px; border-top: none; }
+.mock-ticket-barcode { display: flex; gap: 3px; }
+.mock-barcode-line { width: 2px; height: 30px; background: rgba(255,255,255,0.15); }
+.mock-laser-scanner { position: absolute; width: 100%; height: 2px; background: rgba(181, 155, 115, 0.8); top: 0; left: 0; box-shadow: 0 0 10px rgba(181, 155, 115, 0.8); opacity: 0; transition: opacity 0.3s ease; }
+.org-module-card:hover .mock-laser-scanner { opacity: 1; animation: scanLaser 1.5s ease-in-out infinite alternate; }
+@keyframes scanLaser { 0% { top: 10%; } 100% { top: 90%; } }
+
+/* 5. Polls & Engagement */
+.mock-chart { background: radial-gradient(circle at center, rgba(140, 113, 76, 0.05), transparent 60%); }
+.mock-chart-bg { display: flex; align-items: flex-end; gap: 8px; height: 80px; width: 120px; border-bottom: 1px solid rgba(140, 113, 76, 0.2); position: relative; }
+.mock-chart-bar { width: 16px; background: rgba(255,255,255,0.03); border-radius: 3px 3px 0 0; border: 1px solid rgba(255,255,255,0.05); border-bottom: none; transition: height 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease; }
+.mock-chart-bar--1 { height: 30px; }
+.mock-chart-bar--2 { height: 50px; background: rgba(140, 113, 76, 0.1); border-color: rgba(140, 113, 76, 0.3); }
+.mock-chart-bar--3 { height: 20px; }
+.mock-chart-bar--4 { height: 65px; background: rgba(140, 113, 76, 0.2); border-color: rgba(140, 113, 76, 0.5); }
+.org-module-card:hover .mock-chart-bar--1 { height: 40px; }
+.org-module-card:hover .mock-chart-bar--2 { height: 70px; background: rgba(140, 113, 76, 0.2); }
+.org-module-card:hover .mock-chart-bar--3 { height: 35px; }
+.org-module-card:hover .mock-chart-bar--4 { height: 50px; background: rgba(140, 113, 76, 0.3); }
+.mock-chart-pulse-node { position: absolute; top: 10px; right: 10px; width: 6px; height: 6px; background: #8C714C; border-radius: 50%; box-shadow: 0 0 0 0 rgba(140, 113, 76, 0.4); animation: pulseNode 2s infinite; }
+@keyframes pulseNode { 0% { box-shadow: 0 0 0 0 rgba(140, 113, 76, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(140, 113, 76, 0); } 100% { box-shadow: 0 0 0 0 rgba(140, 113, 76, 0); } }
 
 .org-module-card__body {
   padding: 1.25rem 1.35rem;
@@ -1114,7 +1153,7 @@
   background: var(--org-surface-1);
   border: 1px solid var(--org-border-default);
   border-radius: 0.85rem;
-  overflow: hidden;
+  overflow-x: auto; overflow-y: hidden;
   box-shadow: var(--org-shadow-sm);
   backdrop-filter: saturate(150%) blur(14px);
 }
@@ -1341,7 +1380,7 @@
   scroll-snap-align: start;
   position: relative;
   border-radius: 0.85rem;
-  overflow: hidden;
+  overflow-x: auto; overflow-y: hidden;
   background: var(--org-surface-1);
   border: 1px solid var(--org-border-default);
   box-shadow: var(--org-shadow-sm);
@@ -1358,7 +1397,7 @@
 .org-event-card__banner {
   height: 120px;
   position: relative;
-  overflow: hidden;
+  overflow-x: auto; overflow-y: hidden;
 }
 
 .org-event-card__banner img {
@@ -1424,7 +1463,7 @@
   height: 6px;
   background: var(--org-progress-track);
   border-radius: 999px;
-  overflow: hidden;
+  overflow-x: auto; overflow-y: hidden;
 }
 
 .org-progress__fill {
@@ -1577,7 +1616,7 @@
   text-align: center;
   box-shadow: var(--org-shadow-sm);
   backdrop-filter: saturate(150%) blur(14px);
-  overflow: hidden;
+  overflow-x: auto; overflow-y: hidden;
   transition: transform 0.3s cubic-bezier(0.33, 1, 0.68, 1),
               box-shadow 0.3s ease;
 }
@@ -1655,7 +1694,7 @@
   border-radius: 0.85rem;
   padding: 1.35rem;
   box-shadow: var(--org-shadow-sm);
-  overflow: hidden;
+  overflow-x: auto; overflow-y: hidden;
   backdrop-filter: saturate(150%) blur(14px);
   transition: transform 0.3s cubic-bezier(0.33, 1, 0.68, 1), box-shadow 0.3s ease;
 }
@@ -1756,7 +1795,7 @@
   background: var(--org-progress-track);
   border-radius: 0.45rem;
   position: relative;
-  overflow: hidden;
+  overflow-x: auto; overflow-y: hidden;
 }
 
 .org-poll-bar-fill {
@@ -1797,7 +1836,7 @@
   background: #ffffff;
   border: 1px solid var(--org-border-default);
   border-radius: 0.85rem;
-  overflow: hidden;
+  overflow-x: auto; overflow-y: hidden;
   box-shadow: var(--org-shadow-lg);
   display: flex;
   flex-direction: column;
@@ -1981,7 +2020,7 @@
 }
 
 @media (max-width: 768px) {
-  .org-sidebar { display: none; }
+  
   .org-layout__content { margin-left: 0; }
   .org-layout__main { padding: 1rem; }
   .org-topbar { padding: 0 1rem; }
@@ -2204,7 +2243,7 @@
 .org-btn {
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
   position: relative;
-  overflow: hidden;
+  overflow-x: auto; overflow-y: hidden;
 }
 
 .org-btn::before {
@@ -2303,7 +2342,7 @@
 .attendance-user-id {
   max-width: 240px;
   margin-top: 0.15rem;
-  overflow: hidden;
+  overflow-x: auto; overflow-y: hidden;
   color: var(--org-text-tertiary);
   font-size: 0.69rem;
   text-overflow: ellipsis;
@@ -2346,6 +2385,12 @@
   grid-template-columns: 1.2fr 1fr;
   gap: 1.5rem;
   margin-top: 0.5rem;
+}
+
+.org-pipeline-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
 }
 
 /* Notion Calendar timeline layout styles */
@@ -2416,7 +2461,7 @@
   flex-direction: column;
   justify-content: space-between;
   transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  overflow: hidden;
+  overflow-x: auto; overflow-y: hidden;
 }
 
 .org-calendar-card::before {
@@ -2460,7 +2505,7 @@
   margin-bottom: 0.15rem;
   white-space: nowrap;
   text-overflow: ellipsis;
-  overflow: hidden;
+  overflow-x: auto; overflow-y: hidden;
 }
 
 .org-calendar-card__footer-meta {
@@ -2482,7 +2527,7 @@
   background: var(--org-surface-1);
   border: 1px solid var(--org-border-default);
   border-radius: 1rem;
-  overflow: hidden;
+  overflow-x: auto; overflow-y: hidden;
   box-shadow: var(--org-shadow-lg);
   aspect-ratio: 2.15;
   width: 100%;
@@ -3456,3 +3501,118 @@
   letter-spacing: 0.02em !important;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE DESIGN (MOBILE & TABLET)
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 1024px) {
+  .org-sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  .org-sidebar.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+  }
+  .org-layout__content {
+    margin-left: 0;
+  }
+  .org-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  /* Overlay */
+  .org-sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 45; opacity: 0; visibility: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  .org-sidebar-overlay.open {
+    opacity: 1;
+    visibility: visible;
+  }
+  .org-split-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .org-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  .org-dashboard-page .org-stats-grid {
+    margin-bottom: 1.5rem !important;
+  }
+  .org-dashboard-page .org-stat-card {
+    padding: 0.85rem 0.95rem !important;
+    border-radius: 0.75rem;
+  }
+  .org-stat-card__icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 0.4rem;
+  }
+  .org-stat-card__icon svg {
+    width: 14px;
+    height: 14px;
+  }
+  .org-dashboard-page .org-stat-card__value {
+    font-size: 1.5rem !important;
+    margin-bottom: 0.15rem !important;
+  }
+  .org-dashboard-page .org-stat-card__label {
+    font-size: 0.62rem !important;
+    margin-bottom: 0.3rem !important;
+  }
+  .org-dashboard-page .org-stat-card__trend {
+    font-size: 0.62rem !important;
+  }
+  .org-layout__main {
+    padding: 1rem 1rem 4rem;
+  }
+  .org-topbar {
+    padding: 0 1.25rem;
+  }
+  .org-page-header {
+    margin-bottom: 1.75rem;
+  }
+  .org-page-header__row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .org-page-header__actions {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  .org-hero--immersive {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .org-hero__content {
+    width: 100%;
+    padding: 2rem 1.5rem;
+  }
+  .org-hero--immersive .org-hero__content {
+    padding: 2rem 1.5rem;
+  }
+  .org-calendar-container {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+  .org-calendar-time-axis {
+    display: none; /* Hide time axis on small mobile screens */
+  }
+  .org-calendar-canvas {
+    margin-left: 0 !important; /* Reset margin from time axis */
+  }
+  .org-pipeline-grid {
+    grid-template-columns: 1fr;
+  }
+}

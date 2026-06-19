@@ -52,7 +52,7 @@ const EventStage: React.FC = () => {
     <section
       ref={sectionRef}
       className="event-stage-section"
-      style={{ height: '200vh' }}
+      style={{ height: '200vh', position: 'relative' }}
       id="event-stage"
     >
       <div className="event-stage-sticky">

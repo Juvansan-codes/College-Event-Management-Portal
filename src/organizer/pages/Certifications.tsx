@@ -690,8 +690,7 @@ const Certifications: React.FC = () => {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: '2rem', alignItems: 'start' }}>
-        {/* Left: Settings */}
+      <div className="org-split-grid" style={{ alignItems: 'start' }}>
         <motion.div variants={fadeUp} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           
           {/* Upload template file dropzone */}

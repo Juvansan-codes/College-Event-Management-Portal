@@ -28,7 +28,7 @@ const Hero: React.FC = () => {
           style={{
             fontFamily: "'Outfit', sans-serif",
             fontWeight: 300,
-            fontSize: 'clamp(2.8rem, 7vw, 4.8rem)',
+            fontSize: 'clamp(2.2rem, 8vw, 4.8rem)',
             lineHeight: 1.1,
             letterSpacing: '-0.03em',
             color: 'var(--text-primary)',
@@ -59,6 +59,7 @@ const Hero: React.FC = () => {
           {...fadeUp(0.36)}
           style={{
             display: 'flex',
+            flexWrap: 'wrap',
             gap: '0.75rem',
             justifyContent: 'center',
             marginBottom: '3.5rem',

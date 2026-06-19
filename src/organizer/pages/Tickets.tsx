@@ -227,7 +227,7 @@ const Tickets: React.FC = () => {
       )}
 
       {/* Analytics Dashboard Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '1.5rem', marginBottom: '2rem', alignItems: 'stretch' }}>
+      <div className="org-split-grid" style={{ marginBottom: '2rem', alignItems: 'stretch' }}>
         
         {/* SVG Registration Analytics Area Chart */}
         <motion.div className="org-surface org-surface--elevated" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }} variants={fadeUp}>
@@ -346,7 +346,7 @@ const Tickets: React.FC = () => {
       )}
 
       {/* Ticket Preview Mock & Registrations Roster */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '1.5rem', alignItems: 'start' }}>
+      <div className="org-split-grid" style={{ alignItems: 'start' }}>
         
         {/* Attendee Registrations */}
         <motion.div variants={fadeUp}>

@@ -264,7 +264,7 @@ const Sponsorships: React.FC = () => {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '1.5rem', marginBottom: '2rem', alignItems: 'stretch' }}>
+      <div className="org-split-grid" style={{ marginBottom: '2rem', alignItems: 'stretch' }}>
         <motion.div className="org-surface org-surface--elevated" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }} variants={fadeUp}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
             <div>
@@ -291,7 +291,7 @@ const Sponsorships: React.FC = () => {
           </div>
         </motion.div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        <div className="org-stats-grid" style={{ gap: '1rem' }}>
           <StatCard icon={<StarIcon />} label="Total Sponsors" value={sponsors.length} colorClass="accent" index={0} />
           <StatCard icon={<TrendIcon />} label="Conversion Rate" value={conversionRate} suffix="%" colorClass="info" index={1} />
         </div>
@@ -364,7 +364,7 @@ const Sponsorships: React.FC = () => {
         </div>
       </motion.div>
 
-      <div className="org-pipeline-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
+      <div className="org-pipeline-grid" style={{ marginBottom: '2rem' }}>
         {PIPELINE_COLUMNS.map((col) => {
           const colSponsors = sponsors.filter((s) => s.pipelineStage === col.id)
           return (

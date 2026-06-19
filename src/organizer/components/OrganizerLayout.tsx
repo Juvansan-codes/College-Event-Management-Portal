@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Outlet, useLocation, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import OrganizerSidebar from './OrganizerSidebar'
@@ -31,20 +31,53 @@ const pageTransition = {
   ease: [0.25, 0.1, 0.25, 1],
 }
 
+const MenuIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="3" y1="12" x2="21" y2="12"></line>
+    <line x1="3" y1="6" x2="21" y2="6"></line>
+    <line x1="3" y1="18" x2="21" y2="18"></line>
+  </svg>
+)
+
 const OrganizerLayout: React.FC = () => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const location = useLocation()
   const currentLabel = BREADCRUMBS[location.pathname] || 'Page'
   const isSubPage = location.pathname !== '/organizer'
 
+  useEffect(() => {
+    setIsSidebarOpen(false)
+  }, [location.pathname])
+
   return (
     <EventProvider>
       <div className="org-layout">
-        <OrganizerSidebar />
+        <div 
+          className={`org-sidebar-overlay ${isSidebarOpen ? 'open' : ''} lg:hidden block`}
+          onClick={() => setIsSidebarOpen(false)}
+        />
+        <OrganizerSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
         <div className="org-layout__content">
           {/* Top Bar */}
           <header className="org-topbar">
             <div className="org-topbar__breadcrumb">
+              <button 
+                className="p-1.5 mr-2 -ml-2 rounded-md transition-colors"
+                style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.05)',
+                  display: 'none', // Hidden on desktop via CSS, shown via media query inline
+                }}
+                onClick={() => setIsSidebarOpen(true)}
+              >
+                <div className="lg:hidden block"><MenuIcon /></div>
+              </button>
+              <style>{`
+                @media (max-width: 1024px) {
+                  .org-topbar__breadcrumb > button { display: block !important; }
+                }
+              `}</style>
               <Link to="/organizer">Events</Link>
               {isSubPage && (
                 <>
