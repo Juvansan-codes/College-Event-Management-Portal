@@ -16,14 +16,43 @@ export interface FestEvent {
 
 export type CreateEventPayload = Omit<FestEvent, 'id' | 'organizer_id' | 'created_at'>
 
-export type SponsorTier = 'Platinum' | 'Gold' | 'Silver'
+export interface SponsorPackage {
+  id: string
+  event_id: string
+  name: string
+  price: number
+  slots: number
+  color_hex: string
+  features: string[]
+  created_at: string
+  updated_at: string
+}
+
+export type CreateSponsorPackagePayload = Omit<SponsorPackage, 'id' | 'event_id' | 'created_at' | 'updated_at'>
+
+export type TicketTierType = 'free' | 'paid' | 'early_bird' | 'vip'
+
+export interface TicketTier {
+  id: string
+  event_id: string
+  name: string
+  type: TicketTierType
+  price: number
+  capacity: number
+  color_hex: string
+  created_at: string
+  updated_at: string
+}
+
+export type CreateTicketTierPayload = Omit<TicketTier, 'id' | 'event_id' | 'created_at' | 'updated_at'>
+
 export type SponsorPipelineStage = 'Contacted' | 'Proposal' | 'Negotiating' | 'Confirmed'
 
 export interface EventSponsor {
   id: string
   event_id: string
   name: string
-  tier: SponsorTier
+  package_id: string | null
   amount: number
   contact_email: string
   pipeline_stage: SponsorPipelineStage
@@ -33,7 +62,7 @@ export interface EventSponsor {
 
 export interface CreateSponsorPayload {
   name: string
-  tier: SponsorTier
+  package_id: string | null
   amount: number
   contact_email: string
 }

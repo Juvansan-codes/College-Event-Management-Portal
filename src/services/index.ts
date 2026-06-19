@@ -12,4 +12,5 @@ export { pollService } from './pollService'
 export { registrationService } from './registrationService'
 export { certificationService } from './certificationService'
 export { emailService } from './emailService'
+export { agendaService } from './agendaService'
 

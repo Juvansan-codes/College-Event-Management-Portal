@@ -1,5 +1,5 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
-import type { ApiResult } from '../types'
+import type { ApiResult, TicketTier, CreateTicketTierPayload } from '../types'
 
 export interface EventRegistration {
   id: string
@@ -9,8 +9,9 @@ export interface EventRegistration {
   user_email: string | null
   phone: string | null
   status: string
-  ticket_type: string
+  ticket_tier_id: string | null
   created_at: string
+  ticket_tier?: TicketTier // Added for joined queries
 }
 
 export const registrationService = {
@@ -36,7 +37,7 @@ export const registrationService = {
           user_name: userName,
           user_email: userEmail || null,
           phone: phone || null,
-          ticket_type: ticketType || 'General Admission',
+          ticket_tier_id: ticketType || null,
         })
         .select()
         .single()
@@ -114,8 +115,9 @@ export const registrationService = {
         .select(`
           id,
           status,
-          ticket_type,
+          ticket_tier_id,
           created_at,
+          ticket_tiers (*),
           events (
             id,
             name,
@@ -144,7 +146,10 @@ export const registrationService = {
     try {
       const { data, error } = await supabase
         .from('event_registrations')
-        .select('*')
+        .select(`
+          *,
+          ticket_tiers (*)
+        `)
         .eq('event_id', eventId)
         .order('user_name', { ascending: true })
 
@@ -155,6 +160,84 @@ export const registrationService = {
         data: null,
         error: err instanceof Error ? err.message : 'Failed to fetch registrations',
       }
+    }
+  },
+
+  /* ─── Ticket Tiers ─── */
+
+  async getTicketTiersByEvent(eventId: string): Promise<ApiResult<TicketTier[]>> {
+    if (!isSupabaseConfigured || !supabase) {
+      return { data: null, error: 'Database is not configured.' }
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('ticket_tiers')
+        .select('*')
+        .eq('event_id', eventId)
+        .order('price', { ascending: true })
+
+      if (error) return { data: null, error: error.message }
+      return { data: data as TicketTier[], error: null }
+    } catch (err) {
+      return { data: null, error: err instanceof Error ? err.message : 'Failed to fetch ticket tiers' }
+    }
+  },
+
+  async createTicketTier(eventId: string, payload: CreateTicketTierPayload): Promise<ApiResult<TicketTier>> {
+    if (!isSupabaseConfigured || !supabase) {
+      return { data: null, error: 'Database is not configured.' }
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('ticket_tiers')
+        .insert({ ...payload, event_id: eventId })
+        .select()
+        .single()
+
+      if (error) return { data: null, error: error.message }
+      return { data: data as TicketTier, error: null }
+    } catch (err) {
+      return { data: null, error: err instanceof Error ? err.message : 'Failed to create ticket tier' }
+    }
+  },
+
+  async updateTicketTier(tierId: string, payload: Partial<CreateTicketTierPayload>): Promise<ApiResult<TicketTier>> {
+    if (!isSupabaseConfigured || !supabase) {
+      return { data: null, error: 'Database is not configured.' }
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('ticket_tiers')
+        .update({ ...payload, updated_at: new Date().toISOString() })
+        .eq('id', tierId)
+        .select()
+        .single()
+
+      if (error) return { data: null, error: error.message }
+      return { data: data as TicketTier, error: null }
+    } catch (err) {
+      return { data: null, error: err instanceof Error ? err.message : 'Failed to update ticket tier' }
+    }
+  },
+
+  async deleteTicketTier(tierId: string): Promise<ApiResult<null>> {
+    if (!isSupabaseConfigured || !supabase) {
+      return { data: null, error: 'Database is not configured.' }
+    }
+
+    try {
+      const { error } = await supabase
+        .from('ticket_tiers')
+        .delete()
+        .eq('id', tierId)
+
+      if (error) return { data: null, error: error.message }
+      return { data: null, error: null }
+    } catch (err) {
+      return { data: null, error: err instanceof Error ? err.message : 'Failed to delete ticket tier' }
     }
   },
 }
