@@ -94,14 +94,29 @@ const FRAGMENT_SHADER = `
   void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution.xy;
     float aspect = u_resolution.x / u_resolution.y;
+    
+    // Base coordinate space
     vec2 p = (uv - 0.5) * vec2(aspect, 1.0);
+
+    // Mobile specific scaling and translation
+    // Modest zoom. We no longer shift vertically, allowing the thickest central 
+    // blobs to be gracefully hidden by the radial contrast mask.
+    if (aspect < 1.0) {
+      float zoom = 1.35;
+      p *= zoom;
+    }
 
     float t = u_time;
 
     /* Mouse influence */
     vec2 mousePos = (u_mouse - 0.5) * vec2(aspect, 1.0);
+    if (aspect < 1.0) {
+      mousePos *= 1.35;
+    }
+    
     float mouseDist = length(p - mousePos);
     float mouseWarp = smoothstep(0.6, 0.0, mouseDist) * 0.15;
+    if (aspect < 1.0) mouseWarp *= 0.4; // Soften on mobile
     p += normalize(p - mousePos + 0.001) * mouseWarp;
 
     /* ═══ Compute liquid metal height field ═══ */
