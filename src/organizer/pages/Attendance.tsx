@@ -122,8 +122,8 @@ const Attendance: React.FC = () => {
     setIsStarting(true)
     setError(null)
 
-    let lat: number
-    let lng: number
+    let lat: number = 0
+    let lng: number = 0
 
     if (useManualLocation) {
       lat = parseFloat(manualLat)
