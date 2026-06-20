@@ -1,6 +1,6 @@
 # FestForge 🎫
 
-![FestForge Banner](https://via.placeholder.com/1200x400/0f0f11/ffffff?text=FestForge+-+Enterprise+College+Event+Portal)
+
 
 **FestForge** is a premium, state-of-the-art college event management and registration portal. Built to handle everything from campus hackathons to large-scale university festivals, FestForge provides a seamless, dynamic, and beautiful interface for both Event Organizers and Attendees.
 
