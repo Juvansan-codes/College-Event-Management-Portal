@@ -1,25 +1,23 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import StatCard from '../components/StatCard'
 import { useAuth } from '../../contexts/AuthContext'
 import { useEvent } from '../../contexts/EventContext'
 import { supabase, isSupabaseConfigured } from '../../lib/supabaseClient'
+import ConstellationCanvas from '../../components/showcase3d/ConstellationCanvas'
 
 /* ─── Event Visual Slides for Cinematic Hero ─── */
 const HERO_SLIDES = [
   {
-    image: '/organizer/hero-1.png',
     title: 'World-Class Tech Fests',
     category: 'Innovation'
   },
   {
-    image: '/organizer/hero-2.png',
     title: 'Spectacular Cultural Evenings',
     category: 'Creative Arts'
   },
   {
-    image: '/organizer/hero-3.png',
     title: 'High-Energy Hackathons',
     category: 'Coding Battles'
   }
@@ -237,6 +235,7 @@ const heroChildFade = {
 
 const Dashboard: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [isClient, setIsClient] = useState(false)
   const { user } = useAuth()
   const { activeEvent, events } = useEvent()
   const navigate = useNavigate()
@@ -250,6 +249,10 @@ const Dashboard: React.FC = () => {
   const [isLoadingActivity, setIsLoadingActivity] = useState(true)
 
   const displayName = user?.user_metadata?.full_name || 'Organizer'
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   const getGreeting = () => {
     const hour = new Date().getHours()
@@ -501,21 +504,8 @@ const Dashboard: React.FC = () => {
       {/* Cinematic Welcome Hero */}
       <motion.div className="org-hero org-hero--immersive" variants={heroContainer} initial="initial" animate="animate">
         {/* Cinematic Media Slider */}
-        <div className="org-hero__carousel">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentSlide}
-              className="org-hero__slide"
-              style={{ backgroundImage: `url(${HERO_SLIDES[currentSlide].image})` }}
-              initial={{ opacity: 0, scale: 1.02 }}
-              animate={{ opacity: 1, scale: 1.08 }}
-              exit={{ opacity: 0 }}
-              transition={{
-                opacity: { duration: 0.8, ease: "easeInOut" },
-                scale: { duration: 4.5, ease: "linear" }
-              }}
-            />
-          </AnimatePresence>
+        <div className="org-hero__carousel" style={{ position: 'absolute', inset: 0, zIndex: 1, overflow: 'hidden' }}>
+          {isClient && <ConstellationCanvas activeIndex={currentSlide} />}
         </div>
 
         {/* Ambient Dark Gradient Overlay */}
