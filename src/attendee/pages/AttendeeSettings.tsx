@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 
 const AttendeeSettings: React.FC = () => {
-  const { user, role, updateRole } = useAuth()
+  const { user, updateRole } = useAuth()
   const navigate = useNavigate()
   const [isSwitching, setIsSwitching] = useState(false)
 
