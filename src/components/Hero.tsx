@@ -2,6 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import LiquidBackground from './LiquidBackground'
+import { useAuth } from '../contexts/AuthContext'
 
 /* ─── Animation Variants ─── */
 const fadeUp = (delay: number) => ({
@@ -11,6 +12,27 @@ const fadeUp = (delay: number) => ({
 })
 
 const Hero: React.FC = () => {
+  const { user, role } = useAuth()
+
+  let primaryBtnText = "Book an Event"
+  let primaryBtnLink = "/attendee/events"
+  let secondaryBtnText = "Get Started"
+  let secondaryBtnLink = "/register"
+
+  if (user) {
+    if (role === 'organizer') {
+      primaryBtnText = "Create Event"
+      primaryBtnLink = "/organizer/new-event"
+      secondaryBtnText = "Dashboard"
+      secondaryBtnLink = "/organizer"
+    } else {
+      primaryBtnText = "Browse Events"
+      primaryBtnLink = "/attendee/events"
+      secondaryBtnText = "My Tickets"
+      secondaryBtnLink = "/attendee/my-tickets"
+    }
+  }
+
   return (
     <section
       className="min-h-[100dvh] flex flex-col items-center pt-[24vh] md:pt-0 md:justify-center text-center px-6 pb-12 md:pb-0"
@@ -76,16 +98,16 @@ const Hero: React.FC = () => {
           }}
         >
           <Link
-            to="/organizer"
+            to={primaryBtnLink}
             className="hero-btn hero-btn--outline"
           >
-            Book an Event
+            {primaryBtnText}
           </Link>
           <Link
-            to="/register"
+            to={secondaryBtnLink}
             className="hero-btn hero-btn--outline"
           >
-            Get Started
+            {secondaryBtnText}
           </Link>
         </motion.div>
       </div>

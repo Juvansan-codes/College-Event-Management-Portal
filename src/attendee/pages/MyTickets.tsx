@@ -69,7 +69,7 @@ const MyTickets: React.FC = () => {
   }
 
   return (
-    <motion.div variants={stagger} initial="initial" animate="animate" className="org-dashboard-container" style={{ padding: '2rem 3rem' }}>
+    <motion.div variants={stagger} initial="initial" animate="animate" className="org-dashboard-container">
       <motion.div variants={fadeUp} style={{ marginBottom: '3rem' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--org-text-primary)' }}>My Tickets</h1>
         <p style={{ color: 'var(--org-text-secondary)', fontSize: '1.05rem', marginTop: '0.5rem' }}>
@@ -84,7 +84,7 @@ const MyTickets: React.FC = () => {
           <p style={{ color: 'var(--org-text-secondary)' }}>You haven't registered for any events yet.</p>
         </motion.div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '2rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '2rem' }}>
           {registrations.map((reg) => {
             const ticketColor = TICKET_COLORS[reg.ticket_type] || '#3B82F6'
             return (

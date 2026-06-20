@@ -2,6 +2,7 @@ import React, { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import StageCard from './StageCard'
 import stageBg from '../assets/stage4-bg.png'
+import { useAuth } from '../contexts/AuthContext'
 
 /* ─── Icons ─── */
 const ClipboardIcon: React.FC = () => (
@@ -24,6 +25,7 @@ const TicketIcon: React.FC = () => (
 
 const EventStage: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null)
+  const { user, role } = useAuth()
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -96,14 +98,16 @@ const EventStage: React.FC = () => {
               title="Organizers"
               description="Plan, manage, and execute unforgettable college events with powerful tools designed for organizers."
               icon={<ClipboardIcon />}
-              to="/organizer"
+              to={user ? (role === 'organizer' ? '/organizer' : '/attendee/events') : '/signup?role=organizer'}
+              cta={user ? (role === 'organizer' ? 'Go to Dashboard' : 'Switch in Settings') : 'Get started'}
             />
             <StageCard
               label="For"
               title="Attendees"
               description="Discover exciting events, register instantly, and never miss out on what's happening on campus."
               icon={<TicketIcon />}
-              to="/register"
+              to={user ? (role === 'student' ? '/attendee/events' : '/organizer') : '/signup?role=student'}
+              cta={user ? (role === 'student' ? 'Browse Events' : 'Switch in Settings') : 'Get started'}
             />
           </div>
         </motion.div>

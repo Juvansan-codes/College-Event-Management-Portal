@@ -10,6 +10,7 @@ interface AuthContextValue {
   role: UserRole
   isLoading: boolean
   signOut: () => Promise<void>
+  updateRole: (newRole: 'student' | 'organizer') => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue>({
@@ -17,6 +18,7 @@ const AuthContext = createContext<AuthContextValue>({
   role: null,
   isLoading: true,
   signOut: async () => {},
+  updateRole: async () => {},
 })
 
 /* ─── Hook ─── */
@@ -61,10 +63,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null)
   }
 
+  const updateRole = async (newRole: 'student' | 'organizer') => {
+    const { data } = await authService.updateRole(newRole)
+    if (data) {
+      setUser(data)
+    }
+  }
+
   const role = extractRole(user)
 
   return (
-    <AuthContext.Provider value={{ user, role, isLoading, signOut }}>
+    <AuthContext.Provider value={{ user, role, isLoading, signOut, updateRole }}>
       {children}
     </AuthContext.Provider>
   )

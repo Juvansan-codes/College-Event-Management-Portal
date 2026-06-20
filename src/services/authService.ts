@@ -107,6 +107,27 @@ export const authService = {
     }
   },
 
+  /** Update the user's role in their metadata */
+  async updateRole(newRole: 'student' | 'organizer'): Promise<ApiResult<AuthUser>> {
+    if (!isSupabaseConfigured || !supabase) {
+      return { data: null, error: 'Auth service is not configured.' }
+    }
+
+    try {
+      const { data, error } = await supabase.auth.updateUser({
+        data: { role: newRole }
+      })
+
+      if (error) return { data: null, error: error.message }
+      return { data: mapUser(data.user), error: null }
+    } catch (err) {
+      return {
+        data: null,
+        error: err instanceof Error ? err.message : 'Failed to update role',
+      }
+    }
+  },
+
   /** Sign out the current user */
   async signOut(): Promise<ApiResult<null>> {
     if (!isSupabaseConfigured || !supabase) {
