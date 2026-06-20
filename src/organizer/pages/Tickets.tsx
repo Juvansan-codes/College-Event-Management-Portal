@@ -199,7 +199,7 @@ const Tickets: React.FC = () => {
   const dArea = dLine + ` L 400 100 L 0 100 Z`
 
   return (
-    <motion.div variants={stagger} initial="initial" animate="animate" className="org-tickets-container">
+    <motion.div variants={stagger} initial="initial" animate="animate" className="org-dashboard-container">
       <PageHeader
         eyebrow="Console"
         title="Registration & Ticketing"
@@ -230,7 +230,7 @@ const Tickets: React.FC = () => {
       <div className="org-split-grid" style={{ marginBottom: '2rem', alignItems: 'stretch' }}>
         
         {/* SVG Registration Analytics Area Chart */}
-        <motion.div className="org-surface org-surface--elevated" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }} variants={fadeUp}>
+        <motion.div className="org-surface org-surface--elevated" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', minWidth: 0 }} variants={fadeUp}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
             <div>
               <span style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--org-text-tertiary)', fontWeight: 700 }}>Registration Analytics</span>
@@ -268,7 +268,7 @@ const Tickets: React.FC = () => {
         </motion.div>
 
         {/* Stats Row */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
           <StatCard icon={<UsersIcon />} label="Total Registrations" value={registrations.length} colorClass="info" index={0} />
           <StatCard icon={<DollarIcon />} label="Gross Revenue" value={totalRevenue} prefix="₹" colorClass="success" index={1} />
         </div>
@@ -349,7 +349,7 @@ const Tickets: React.FC = () => {
       <div className="org-split-grid" style={{ alignItems: 'start' }}>
         
         {/* Attendee Registrations */}
-        <motion.div variants={fadeUp}>
+        <motion.div variants={fadeUp} style={{ minWidth: 0 }}>
           <div className="org-section__header">
             <div>
               <h2 className="org-section__title">Registrations Roster</h2>
@@ -415,7 +415,7 @@ const Tickets: React.FC = () => {
         </motion.div>
 
         {/* Realistic Ticket Pass Preview */}
-        <motion.div variants={fadeUp}>
+        <motion.div variants={fadeUp} style={{ minWidth: 0 }}>
           <div className="org-section__header">
             <div>
               <h2 className="org-section__title">Ticket Visual Pass</h2>

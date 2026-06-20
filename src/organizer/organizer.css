@@ -2319,15 +2319,7 @@
   animation: fadeInScale 0.5s ease;
 }
 
-/* Badge animations */
-.org-badge {
-  transition: all 0.3s ease;
-}
-
-.org-badge:hover {
-  transform: scale(1.08);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-}
+/* Badge animations removed for static badges */
 
 .attendance-roster {
   margin-bottom: 2rem;
@@ -3603,8 +3595,9 @@
     padding: 2rem 1.5rem;
   }
   .org-calendar-container {
-    grid-template-columns: 1fr;
-    padding: 1rem;
+    grid-template-columns: 55px 1fr;
+    padding: 1rem 0.5rem 1rem 0;
+    min-height: 860px;
   }
   .org-calendar-time-axis {
     display: none; /* Hide time axis on small mobile screens */
@@ -3614,5 +3607,40 @@
   }
   .org-pipeline-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* Responsive Ticket Passes */
+  .org-ticket-pass {
+    flex-direction: column;
+    aspect-ratio: auto;
+    border-left: none;
+    border-top: 4px solid var(--ticket-theme, var(--org-accent));
+  }
+  .org-ticket-pass__main {
+    padding: 1.25rem;
+    flex: auto;
+  }
+  .org-ticket-pass__stub {
+    flex: auto;
+    border-left: none;
+    border-top: 1px solid var(--org-border-subtle);
+    padding: 1.25rem;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  .org-ticket-pass__tear-line {
+    top: auto;
+    bottom: 80px;
+    left: 10%;
+    right: 10%;
+    width: 80%;
+    height: 1px;
+    border-left: none;
+    border-top: 1px dashed var(--org-border-default);
+    display: none;
+  }
+  .org-ticket-pass__punch-hole-left,
+  .org-ticket-pass__punch-hole-right {
+    display: none;
   }
 }

@@ -111,10 +111,12 @@ const modalContentStyle: React.CSSProperties = {
   background: 'var(--org-surface)',
   border: '1px solid var(--org-border-default)',
   borderRadius: '0.8rem',
-  padding: '2rem',
-  width: '90%',
+  padding: 'clamp(1.25rem, 5vw, 2rem)',
+  width: '95%',
   maxWidth: '450px',
   boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)',
+  maxHeight: '90vh',
+  overflowY: 'auto',
 }
 
 const AttendeeDashboard: React.FC = () => {
@@ -272,14 +274,20 @@ const AttendeeDashboard: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Welcome Hero */}
-      <motion.div className="org-hero" variants={fadeUp}>
-        <div className="org-hero__content">
+      {/* Welcome Hero - Immersive Responsive Layout */}
+      <motion.div className="org-hero org-hero--immersive" variants={fadeUp}>
+        
+        {/* Full-bleed ambient background */}
+        <div className="att-hero-gradient" style={{ position: 'absolute', inset: 0, zIndex: 1 }} />
+        <div className="org-hero__overlay" style={{ zIndex: 2 }} />
+
+        {/* Floating Text Content */}
+        <div className="org-hero__content" style={{ zIndex: 3, justifyContent: 'center', padding: '3rem 2.5rem' }}>
           <h1 className="org-hero__title">{getGreeting()}, {displayName}</h1>
-          <p className="org-hero__desc">
+          <p className="org-hero__desc" style={{ maxWidth: '480px' }}>
             Welcome to your student portal. Discover exciting campus events, register instantly, and track your participation journey.
           </p>
-          <div className="org-hero__actions">
+          <div className="org-hero__actions" style={{ flexWrap: 'wrap' }}>
             <Link to="/attendee/events" className="org-btn org-btn--primary">
               Browse Events
             </Link>
@@ -289,41 +297,34 @@ const AttendeeDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Decorative gradient panel */}
-        <div className="org-hero__carousel att-hero-gradient">
+        {/* Floating Event Stat Overlay (Desktop Only) */}
+        <div className="hidden md:flex flex-col items-center justify-center" style={{ 
+          position: 'absolute',
+          bottom: '2rem',
+          right: '2.5rem',
+          zIndex: 3, 
+          background: 'rgba(255,255,255,0.05)', 
+          backdropFilter: 'blur(12px)',
+          border: '1px solid rgba(184, 155, 94, 0.2)',
+          padding: '1rem 1.5rem',
+          borderRadius: '1rem',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
+        }}>
           <div style={{
-            position: 'absolute',
-            inset: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 3,
+            fontSize: '2.5rem',
+            fontWeight: 800,
+            letterSpacing: '-0.04em',
+            lineHeight: 1,
+            marginBottom: '0.2rem',
+            background: 'linear-gradient(135deg, #C8AE73, #B89B5E)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            fontFamily: "'General Sans', 'Satoshi', sans-serif",
           }}>
-            <div style={{
-              textAlign: 'center',
-              color: 'var(--org-text-primary)',
-            }}>
-              <div style={{
-                fontSize: '3.8rem',
-                fontWeight: 800,
-                letterSpacing: '-0.04em',
-                lineHeight: 1,
-                marginBottom: '0.5rem',
-                background: 'linear-gradient(135deg, #C8AE73, #B89B5E)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                fontFamily: "'General Sans', 'Satoshi', 'Geist', sans-serif",
-              }}>
-                {upcomingEvents.length}
-              </div>
-              <div style={{
-                fontSize: '0.85rem',
-                fontWeight: 500,
-                color: 'var(--org-text-secondary)',
-              }}>
-                Events Available
-              </div>
-            </div>
+            {upcomingEvents.length}
+          </div>
+          <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#F5F5F5', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Events Available
           </div>
         </div>
       </motion.div>
@@ -380,84 +381,51 @@ const AttendeeDashboard: React.FC = () => {
         </motion.div>
       </motion.div>
 
-      <motion.div
-        initial="initial"
-        whileInView="animate"
-        viewport={{ once: true, margin: '-50px' }}
-        variants={staggerContainer}
-      >
-        <motion.div variants={cardReveal} className="org-surface org-surface--elevated" style={{ padding: '0' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{
-                background: 'var(--org-table-header-bg)',
-                borderBottom: '1px solid var(--org-border-default)',
-              }}>
-                <th style={{ padding: '0.85rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: 650, color: 'var(--org-text-tertiary)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Event</th>
-                <th style={{ padding: '0.85rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: 650, color: 'var(--org-text-tertiary)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Date</th>
-                <th style={{ padding: '0.85rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: 650, color: 'var(--org-text-tertiary)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Category</th>
-                <th style={{ padding: '0.85rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: 650, color: 'var(--org-text-tertiary)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Capacity</th>
-                <th style={{ padding: '0.85rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: 650, color: 'var(--org-text-tertiary)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Status</th>
-                <th style={{ padding: '0.85rem 1.25rem', textAlign: 'right', fontSize: '0.75rem', fontWeight: 650, color: 'var(--org-text-tertiary)', letterSpacing: '0.05em', textTransform: 'uppercase' }}></th>
-              </tr>
-            </thead>
-            <tbody>
-              {upcomingEvents.length === 0 ? (
-                <tr>
-                  <td colSpan={6} style={{ padding: '2rem', textAlign: 'center', color: 'var(--org-text-tertiary)' }}>
-                    No upcoming events found. Check back later!
-                  </td>
-                </tr>
-              ) : upcomingEvents.map((evt, idx) => {
-                const isRegistered = registeredEventIds.has(evt.id)
-                
-                return (
-                  <tr
-                    key={evt.id}
-                    style={{
-                      borderBottom: idx < upcomingEvents.length - 1 ? '1px solid var(--org-border-subtle)' : 'none',
-                      transition: 'background 0.2s ease',
-                      cursor: 'pointer',
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--org-table-row-hover)')}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+      <div className="att-event-grid">
+        {upcomingEvents.length === 0 ? (
+          <div style={{ gridColumn: '1 / -1', padding: '2rem', textAlign: 'center', color: 'var(--org-text-tertiary)', background: 'var(--org-surface)', border: '1px solid var(--org-border-default)', borderRadius: '0.85rem' }}>
+            No upcoming events found. Check back later!
+          </div>
+        ) : upcomingEvents.map((evt) => {
+          const isRegistered = registeredEventIds.has(evt.id)
+          
+          return (
+            <div key={evt.id} className="att-event-card">
+                <div 
+                  className="att-event-card__banner"
+                  style={{ background: 'linear-gradient(135deg, rgba(184, 155, 94, 0.2), rgba(184, 155, 94, 0.05))' }}
+                >
+                  <div className="att-event-card__status">
+                    <span className={`org-badge org-badge--${evt.status === 'Live' ? 'success' : evt.status === 'Draft' ? 'neutral' : 'info'}`}>
+                      {evt.status || 'Upcoming'}
+                    </span>
+                  </div>
+                </div>
+                <div className="att-event-card__body">
+                  <h3 className="att-event-card__name">{evt.name}</h3>
+                  <div className="att-event-card__date">{formatDate(evt.start_date, evt.end_date)}</div>
+                  <div className="att-event-card__meta">
+                    <span className="org-badge org-badge--neutral" style={{ padding: '0.1rem 0.4rem', fontSize: '0.65rem' }}>{evt.category || 'General'}</span>
+                    <span>{evt.max_attendees ? `${evt.max_attendees.toLocaleString()} spots` : 'Open Capacity'}</span>
+                  </div>
+                  <div 
+                    className="att-event-card__cta" 
                     onClick={() => !isRegistered && setSelectedEventForReg(evt)}
+                    style={{ cursor: isRegistered ? 'default' : 'pointer' }}
                   >
-                    <td style={{ padding: '0.9rem 1.25rem' }}>
-                      <span style={{ fontWeight: 600, color: 'var(--org-text-primary)', fontSize: '0.88rem' }}>{evt.name}</span>
-                    </td>
-                    <td style={{ padding: '0.9rem 1.25rem', fontSize: '0.84rem', color: 'var(--org-text-secondary)' }}>
-                      {formatDate(evt.start_date, evt.end_date)}
-                    </td>
-                    <td style={{ padding: '0.9rem 1.25rem' }}>
-                      <span className="org-badge org-badge--neutral">{evt.category || 'General'}</span>
-                    </td>
-                    <td style={{ padding: '0.9rem 1.25rem', fontSize: '0.84rem', color: 'var(--org-text-secondary)', fontVariantNumeric: 'tabular-nums' }}>
-                      {evt.max_attendees ? evt.max_attendees.toLocaleString() : 'Open'}
-                    </td>
-                    <td style={{ padding: '0.9rem 1.25rem' }}>
-                      <span className={`org-badge org-badge--${evt.status === 'Live' ? 'success' : evt.status === 'Draft' ? 'neutral' : 'info'}`}>
-                        {evt.status || 'Upcoming'}
+                    {isRegistered ? (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: 'var(--org-success)' }}>
+                        <CheckIcon /> Registered
                       </span>
-                    </td>
-                    <td style={{ padding: '0.9rem 1.25rem', textAlign: 'right' }}>
-                      {isRegistered ? (
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.78rem', fontWeight: 600, color: 'var(--org-success)' }}>
-                          <CheckIcon /> Registered
-                        </span>
-                      ) : (
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.78rem', fontWeight: 600, color: 'var(--org-accent-text)' }}>
-                          Register <ArrowIcon />
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </motion.div>
-      </motion.div>
+                    ) : (
+                      <>Register <ArrowIcon /></>
+                    )}
+                  </div>
+                </div>
+              </div>
+          )
+        })}
+      </div>
     </motion.div>
   )
 }

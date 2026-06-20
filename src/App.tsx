@@ -22,6 +22,7 @@ const Sponsorships = lazy(() => import('./organizer/pages/Sponsorships'))
 const Tickets = lazy(() => import('./organizer/pages/Tickets'))
 const Polls = lazy(() => import('./organizer/pages/Polls'))
 const Attendance = lazy(() => import('./organizer/pages/Attendance'))
+const OrganizerSettings = lazy(() => import('./organizer/pages/OrganizerSettings'))
 const PublicSponsorshipPage = lazy(() => import('../SponsorshipPage'))
 
 /* ─── Lazy-loaded Attendee Pages ─── */
@@ -32,6 +33,7 @@ const AttendeePolls = lazy(() => import('./attendee/pages/AttendeePolls'))
 const MyTickets = lazy(() => import('./attendee/pages/MyTickets'))
 const Events = lazy(() => import('./attendee/pages/Events'))
 const Certificates = lazy(() => import('./attendee/pages/Certificates'))
+const AttendeeSettings = lazy(() => import('./attendee/pages/AttendeeSettings'))
 
 /* ─── Loading Fallback ─── */
 const PageLoader = () => (
@@ -133,6 +135,7 @@ const AppShell: React.FC = () => {
             <Route path="tickets" element={<Tickets />} />
             <Route path="polls" element={<Polls />} />
             <Route path="attendance" element={<Attendance />} />
+            <Route path="settings" element={<OrganizerSettings />} />
           </Route>
 
           {/* Attendee Portal — protected */}
@@ -143,6 +146,7 @@ const AppShell: React.FC = () => {
             <Route path="polls" element={<AttendeePolls />} />
             <Route path="my-tickets" element={<MyTickets />} />
             <Route path="certificates" element={<Certificates />} />
+            <Route path="settings" element={<AttendeeSettings />} />
           </Route>
         </Routes>
       </Suspense>

@@ -133,7 +133,7 @@ const Events: React.FC = () => {
   }
 
   return (
-    <motion.div variants={stagger} initial="initial" animate="animate" className="org-dashboard-container" style={{ padding: '2rem 3rem' }}>
+    <motion.div variants={stagger} initial="initial" animate="animate" className="org-dashboard-container">
       
       {/* Registration Modal Overlay */}
       {createPortal(
@@ -246,7 +246,7 @@ const Events: React.FC = () => {
       </motion.div>
 
       {/* Event Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
         <AnimatePresence>
           {filteredEvents.map(evt => {
             const isRegistered = registeredEventIds.has(evt.id)

@@ -6,6 +6,7 @@ interface StageCardProps {
   title: string
   description: string
   to?: string
+  cta?: string
   icon: React.ReactNode
 }
 
@@ -14,6 +15,7 @@ const StageCard: React.FC<StageCardProps> = ({
   title,
   description,
   to = '/',
+  cta = 'Get started',
   icon,
 }) => {
   const cardRef = useRef<HTMLAnchorElement>(null)
@@ -54,7 +56,7 @@ const StageCard: React.FC<StageCardProps> = ({
       <h2 className="stage-card__title">{title}</h2>
       <p className="stage-card__description">{description}</p>
       <span className="stage-card__cta">
-        Get started
+        {cta}
         <svg
           className="stage-card__cta-arrow"
           width="16"

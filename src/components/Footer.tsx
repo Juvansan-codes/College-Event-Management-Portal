@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import FestForgeLogo from './FestForgeLogo'
+import { newsletterService } from '../services'
 
 const LinkedInIcon: React.FC = () => (
   <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
@@ -12,10 +13,26 @@ const Footer: React.FC = () => {
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email) return
+    if (!email || isLoading) return
+    
+    setIsLoading(true)
+    setErrorMsg('')
+    
+    const { error } = await newsletterService.subscribe(email)
+    
+    setIsLoading(false)
+    
+    if (error) {
+      setErrorMsg(error)
+      setTimeout(() => setErrorMsg(''), 5000)
+      return
+    }
+
     setSubscribed(true)
     setEmail('')
     setTimeout(() => setSubscribed(false), 5000)
@@ -82,7 +99,7 @@ const Footer: React.FC = () => {
       <div className="max-w-[1200px] mx-auto grid grid-cols-12 gap-y-12 gap-x-8">
         
         {/* Brand Block */}
-        <motion.div className="col-span-6 md:col-span-12 flex flex-col items-start" variants={itemVariants}>
+        <motion.div className="col-span-12 md:col-span-6 flex flex-col items-start" variants={itemVariants}>
           <div className="flex items-center gap-2.5 text-[1.35rem] font-extrabold tracking-tight mb-4 text-[#f0f0f5] font-sans">
             <FestForgeLogo size={22} />
             <span style={{ fontFamily: 'Outfit, sans-serif' }}>FestForge</span>
@@ -138,7 +155,7 @@ const Footer: React.FC = () => {
         </motion.div>
 
         {/* Newsletter/Stay Connected Column */}
-        <motion.div className="col-span-6 md:col-span-12 flex flex-col lg:items-start items-end md:items-start" variants={itemVariants}>
+        <motion.div className="col-span-12 md:col-span-6 flex flex-col items-start" variants={itemVariants}>
           <h4
             className="text-[0.78rem] font-bold mb-4 uppercase tracking-wider text-[#a0a0b5]"
             style={{ fontFamily: 'Outfit, sans-serif' }}
@@ -166,25 +183,28 @@ const Footer: React.FC = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
-                className="flex-grow bg-transparent px-3 py-2 text-[0.82rem] text-[#f0f0f5] outline-none border-none placeholder-[#505065]"
+                className="flex-grow bg-transparent px-3 py-2 text-[16px] md:text-[0.82rem] text-[#f0f0f5] outline-none border-none placeholder-[#505065]"
               />
               <button
                 type="submit"
-                className="px-4 py-2 rounded-lg text-[0.78rem] font-bold text-[#08080e] transition-all duration-300 active:scale-95 shadow-lg"
+                disabled={isLoading}
+                className="px-4 py-2 rounded-lg text-[0.78rem] font-bold text-[#08080e] transition-all duration-300 active:scale-95 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
                   background: '#f3f4f6',
                   boxShadow: '0 4px 12px rgba(255, 255, 255, 0.05)',
                 }}
                 onMouseEnter={(e) => {
+                  if (isLoading) return
                   e.currentTarget.style.background = '#ffffff'
                   e.currentTarget.style.boxShadow = '0 4px 20px rgba(255, 255, 255, 0.15)'
                 }}
                 onMouseLeave={(e) => {
+                  if (isLoading) return
                   e.currentTarget.style.background = '#f3f4f6'
                   e.currentTarget.style.boxShadow = '0 4px 12px rgba(255, 255, 255, 0.05)'
                 }}
               >
-                Join
+                {isLoading ? 'Joining...' : 'Join'}
               </button>
             </div>
             
@@ -199,6 +219,16 @@ const Footer: React.FC = () => {
                   ✓ Subscribed! Thank you for joining the forge.
                 </motion.p>
               )}
+              {errorMsg && (
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute left-0 top-full mt-2 text-[0.75rem] text-[#ef4444] font-medium"
+                >
+                  ✗ {errorMsg}
+                </motion.p>
+              )}
             </AnimatePresence>
           </form>
         </motion.div>
@@ -207,13 +237,13 @@ const Footer: React.FC = () => {
 
       {/* Bottom bar */}
       <motion.div
-        className="max-w-[1200px] mx-auto mt-20 pt-8 flex items-center justify-between text-[0.78rem] text-[#505065] border-t"
+        className="max-w-[1200px] mx-auto mt-20 pt-8 flex flex-col-reverse md:flex-row items-center justify-between gap-6 md:gap-0 text-[0.78rem] text-[#505065] border-t"
         style={{
           borderColor: 'rgba(255, 255, 255, 0.04)',
         }}
         variants={itemVariants}
       >
-        <div className="flex flex-col sm:items-start gap-1">
+        <div className="flex flex-col items-center md:items-start gap-1 text-center md:text-left">
           <span>© 2026 FestForge. All rights reserved.</span>
           <span className="text-[0.7rem] text-[#404055]">Built with high-fidelity WebGL & React.</span>
         </div>

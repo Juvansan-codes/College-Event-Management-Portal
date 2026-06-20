@@ -17,6 +17,7 @@ const BREADCRUMBS: Record<string, string> = {
   '/organizer/tickets': 'Tickets',
   '/organizer/polls': 'Polls',
   '/organizer/attendance': 'QR Attendance',
+  '/organizer/settings': 'Settings',
 }
 
 /* ─── Page Transition ─── */

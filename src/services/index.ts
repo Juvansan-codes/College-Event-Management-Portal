@@ -13,4 +13,4 @@ export { registrationService } from './registrationService'
 export { certificationService } from './certificationService'
 export { emailService } from './emailService'
 export { agendaService } from './agendaService'
-
+export { newsletterService } from './newsletterService'
