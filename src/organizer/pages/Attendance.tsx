@@ -46,6 +46,9 @@ const Attendance: React.FC = () => {
   const [records, setRecords] = useState<AttendanceRecord[]>([])
   const [radius, setRadius] = useState(100)
   const [duration, setDuration] = useState(15)
+  const [useManualLocation, setUseManualLocation] = useState(false)
+  const [manualLat, setManualLat] = useState<string>('')
+  const [manualLng, setManualLng] = useState<string>('')
   const [remaining, setRemaining] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [isStarting, setIsStarting] = useState(false)
@@ -118,14 +121,34 @@ const Attendance: React.FC = () => {
 
     setIsStarting(true)
     setError(null)
-    setMessage('Requesting the organizer device location...')
+
+    let lat: number
+    let lng: number
+
+    if (useManualLocation) {
+      lat = parseFloat(manualLat)
+      lng = parseFloat(manualLng)
+      if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+        setError('Please enter valid latitude (-90 to 90) and longitude (-180 to 180).')
+        setIsStarting(false)
+        return
+      }
+      setMessage('Starting session with manual coordinates...')
+    } else {
+      setMessage('Requesting the organizer device location...')
+    }
 
     try {
-      const position = await getCurrentPosition()
+      if (!useManualLocation) {
+        const position = await getCurrentPosition()
+        lat = position.coords.latitude
+        lng = position.coords.longitude
+      }
+
       const result = await attendanceService.startSession(
         activeEvent.id,
-        position.coords.latitude,
-        position.coords.longitude,
+        lat,
+        lng,
         radius,
         duration,
       )
@@ -228,6 +251,47 @@ const Attendance: React.FC = () => {
                 onChange={(event) => setDuration(Number(event.target.value))}
               />
             </label>
+          </div>
+
+          <div className="org-form-grid" style={{ marginTop: '1rem' }}>
+            <label className="org-label" style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer', fontWeight: 600 }}>
+              <input
+                type="checkbox"
+                checked={useManualLocation}
+                onChange={(event) => setUseManualLocation(event.target.checked)}
+                disabled={Boolean(session)}
+                style={{ width: '1.2rem', height: '1.2rem', cursor: 'pointer', accentColor: 'var(--org-accent)' }}
+              />
+              Set custom event coordinates (override device location)
+            </label>
+            {useManualLocation && (
+              <>
+                <label className="org-label">
+                  Latitude
+                  <input
+                    className="org-input"
+                    type="number"
+                    step="any"
+                    placeholder="e.g. 37.7749"
+                    value={manualLat}
+                    disabled={Boolean(session)}
+                    onChange={(event) => setManualLat(event.target.value)}
+                  />
+                </label>
+                <label className="org-label">
+                  Longitude
+                  <input
+                    className="org-input"
+                    type="number"
+                    step="any"
+                    placeholder="e.g. -122.4194"
+                    value={manualLng}
+                    disabled={Boolean(session)}
+                    onChange={(event) => setManualLng(event.target.value)}
+                  />
+                </label>
+              </>
+            )}
           </div>
 
           {session ? (
