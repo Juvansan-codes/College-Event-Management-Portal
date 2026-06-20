@@ -143,8 +143,8 @@ export const attendanceService = {
     }
   },
 
-  /** Retrieve live attendees that checked in */
-  async getLiveAttendance(eventId: string): Promise<ApiResult<AttendanceRecord[]>> {
+  /** Retrieve live attendees that checked in for a specific session */
+  async getLiveAttendance(sessionId: string): Promise<ApiResult<AttendanceRecord[]>> {
     if (!isSupabaseConfigured || !supabase) {
       return { data: null, error: 'Database is not configured.' }
     }
@@ -153,7 +153,7 @@ export const attendanceService = {
       const { data, error } = await supabase
         .from('attendance_records')
         .select('*')
-        .eq('event_id', eventId)
+        .eq('session_id', sessionId)
         .order('check_in_time', { ascending: false })
 
       if (error) return { data: null, error: formatAttendanceError(error.message) }

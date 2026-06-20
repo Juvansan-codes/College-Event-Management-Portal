@@ -67,15 +67,20 @@ const Attendance: React.FC = () => {
   const refresh = useCallback(async () => {
     if (!activeEvent) return
 
-    const [sessionResult, recordsResult] = await Promise.all([
-      attendanceService.getActiveSession(activeEvent.id),
-      attendanceService.getLiveAttendance(activeEvent.id),
-    ])
-
+    const sessionResult = await attendanceService.getActiveSession(activeEvent.id)
     if (sessionResult.error) setError(sessionResult.error)
-    if (recordsResult.error) setError(recordsResult.error)
-    setSession(sessionResult.data ?? null)
-    setRecords(recordsResult.data ?? [])
+    
+    const activeSession = sessionResult.data ?? null
+    setSession(activeSession)
+
+    if (activeSession) {
+      const recordsResult = await attendanceService.getLiveAttendance(activeSession.id)
+      if (recordsResult.error) setError(recordsResult.error)
+      setRecords(recordsResult.data ?? [])
+    } else {
+      setRecords([])
+    }
+    
     setIsLoading(false)
   }, [activeEvent])
 
