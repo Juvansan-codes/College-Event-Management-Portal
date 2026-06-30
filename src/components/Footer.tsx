@@ -96,6 +96,55 @@ const Footer: React.FC = () => {
         }}
       />
 
+      {/* Team Section */}
+      <motion.div className="max-w-[1200px] mx-auto mb-20 px-4 md:px-0" variants={itemVariants}>
+        <div className="mb-8 pl-1">
+          <h2 className="text-xl md:text-2xl font-semibold text-[#f0f0f5] mb-2" style={{ fontFamily: 'Inter, Outfit, sans-serif' }}>
+            Meet the Team
+          </h2>
+          <p className="text-[0.85rem] text-[#808095] max-w-2xl">
+            The developers behind FestForge.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-t border-l border-[rgba(255,255,255,0.08)] rounded-xl overflow-hidden">
+          {[
+            { name: 'Juvansan H', role: 'Backend', email: 'juvanherold@gmail.com', isLeader: true },
+            { name: 'Akash G', role: 'Backend', email: 'gakash@karunya.edu.in', isLeader: false },
+            { name: 'Abishek Joseph E', role: 'Frontend', email: 'Abishekjospeh@karunya.edu.in', isLeader: false },
+            { name: 'Nathaniel Kynsai Liam', role: 'Frontend', email: 'nathanielkynsai@karunya.edu.in', isLeader: false }
+          ].map((member) => (
+            <div
+              key={member.email}
+              className="p-6 border-b border-r border-[rgba(255,255,255,0.08)] flex flex-col items-start bg-transparent transition-colors duration-200 hover:bg-white/[0.02]"
+            >
+              <div className="flex items-center mb-6 w-full">
+                <span className="text-[0.65rem] uppercase tracking-widest text-[#666] font-medium">
+                  {member.role}
+                </span>
+                {member.isLeader && (
+                  <span className="ml-auto px-2 py-[2px] border border-[rgba(255,255,255,0.1)] text-[0.55rem] text-[#888] rounded-full uppercase tracking-widest">
+                    Lead
+                  </span>
+                )}
+              </div>
+              
+              <div className="w-10 h-10 rounded-full border border-[rgba(255,255,255,0.1)] bg-[#0a0a0f] flex items-center justify-center text-[0.7rem] font-mono text-[#eee] mb-5">
+                {member.name.charAt(0)}
+              </div>
+              
+              <h3 className="text-[0.95rem] font-medium text-[#eee] mb-1 font-sans">{member.name}</h3>
+              <a
+                href={`mailto:${member.email}`}
+                className="text-[0.8rem] text-[#666] hover:text-[#ccc] transition-colors truncate w-full block"
+                title={member.email}
+              >
+                {member.email}
+              </a>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+
       <div className="max-w-[1200px] mx-auto grid grid-cols-12 gap-y-12 gap-x-8">
         
         {/* Brand Block */}
